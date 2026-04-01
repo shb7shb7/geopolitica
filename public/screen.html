@@ -8,127 +8,146 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#050709;--bg2:#0a0c10;--bg3:#111520;--border:#1e2640;--gold:#c9a84c;--gold2:#e8c97a;--red:#c0392b;--green:#1a7a4a;--text:#d4d8e8;--text2:#8892b0}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow:hidden}
-h1,h2,.logo{font-family:'Cinzel',serif}
+:root{--bg:#050709;--bg2:#0a0c10;--bg3:#111520;--border:#1e2640;--gold:#c9a84c;--red:#c0392b;--green:#1a7a4a;--text:#d4d8e8;--text2:#8892b0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width:100vw;height:100vh;overflow:hidden}
 
-/* SCREENS */
-.view{display:none;width:100vw;height:100vh;flex-direction:column}
-.view.active{display:flex}
-
-/* VIDEO OVERLAY */
+/* VIDEO */
 #video-overlay{position:fixed;inset:0;background:#000;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center}
 #video-overlay.active{display:flex}
 #video-iframe{width:100%;height:100%;border:none}
-#video-skip{position:absolute;bottom:32px;right:32px;background:rgba(0,0,0,.7);color:var(--gold);border:1px solid var(--gold);border-radius:4px;padding:10px 24px;font-size:14px;cursor:pointer;font-family:'Cinzel',serif;letter-spacing:2px;z-index:101}
-.video-title-overlay{position:absolute;top:0;left:0;right:0;padding:32px;background:linear-gradient(180deg,rgba(0,0,0,.8),transparent);z-index:101}
-.video-title-overlay h2{font-size:28px;color:var(--gold);font-family:'Cinzel',serif;text-shadow:0 2px 8px rgba(0,0,0,.8)}
-.video-title-overlay p{font-size:14px;color:var(--text2);margin-top:6px}
+#video-skip{position:absolute;bottom:28px;right:28px;background:rgba(0,0,0,.8);color:var(--gold);border:1px solid var(--gold);border-radius:4px;padding:10px 22px;font-size:13px;cursor:pointer;font-family:'Cinzel',serif;letter-spacing:2px;z-index:101}
+.vt-overlay{position:absolute;top:0;left:0;right:0;padding:28px;background:linear-gradient(180deg,rgba(0,0,0,.85),transparent);z-index:101}
+.vt-overlay h2{font-size:26px;color:var(--gold);font-family:'Cinzel',serif}
+.vt-overlay p{font-size:13px;color:var(--text2);margin-top:4px}
 
-/* PROSPERITY VIEW */
-#view-prosperity{background:radial-gradient(ellipse at center,#0d1424 0%,var(--bg) 70%)}
-.prosperity-header{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;border-bottom:1px solid var(--border);flex-shrink:0}
-.logo{font-size:28px;color:var(--gold);letter-spacing:-1px}
-.period-badge{font-size:11px;padding:6px 18px;border:1px solid var(--gold);border-radius:2px;color:var(--gold);letter-spacing:3px;text-transform:uppercase}
-.prosperity-body{flex:1;display:grid;grid-template-columns:1fr 360px;overflow:hidden;padding:24px;gap:24px}
-.main-event{display:flex;flex-direction:column;gap:20px}
-.event-card{background:linear-gradient(135deg,#0d1424,var(--bg3));border:1px solid var(--gold);border-radius:8px;padding:28px;position:relative;overflow:hidden;flex:1}
-.event-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.event-period{font-size:11px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;font-family:'Cinzel',serif}
-.event-name{font-size:32px;font-weight:700;color:#fff;margin-bottom:8px;font-family:'Cinzel',serif;line-height:1.2}
-.event-subtitle{font-size:14px;color:var(--text2);margin-bottom:16px}
-.event-desc-big{font-size:15px;color:var(--text);line-height:1.7;margin-bottom:20px}
-.event-effect-big{display:inline-block;font-size:13px;padding:8px 18px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);border-radius:2px;color:var(--gold);letter-spacing:1px}
-.lb-panel{display:flex;flex-direction:column;gap:12px}
-.lb-title{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);font-family:'Cinzel',serif;margin-bottom:4px}
-.lb-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:4px;background:var(--bg3);border:1px solid var(--border);transition:all .3s}
-.lb-item.first{background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));border-color:rgba(201,168,76,.4)}
-.lb-pos{font-size:14px;font-weight:700;min-width:24px;color:var(--text2);font-family:'Cinzel',serif}
-.lb-item.first .lb-pos{color:var(--gold)}
-.lb-fl{font-size:22px}
-.lb-nm{flex:1;font-size:14px;font-weight:600;color:#fff}
-.lb-pw{font-size:13px;color:var(--text2);font-family:'Cinzel',serif}
-.lb-bar-wrap{width:100%;height:2px;background:var(--bg);margin-top:6px}
-.lb-bar{height:100%;background:linear-gradient(90deg,#1a7a4a,#4ade80);transition:width .5s}
-.lb-bar.mid{background:linear-gradient(90deg,#854d0e,#ca8a04)}
-.lb-bar.low{background:linear-gradient(90deg,var(--red),#f87171)}
-
-/* WAR VIEW */
-#view-war{background:#050204}
-.war-header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid #2a0a0a;flex-shrink:0}
-.war-title{font-size:24px;color:#f87171;font-family:'Cinzel',serif;letter-spacing:2px}
-.war-body{flex:1;display:grid;grid-template-columns:1fr 320px;overflow:hidden;padding:20px;gap:20px}
-.map-area{display:flex;flex-direction:column;gap:16px}
-.map-container{flex:1;border:1px solid #2a0a0a;border-radius:8px;background:#0a0204;position:relative;overflow:hidden;min-height:300px}
-.war-nations{display:flex;flex-direction:column;gap:8px;overflow-y:auto}
-.war-nation{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:4px;border:1px solid #2a0a0a;background:#0a0204;transition:all .4s;position:relative;overflow:hidden}
-.war-nation.eliminated{opacity:.3;filter:grayscale(1)}
-.war-nation.eliminated::after{content:'CONQUIS';position:absolute;right:12px;font-size:10px;letter-spacing:2px;color:var(--red);font-family:'Cinzel',serif}
-.war-nation-flag{font-size:24px}
-.war-nation-name{flex:1;font-size:13px;font-weight:600;color:#fff;font-family:'Cinzel',serif}
-.war-nation-power{font-size:12px;color:#f87171;font-family:'Cinzel',serif}
-.war-bar-wrap{width:100%;height:3px;background:#1a0408;margin-top:4px}
-.war-bar{height:100%;background:linear-gradient(90deg,var(--red),#f87171);transition:width .5s}
-.war-log{overflow-y:auto;max-height:100%}
-.war-log-entry{font-size:12px;padding:6px 10px;border-radius:3px;margin-bottom:4px;border-left:2px solid var(--red);background:rgba(192,57,43,.1);color:#fca5a5;line-height:1.4}
-
-/* MAP SVG COUNTRIES */
-.map-flag{font-size:28px;cursor:default;transition:all .3s;filter:drop-shadow(0 2px 8px rgba(0,0,0,.8))}
-.map-flag.eliminated{opacity:.2;filter:grayscale(1)}
-.map-dot{transition:all .4s}
-.map-dot.eliminated{opacity:.2}
-.conquest-ring{animation:conquest 1s ease-out forwards}
-@keyframes conquest{0%{r:8;opacity:1;stroke-width:3}100%{r:40;opacity:0;stroke-width:0.5}}
-.explode-text{animation:explode 2s ease-out forwards;font-family:'Cinzel',serif;font-size:14px;font-weight:700}
-@keyframes explode{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-40px)}}
+/* VIEWS */
+.view{display:none;width:100vw;height:100vh;flex-direction:column}.view.active{display:flex}
 
 /* WAITING */
-#view-waiting{align-items:center;justify-content:center;gap:2rem;background:var(--bg)}
-.wait-logo{font-size:72px;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-3px;text-shadow:0 0 60px rgba(201,168,76,.2)}
-.wait-sub{font-size:13px;color:var(--text2);letter-spacing:4px;text-transform:uppercase}
-.pulse-ring{width:120px;height:120px;border:1px solid rgba(201,168,76,.3);border-radius:50%;animation:ringpulse 3s ease-in-out infinite}
-@keyframes ringpulse{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.2);opacity:.8}}
+#view-waiting{align-items:center;justify-content:center;gap:1.5rem;background:radial-gradient(ellipse at center,#0d1424,#050709)}
+.wait-logo{font-size:80px;color:var(--gold);font-family:'Cinzel',serif;text-shadow:0 0 60px rgba(201,168,76,.2)}
+.wait-sub{font-size:12px;color:var(--text2);letter-spacing:4px;text-transform:uppercase}
+.pulse{width:100px;height:100px;border:1px solid rgba(201,168,76,.3);border-radius:50%;animation:rp 3s ease-in-out infinite}
+@keyframes rp{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.3);opacity:.8}}
+
+/* PROSPERITY */
+#view-prosperity{background:radial-gradient(ellipse at 30% 30%,#0d1424,#050709)}
+.pros-header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);flex-shrink:0}
+.screen-logo{font-size:24px;color:var(--gold);font-family:'Cinzel',serif}
+.per-badge{font-size:10px;padding:5px 16px;border:1px solid var(--gold);color:var(--gold);border-radius:2px;letter-spacing:3px;text-transform:uppercase}
+.pros-body{flex:1;display:grid;grid-template-columns:1fr 340px;overflow:hidden;padding:20px;gap:20px}
+.ev-card{background:linear-gradient(135deg,#0d1424,var(--bg3));border:1px solid var(--gold);border-radius:8px;padding:24px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px}
+.ev-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.ev-period{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif}
+.ev-name{font-size:30px;font-weight:700;color:#fff;font-family:'Cinzel',serif;line-height:1.2}
+.ev-desc{font-size:14px;color:var(--text);line-height:1.7}
+.ev-effect{display:inline-block;font-size:12px;padding:7px 16px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);border-radius:2px;color:var(--gold);letter-spacing:1px}
+
+/* TIMER ON SCREEN */
+.screen-timer{display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 20px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:6px;margin-top:auto}
+.screen-timer-val{font-size:52px;font-weight:700;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-2px;font-variant-numeric:tabular-nums}
+.screen-timer-val.urgent{color:#f87171;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.screen-timer-label{font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase}
+
+/* LEADERBOARD */
+.lb-panel{display:flex;flex-direction:column;gap:8px;overflow-y:auto}
+.lb-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);font-family:'Cinzel',serif;margin-bottom:4px}
+.lb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:4px;background:var(--bg3);border:1px solid var(--border);transition:all .3s}
+.lb-item.first{background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));border-color:rgba(201,168,76,.4)}
+.lb-pos{font-size:13px;font-weight:700;min-width:22px;color:var(--text2);font-family:'Cinzel',serif}
+.lb-item.first .lb-pos{color:var(--gold)}
+.lb-fl{font-size:22px}
+.lb-nm{flex:1;font-size:13px;font-weight:600;color:#fff;font-family:'Cinzel',serif}
+.lb-pw{font-size:12px;color:var(--text2)}
+.lb-bw{width:100%;height:2px;background:var(--bg);margin-top:5px}
+.lb-bf{height:100%;transition:width .5s}
+.bfh{background:linear-gradient(90deg,var(--green),#4ade80)}.bfm{background:linear-gradient(90deg,#854d0e,#ca8a04)}.bfl{background:linear-gradient(90deg,var(--red),#f87171)}
+
+/* WAR */
+#view-war{background:#05020a}
+.war-header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid #2a0a0a;flex-shrink:0}
+.war-logo{font-size:22px;color:#f87171;font-family:'Cinzel',serif;letter-spacing:2px}
+.war-body{flex:1;display:grid;grid-template-columns:1fr 300px;overflow:hidden;padding:16px;gap:16px}
+
+/* MAP */
+.map-wrap{display:flex;flex-direction:column;gap:12px}
+#world-map{flex:1;border:1px solid #1a0408;border-radius:8px}
+
+/* WAR NATIONS */
+.war-nations{display:flex;flex-direction:column;gap:6px;overflow-y:auto}
+.wn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:4px;border:1px solid #1a0408;background:#0a0204;transition:all .4s;position:relative;overflow:hidden}
+.wn.elim{opacity:.25;filter:grayscale(1)}
+.wn.elim::after{content:'CONQUIS';position:absolute;right:10px;font-size:9px;letter-spacing:2px;color:var(--red);font-family:'Cinzel',serif}
+.wn-flag{font-size:22px}
+.wn-name{flex:1;font-size:13px;font-weight:600;color:#fff;font-family:'Cinzel',serif}
+.wn-pts{font-size:11px;color:#f87171;font-family:'Cinzel',serif}
+.wbw{width:100%;height:2px;background:#1a0408;margin-top:4px}
+.wbf{height:100%;background:linear-gradient(90deg,var(--red),#f87171);transition:width .5s}
+
+/* WAR TIMER */
+.war-timer-wrap{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 16px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);border-radius:6px}
+.war-timer-val{font-size:40px;font-weight:700;color:#f87171;font-family:'Cinzel',serif;letter-spacing:-2px;font-variant-numeric:tabular-nums}
+.war-timer-val.urgent{animation:pulse 1s infinite}
+
+/* ATTACK ANIMATION */
+.attack-anim{position:fixed;inset:0;background:rgba(192,57,43,0);z-index:50;pointer-events:none}
+.attack-anim.flash{animation:warflash 2s ease-out forwards}
+@keyframes warflash{0%{background:rgba(192,57,43,0)}8%{background:rgba(192,57,43,.7)}25%{background:rgba(192,57,43,.35)}100%{background:rgba(192,57,43,0)}}
+.battle-result{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:2px solid var(--gold);border-radius:10px;padding:32px 44px;z-index:51;text-align:center;display:none;min-width:380px}
+.battle-result.show{display:block;animation:bpop .5s ease-out}
+@keyframes bpop{0%{transform:translate(-50%,-50%) scale(.6);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
 </style>
 </head>
 <body>
 
-<!-- VIDEO OVERLAY -->
+<div class="attack-anim" id="anim-flash"></div>
+<div class="battle-result" id="battle-result">
+  <div id="br-icon" style="font-size:52px;margin-bottom:10px"></div>
+  <div id="br-title" style="font-size:22px;font-weight:700;font-family:'Cinzel',serif;margin-bottom:8px;color:#fff"></div>
+  <div id="br-flags" style="font-size:36px;margin-bottom:10px"></div>
+  <div id="br-scores" style="font-size:14px;color:var(--text2);line-height:1.8"></div>
+</div>
+
+<!-- VIDEO -->
 <div id="video-overlay">
-  <div class="video-title-overlay">
-    <h2 id="video-overlay-title"></h2>
-    <p id="video-overlay-subtitle"></p>
-  </div>
+  <div class="vt-overlay"><h2 id="vt-title"></h2><p id="vt-sub"></p></div>
   <iframe id="video-iframe" allowfullscreen allow="autoplay"></iframe>
   <button id="video-skip" onclick="hideVideo()">Passer →</button>
 </div>
 
 <!-- WAITING -->
 <div id="view-waiting" class="view active">
-  <div class="pulse-ring"></div>
+  <div class="pulse"></div>
   <div class="wait-logo">Geopolitica</div>
   <div class="wait-sub">En attente du début de la partie</div>
 </div>
 
 <!-- PROSPERITY -->
 <div id="view-prosperity" class="view">
-  <div class="prosperity-header">
-    <div class="logo">Geopolitica</div>
-    <div class="period-badge" id="sc-period-badge">Période 1</div>
-    <div style="font-size:12px;color:var(--text2);letter-spacing:1px" id="sc-nations-count">0 nations</div>
+  <div class="pros-header">
+    <div class="screen-logo">Geopolitica</div>
+    <div class="per-badge" id="sc-per-badge">Période 1/6</div>
+    <div style="font-size:12px;color:var(--text2)" id="sc-nations">0 nations</div>
   </div>
-  <div class="prosperity-body">
-    <div class="main-event">
-      <div class="event-card">
-        <div class="event-period" id="sc-event-period">Période 1 · Janvier — Juin</div>
-        <div class="event-name" id="sc-event-name">L'Ère de Croissance</div>
-        <div class="event-subtitle" id="sc-event-subtitle">Année 1</div>
-        <div class="event-desc-big" id="sc-event-desc">Les marchés mondiaux s'ouvrent.</div>
-        <div class="event-effect-big" id="sc-event-effect">⚡ Événement en cours</div>
+  <div class="pros-body">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="ev-card">
+        <div class="ev-period" id="sc-ev-period">Période 1</div>
+        <div class="ev-name" id="sc-ev-name">—</div>
+        <div class="ev-desc" id="sc-ev-desc"></div>
+        <div class="ev-effect" id="sc-ev-effect"></div>
+      </div>
+      <div class="screen-timer">
+        <div>
+          <div class="screen-timer-label">Temps restant</div>
+          <div class="screen-timer-val" id="sc-timer">10:00</div>
+        </div>
       </div>
     </div>
     <div class="lb-panel">
       <div class="lb-title">Classement des nations</div>
-      <div id="sc-leaderboard"></div>
+      <div id="sc-lb"></div>
     </div>
   </div>
 </div>
@@ -136,240 +155,173 @@ h1,h2,.logo{font-family:'Cinzel',serif}
 <!-- WAR -->
 <div id="view-war" class="view">
   <div class="war-header">
-    <div class="war-title">⚔️ Guerre Mondiale</div>
-    <div style="font-size:12px;color:#f87171;letter-spacing:2px;text-transform:uppercase" id="war-alive-count">0 nations actives</div>
+    <div class="war-logo">⚔️ Guerre Mondiale</div>
+    <div class="war-timer-wrap">
+      <div class="war-timer-val" id="war-timer">10:00</div>
+    </div>
+    <div style="font-size:12px;color:#f87171;letter-spacing:2px;text-transform:uppercase" id="war-alive">0 nations</div>
   </div>
   <div class="war-body">
-    <div class="map-area">
-      <svg id="world-map" width="100%" style="flex:1;min-height:280px" viewBox="0 0 800 420">
-        <rect width="800" height="420" fill="#0a0204" rx="8"/>
-        <!-- Simplified world map background lines -->
-        <g stroke="#1a0408" stroke-width="0.5" fill="none">
-          <line x1="0" y1="140" x2="800" y2="140"/>
-          <line x1="0" y1="210" x2="800" y2="210"/>
-          <line x1="0" y1="280" x2="800" y2="280"/>
-          <line x1="200" y1="0" x2="200" y2="420"/>
-          <line x1="400" y1="0" x2="400" y2="420"/>
-          <line x1="600" y1="0" x2="600" y2="420"/>
+    <div class="map-wrap">
+      <svg id="world-map" viewBox="0 0 800 380" style="width:100%;flex:1">
+        <rect width="800" height="380" fill="#05020a" rx="8"/>
+        <g stroke="#140308" stroke-width="0.5" fill="none">
+          <line x1="0" y1="127" x2="800" y2="127"/><line x1="0" y1="190" x2="800" y2="190"/>
+          <line x1="0" y1="253" x2="800" y2="253"/><line x1="200" y1="0" x2="200" y2="380"/>
+          <line x1="400" y1="0" x2="400" y2="380"/><line x1="600" y1="0" x2="600" y2="380"/>
         </g>
-        <!-- Continent outlines simplified -->
-        <g fill="#0f0308" stroke="#2a0a0a" stroke-width="1">
-          <!-- North America -->
-          <ellipse cx="150" cy="160" rx="110" ry="80"/>
-          <!-- South America -->
-          <ellipse cx="200" cy="300" rx="60" ry="90"/>
-          <!-- Europe -->
-          <ellipse cx="380" cy="130" rx="60" ry="50"/>
-          <!-- Africa -->
-          <ellipse cx="390" cy="280" rx="80" ry="100"/>
-          <!-- Asia -->
-          <ellipse cx="590" cy="160" rx="140" ry="100"/>
-          <!-- Australia -->
-          <ellipse cx="660" cy="320" rx="70" ry="50"/>
+        <g fill="#0a0204" stroke="#1a0408" stroke-width="1">
+          <ellipse cx="150" cy="150" rx="105" ry="75"/>
+          <ellipse cx="195" cy="285" rx="55" ry="75"/>
+          <ellipse cx="375" cy="118" rx="58" ry="45"/>
+          <ellipse cx="385" cy="265" rx="75" ry="90"/>
+          <ellipse cx="585" cy="150" rx="135" ry="95"/>
+          <ellipse cx="655" cy="305" rx="65" ry="45"/>
         </g>
-        <!-- Country dots and flags -->
         <g id="map-countries"></g>
-        <!-- Conquest animations layer -->
-        <g id="map-animations"></g>
+        <g id="map-anims"></g>
       </svg>
     </div>
-    <div class="war-nations" id="war-nations-list"></div>
+    <div class="war-nations" id="war-nations"></div>
   </div>
 </div>
 
 <script>
 const socket = io();
-let state = {};
-let videoVisible = false;
-let lastPhase = null;
-let lastPeriod = 0;
-let lastWarPhase = false;
+let state = {}, timerSec = 600, lastPhase = null, lastPeriod = 0;
 
-// Map positions for each country (x, y on 800x420 viewBox)
-const MAP_POSITIONS = {
-  usa:     { x:130, y:160 },
-  china:   { x:620, y:155 },
-  russia:  { x:560, y:100 },
-  germany: { x:390, y:115 },
-  qatar:   { x:480, y:195 },
-  france:  { x:365, y:125 },
-  brazil:  { x:210, y:300 },
-  india:   { x:560, y:200 },
-  morocco: { x:350, y:210 },
-  guinea:  { x:330, y:250 },
+const MAP_POS = {
+  usa:{x:130,y:150}, china:{x:615,y:145}, russia:{x:555,y:92},
+  germany:{x:385,y:108}, qatar:{x:475,y:188}, france:{x:360,y:118},
+  brazil:{x:205,y:285}, india:{x:555,y:195}, morocco:{x:348,y:205}, guinea:{x:325,y:242},
+};
+const COLORS = {
+  usa:'#3b82f6',china:'#ef4444',russia:'#8b5cf6',germany:'#f59e0b',
+  qatar:'#06b6d4',france:'#ec4899',brazil:'#22c55e',india:'#f97316',
+  morocco:'#84cc16',guinea:'#14b8a6',
 };
 
-const COUNTRY_COLORS = {
-  usa:'#3b82f6', china:'#ef4444', russia:'#8b5cf6', germany:'#f59e0b',
-  qatar:'#06b6d4', france:'#ec4899', brazil:'#22c55e', india:'#f97316',
-  morocco:'#84cc16', guinea:'#14b8a6',
-};
-
-socket.on('state', s => {
-  const prevState = state;
-  state = s;
-  onStateUpdate(prevState);
+socket.on('state', s => { const prev=state; state=s; onUpdate(prev); });
+socket.on('timer', ({seconds,running,ended}) => {
+  timerSec=seconds;
+  updateTimers();
+  if(ended) flashTimer();
+});
+socket.on('attackAnimation', ({attackerId,defenderId,success,scoreAtt,scoreDef}) => {
+  showBattleResult(attackerId,defenderId,success,scoreAtt,scoreDef);
 });
 
-function showView(id) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+function showView(id){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+
+function showVideo(src,title,sub,dur){
+  document.getElementById('video-iframe').src=src;
+  document.getElementById('vt-title').textContent=title;
+  document.getElementById('vt-sub').textContent=sub||'';
+  document.getElementById('video-overlay').classList.add('active');
+  if(dur) setTimeout(hideVideo,dur);
+}
+function hideVideo(){ document.getElementById('video-overlay').classList.remove('active'); document.getElementById('video-iframe').src=''; }
+
+function updateTimers(){
+  const m=Math.floor(timerSec/60),s=timerSec%60;
+  const fmt=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  const urgent=timerSec<60;
+  const st=document.getElementById('sc-timer');
+  const wt=document.getElementById('war-timer');
+  if(st){ st.textContent=fmt; st.className='screen-timer-val'+(urgent?' urgent':''); }
+  if(wt){ wt.textContent=fmt; wt.className='war-timer-val'+(urgent?' urgent':''); }
 }
 
-function showVideo(src, title, subtitle, duration) {
-  const overlay = document.getElementById('video-overlay');
-  document.getElementById('video-iframe').src = src;
-  document.getElementById('video-overlay-title').textContent = title;
-  document.getElementById('video-overlay-subtitle').textContent = subtitle || '';
-  overlay.classList.add('active');
-  videoVisible = true;
-  if (duration) setTimeout(hideVideo, duration);
+function flashTimer(){
+  ['sc-timer','war-timer'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.style.color='#f87171'; setTimeout(()=>el.style.color='',3000); }});
 }
 
-function hideVideo() {
-  document.getElementById('video-overlay').classList.remove('active');
-  document.getElementById('video-iframe').src = '';
-  videoVisible = false;
+function showBattleResult(attId,defId,success,scoreAtt,scoreDef){
+  const fl=document.getElementById('anim-flash');
+  fl.classList.add('flash'); setTimeout(()=>fl.classList.remove('flash'),2000);
+  const att=state.countries&&state.countries[attId];
+  const def=state.countries&&state.countries[defId];
+  if(!att||!def) return;
+  document.getElementById('br-icon').textContent=success?'💥':'🛡️';
+  document.getElementById('br-title').textContent=success?'Victoire écrasante !':'Attaque repoussée !';
+  document.getElementById('br-flags').textContent=att.flag+' ⚔️ '+def.flag;
+  document.getElementById('br-scores').innerHTML=`<strong style="color:${success?'#4ade80':'#f87171'}">${att.flag} ${att.name}</strong>: ${scoreAtt} pts<br><strong style="color:${success?'#f87171':'#4ade80'}">${def.flag} ${def.name}</strong>: ${scoreDef} pts<br><br>${success?att.flag+' '+att.name+' pille toutes les ressources !':def.flag+' '+def.name+' tient bon !'}`;
+  const br=document.getElementById('battle-result');
+  br.classList.add('show'); setTimeout(()=>br.classList.remove('show'),8000);
 }
 
-function onStateUpdate(prev) {
-  // Phase change
-  if (state.phase !== lastPhase) {
-    if (state.phase === 'war' && lastPhase !== 'war') {
-      // War starts — show epic video
-      showVideo(state.warVideo, '⚔️ La Guerre Commence', 'Le monde entier attend son maître...', 30000);
-      setTimeout(() => showView('view-war'), 500);
-    } else if (state.phase === 'prosperity' && lastPhase !== 'prosperity') {
-      showView('view-prosperity');
-    } else if (state.phase === 'draft' || state.phase === 'setup') {
-      showView('view-waiting');
-    }
-    lastPhase = state.phase;
+function onUpdate(prev){
+  if(state.phase!==lastPhase){
+    if(state.phase==='war'&&lastPhase!=='war'){
+      showVideo(state.warVideo,'⚔️ La Guerre Commence','Le monde entier attend son maître. Personne ne veut plier.',35000);
+      setTimeout(()=>showView('view-war'),500);
+    } else if(state.phase==='prosperity') showView('view-prosperity');
+    else if(state.phase==='draft'||state.phase==='setup') showView('view-waiting');
+    lastPhase=state.phase;
   }
-
-  // New period
-  if (state.currentPeriod !== lastPeriod && state.currentPeriod > 0 && state.phase === 'prosperity') {
-    if (state.currentEvent && state.currentEvent.periodVideo) {
-      showVideo(state.currentEvent.periodVideo,
-        state.currentEvent.periodName,
-        state.currentEvent.periodSubtitle,
-        20000);
-    }
-    lastPeriod = state.currentPeriod;
+  if(state.currentPeriod!==lastPeriod&&state.currentPeriod>0&&state.phase==='prosperity'){
+    if(state.currentEvent?.periodVideo) showVideo(state.currentEvent.periodVideo,state.currentEvent.periodName,state.currentEvent.periodSubtitle,22000);
+    lastPeriod=state.currentPeriod;
   }
-
-  if (state.phase === 'prosperity') renderProsperity();
-  if (state.phase === 'war') renderWar();
+  if(state.phase==='prosperity') renderProsperity();
+  if(state.phase==='war') renderWar();
 }
 
-function renderProsperity() {
-  const countries = state.countries || {};
-  const alive = Object.values(countries).filter(c => c.team && !c.eliminated);
-  const sorted = [...alive].sort((a,b) => b.power - a.power);
-  const maxP = sorted[0]?.power || 1;
-
-  document.getElementById('sc-nations-count').textContent = alive.length + ' nations';
-  document.getElementById('sc-period-badge').textContent = 'Période ' + (state.currentPeriod || 1) + '/6';
-
-  if (state.currentEvent) {
-    const ev = state.currentEvent;
-    document.getElementById('sc-event-period').textContent = `Période ${ev.periodNumber || ''} · ${ev.periodSubtitle || ''}`;
-    document.getElementById('sc-event-name').textContent = ev.periodName || '';
-    document.getElementById('sc-event-subtitle').textContent = ev.periodDesc || '';
-    document.getElementById('sc-event-desc').textContent = '';
-    document.getElementById('sc-event-effect').textContent = '⚡ ' + ev.title + ' — ' + ev.effect;
+function renderProsperity(){
+  const countries=state.countries||{};
+  const alive=Object.values(countries).filter(c=>c.team&&!c.eliminated);
+  const sorted=[...alive].sort((a,b)=>b.power-a.power);
+  const maxP=sorted[0]?.power||1;
+  document.getElementById('sc-per-badge').textContent=`Période ${state.currentPeriod||1}/6`;
+  document.getElementById('sc-nations').textContent=alive.length+' nations';
+  if(state.currentEvent){
+    const ev=state.currentEvent;
+    document.getElementById('sc-ev-period').textContent=`Période ${ev.periodNumber||''} · ${ev.periodSubtitle||''}`;
+    document.getElementById('sc-ev-name').textContent=ev.periodName||'';
+    document.getElementById('sc-ev-desc').textContent=ev.periodDesc||'';
+    document.getElementById('sc-ev-effect').textContent='⚡ '+ev.title+' — '+ev.effect;
   }
-
-  const lb = document.getElementById('sc-leaderboard');
-  lb.innerHTML = sorted.map((c, i) => {
-    const pct = Math.round(c.power / maxP * 100);
-    const barCls = pct < 30 ? 'low' : pct < 60 ? 'mid' : '';
-    return `<div class="lb-item ${i===0?'first':''}">
-      <div class="lb-pos">${i+1}</div>
-      <div class="lb-fl">${c.flag}</div>
-      <div style="flex:1">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div class="lb-nm">${c.name}</div>
-          <div class="lb-pw">${c.power} pts</div>
-        </div>
-        <div class="lb-bar-wrap"><div class="lb-bar ${barCls}" style="width:${pct}%"></div></div>
-      </div>
-    </div>`;
+  document.getElementById('sc-lb').innerHTML=sorted.map((c,i)=>{
+    const pct=Math.round(c.power/maxP*100);
+    const bc=pct<30?'bfl':pct<60?'bfm':'bfh';
+    return `<div class="lb-item ${i===0?'first':''}"><div class="lb-pos">${i+1}</div><div class="lb-fl">${c.flag}</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><div class="lb-nm">${c.name}</div><div class="lb-pw">${c.power} pts</div></div><div class="lb-bw"><div class="lb-bf ${bc}" style="width:${pct}%"></div></div></div></div>`;
   }).join('');
 }
 
-function renderWar() {
-  const countries = state.countries || {};
-  const teams = Object.values(countries).filter(c => c.team);
-  const alive = teams.filter(c => !c.eliminated);
-  const sorted = [...teams].sort((a,b) => b.power - a.power);
-  const maxP = Math.max(...teams.map(c => c.power), 1);
-
-  document.getElementById('war-alive-count').textContent = alive.length + ' nations actives';
-
-  // Nations list
-  document.getElementById('war-nations-list').innerHTML = sorted.map(c => {
-    const pct = Math.round(c.power / maxP * 100);
-    return `<div class="war-nation ${c.eliminated?'eliminated':''}" id="wn-${c.id}">
-      <div class="war-nation-flag">${c.flag}</div>
-      <div style="flex:1">
-        <div style="display:flex;justify-content:space-between">
-          <div class="war-nation-name">${c.name}</div>
-          <div class="war-nation-power">${c.power} pts</div>
-        </div>
-        <div class="war-bar-wrap"><div class="war-bar" style="width:${pct}%"></div></div>
-      </div>
-    </div>`;
+function renderWar(){
+  const countries=state.countries||{};
+  const teams=Object.values(countries).filter(c=>c.team);
+  const alive=teams.filter(c=>!c.eliminated);
+  const sorted=[...teams].sort((a,b)=>b.power-a.power);
+  const maxP=Math.max(...teams.map(c=>c.power),1);
+  document.getElementById('war-alive').textContent=alive.length+' nations actives';
+  document.getElementById('war-nations').innerHTML=sorted.map(c=>{
+    const pct=Math.round(c.power/maxP*100);
+    return `<div class="wn ${c.eliminated?'elim':''}"><div class="wn-flag">${c.flag}</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><div class="wn-name">${c.name}</div><div class="wn-pts">${c.power} pts</div></div><div class="wbw"><div class="wbf" style="width:${pct}%"></div></div></div></div>`;
   }).join('');
-
   // Map
-  const mapG = document.getElementById('map-countries');
-  mapG.innerHTML = '';
-  teams.forEach(c => {
-    const pos = MAP_POSITIONS[c.id];
-    if (!pos) return;
-    const color = COUNTRY_COLORS[c.id] || '#fff';
-    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.setAttribute('class', 'map-dot' + (c.eliminated ? ' eliminated' : ''));
-
-    // Glow circle
-    const glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    glow.setAttribute('cx', pos.x); glow.setAttribute('cy', pos.y); glow.setAttribute('r', '18');
-    glow.setAttribute('fill', c.eliminated ? '#333' : color); glow.setAttribute('opacity', c.eliminated ? '0.1' : '0.15');
+  const mapG=document.getElementById('map-countries');
+  mapG.innerHTML='';
+  teams.forEach(c=>{
+    const pos=MAP_POS[c.id]; if(!pos) return;
+    const color=COLORS[c.id]||'#fff';
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    const glow=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    glow.setAttribute('cx',pos.x);glow.setAttribute('cy',pos.y);glow.setAttribute('r','20');
+    glow.setAttribute('fill',c.eliminated?'#1a0408':color);glow.setAttribute('opacity',c.eliminated?'0.05':'0.18');
     g.appendChild(glow);
-
-    // Main dot
-    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    dot.setAttribute('cx', pos.x); dot.setAttribute('cy', pos.y); dot.setAttribute('r', '8');
-    dot.setAttribute('fill', c.eliminated ? '#333' : color); dot.setAttribute('stroke', '#000'); dot.setAttribute('stroke-width', '1.5');
+    const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',pos.x);dot.setAttribute('cy',pos.y);dot.setAttribute('r','9');
+    dot.setAttribute('fill',c.eliminated?'#2a0a0a':color);dot.setAttribute('stroke','#000');dot.setAttribute('stroke-width','1.5');
     g.appendChild(dot);
-
-    // Flag text
-    const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    txt.setAttribute('x', pos.x); txt.setAttribute('y', pos.y - 16);
-    txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('font-size', '20');
-    txt.setAttribute('class', 'map-flag' + (c.eliminated ? ' eliminated' : ''));
-    txt.textContent = c.flag;
-    g.appendChild(txt);
-
-    // Name
-    const name = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    name.setAttribute('x', pos.x); name.setAttribute('y', pos.y + 22);
-    name.setAttribute('text-anchor', 'middle'); name.setAttribute('font-size', '9');
-    name.setAttribute('fill', c.eliminated ? '#333' : color); name.setAttribute('font-family', 'Cinzel, serif');
-    name.setAttribute('letter-spacing', '1');
-    name.textContent = c.name.toUpperCase();
-    g.appendChild(name);
-
-    // Conquest animation
-    if (c.eliminated) {
-      const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      ring.setAttribute('cx', pos.x); ring.setAttribute('cy', pos.y); ring.setAttribute('r', '8');
-      ring.setAttribute('fill', 'none'); ring.setAttribute('stroke', '#f87171'); ring.setAttribute('stroke-width', '3');
-      ring.setAttribute('class', 'conquest-ring');
-      document.getElementById('map-animations').appendChild(ring);
-    }
-
+    const flag=document.createElementNS('http://www.w3.org/2000/svg','text');
+    flag.setAttribute('x',pos.x);flag.setAttribute('y',pos.y-18);flag.setAttribute('text-anchor','middle');flag.setAttribute('font-size','22');
+    flag.setAttribute('opacity',c.eliminated?'0.15':'1');
+    flag.textContent=c.flag;g.appendChild(flag);
+    const nm=document.createElementNS('http://www.w3.org/2000/svg','text');
+    nm.setAttribute('x',pos.x);nm.setAttribute('y',pos.y+22);nm.setAttribute('text-anchor','middle');nm.setAttribute('font-size','8');
+    nm.setAttribute('fill',c.eliminated?'#2a0a0a':color);nm.setAttribute('font-family','Cinzel,serif');nm.setAttribute('letter-spacing','1');
+    nm.textContent=c.name.toUpperCase();g.appendChild(nm);
     mapG.appendChild(g);
   });
 }
