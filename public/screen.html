@@ -5,120 +5,153 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Geopolitica — Écran Principal</title>
 <script src="/socket.io/socket.io.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#050709;--bg2:#0a0c10;--bg3:#111520;--border:#1e2640;--gold:#c9a84c;--red:#c0392b;--green:#1a7a4a;--text:#d4d8e8;--text2:#8892b0}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width:100vw;height:100vh;overflow:hidden}
 
-/* VIDEO */
-#video-overlay{position:fixed;inset:0;background:#000;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center}
-#video-overlay.active{display:flex}
-#video-iframe{width:100%;height:100%;border:none}
-#video-skip{position:absolute;bottom:28px;right:28px;background:rgba(0,0,0,.8);color:var(--gold);border:1px solid var(--gold);border-radius:4px;padding:10px 22px;font-size:13px;cursor:pointer;font-family:'Cinzel',serif;letter-spacing:2px;z-index:101}
-.vt-overlay{position:absolute;top:0;left:0;right:0;padding:28px;background:linear-gradient(180deg,rgba(0,0,0,.85),transparent);z-index:101}
-.vt-overlay h2{font-size:26px;color:var(--gold);font-family:'Cinzel',serif}
-.vt-overlay p{font-size:13px;color:var(--text2);margin-top:4px}
+/* CINEMATIC OVERLAY */
+#cinematic{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column}
+#cinematic.active{display:flex}
+.cin-bg{position:absolute;inset:0;background:#000}
+.cin-bars-top{position:absolute;top:0;left:0;right:0;height:80px;background:#000;z-index:1}
+.cin-bars-bot{position:absolute;bottom:0;left:0;right:0;height:80px;background:#000;z-index:1}
+.cin-content{position:relative;z-index:2;text-align:center;padding:0 10%;animation:cinIn 1s ease-out}
+@keyframes cinIn{0%{opacity:0;transform:scale(1.05)}100%{opacity:1;transform:scale(1)}}
+.cin-overline{font-size:11px;letter-spacing:6px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;font-family:'Cinzel',serif}
+.cin-title{font-size:clamp(36px,5vw,72px);font-weight:900;color:#fff;font-family:'Cinzel',serif;line-height:1.1;margin-bottom:16px;text-shadow:0 0 60px rgba(255,255,255,.15)}
+.cin-subtitle{font-size:clamp(13px,1.5vw,18px);color:rgba(255,255,255,.6);line-height:1.7;max-width:700px;margin:0 auto 28px}
+.cin-effect{display:inline-block;font-size:14px;padding:8px 24px;border:1px solid rgba(201,168,76,.5);border-radius:2px;color:var(--gold);letter-spacing:2px;margin-bottom:32px}
+.cin-skip{font-size:11px;color:rgba(255,255,255,.3);letter-spacing:2px;cursor:pointer;text-transform:uppercase;position:absolute;bottom:100px;right:40px;z-index:3;border:1px solid rgba(255,255,255,.1);padding:8px 18px;border-radius:2px;transition:all .2s}
+.cin-skip:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+.cin-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.cin-particle{position:absolute;width:2px;height:2px;background:var(--gold);border-radius:50%;animation:floatUp linear infinite;opacity:0}
+@keyframes floatUp{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:.6}90%{opacity:.2}100%{transform:translateY(-20px) translateX(var(--drift));opacity:0}}
+.cin-line{position:absolute;width:1px;background:linear-gradient(180deg,transparent,var(--gold),transparent);animation:scanLine 3s ease-in-out infinite;opacity:.3}
+@keyframes scanLine{0%,100%{transform:translateY(-100%);opacity:0}50%{opacity:.4}60%{transform:translateY(100vh);opacity:0}}
+
+/* WAR CINEMATIC EXTRAS */
+.cin-war-bg{background:radial-gradient(ellipse at center,#1a0205 0%,#000 70%)}
+.cin-war-title{color:#f87171!important;text-shadow:0 0 80px rgba(192,57,43,.6)!important}
+.cin-war-overline{color:#f87171!important}
+.cin-war-effect{border-color:rgba(248,113,113,.5)!important;color:#f87171!important}
 
 /* VIEWS */
 .view{display:none;width:100vw;height:100vh;flex-direction:column}.view.active{display:flex}
 
 /* WAITING */
-#view-waiting{align-items:center;justify-content:center;gap:1.5rem;background:radial-gradient(ellipse at center,#0d1424,#050709)}
-.wait-logo{font-size:80px;color:var(--gold);font-family:'Cinzel',serif;text-shadow:0 0 60px rgba(201,168,76,.2)}
-.wait-sub{font-size:12px;color:var(--text2);letter-spacing:4px;text-transform:uppercase}
-.pulse{width:100px;height:100px;border:1px solid rgba(201,168,76,.3);border-radius:50%;animation:rp 3s ease-in-out infinite}
-@keyframes rp{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.3);opacity:.8}}
+#view-waiting{align-items:center;justify-content:center;gap:2rem;background:radial-gradient(ellipse at center,#0d1424,#050709)}
+.wait-logo{font-size:clamp(48px,8vw,96px);color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-3px;text-shadow:0 0 80px rgba(201,168,76,.2)}
+.wait-sub{font-size:12px;color:var(--text2);letter-spacing:5px;text-transform:uppercase}
+.pulse-ring{width:120px;height:120px;border:1px solid rgba(201,168,76,.3);border-radius:50%;animation:rp 3s ease-in-out infinite}
+@keyframes rp{0%,100%{transform:scale(1);opacity:.2}50%{transform:scale(1.4);opacity:.7}}
 
 /* PROSPERITY */
-#view-prosperity{background:radial-gradient(ellipse at 30% 30%,#0d1424,#050709)}
-.pros-header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);flex-shrink:0}
-.screen-logo{font-size:24px;color:var(--gold);font-family:'Cinzel',serif}
+#view-prosperity{background:radial-gradient(ellipse at 20% 20%,#0d1424,#050709)}
+.pros-header{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;border-bottom:1px solid var(--border);flex-shrink:0}
+.screen-logo{font-size:22px;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-1px}
 .per-badge{font-size:10px;padding:5px 16px;border:1px solid var(--gold);color:var(--gold);border-radius:2px;letter-spacing:3px;text-transform:uppercase}
-.pros-body{flex:1;display:grid;grid-template-columns:1fr 340px;overflow:hidden;padding:20px;gap:20px}
-.ev-card{background:linear-gradient(135deg,#0d1424,var(--bg3));border:1px solid var(--gold);border-radius:8px;padding:24px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px}
-.ev-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.ev-period{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif}
-.ev-name{font-size:30px;font-weight:700;color:#fff;font-family:'Cinzel',serif;line-height:1.2}
-.ev-desc{font-size:14px;color:var(--text);line-height:1.7}
-.ev-effect{display:inline-block;font-size:12px;padding:7px 16px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);border-radius:2px;color:var(--gold);letter-spacing:1px}
+.pros-body{flex:1;display:grid;grid-template-columns:1fr 360px;overflow:hidden;padding:20px 28px;gap:24px}
 
-/* TIMER ON SCREEN */
-.screen-timer{display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 20px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:6px;margin-top:auto}
-.screen-timer-val{font-size:52px;font-weight:700;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-2px;font-variant-numeric:tabular-nums}
-.screen-timer-val.urgent{color:#f87171;animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.screen-timer-label{font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase}
+/* EVENT CARD */
+.ev-card{background:linear-gradient(135deg,rgba(13,20,36,.9),rgba(22,27,40,.9));border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:28px 32px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:14px}
+.ev-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.ev-card::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top right,rgba(201,168,76,.05),transparent 60%);pointer-events:none}
+.ev-period{font-size:10px;color:var(--gold);letter-spacing:4px;text-transform:uppercase;font-family:'Cinzel',serif}
+.ev-name{font-size:clamp(24px,3vw,40px);font-weight:700;color:#fff;font-family:'Cinzel',serif;line-height:1.15}
+.ev-desc{font-size:14px;color:rgba(212,216,232,.8);line-height:1.8}
+.ev-effect{display:inline-block;font-size:12px;padding:7px 18px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);border-radius:2px;color:var(--gold);letter-spacing:1px}
+
+/* TIMER BLOCK */
+.timer-block{display:flex;align-items:center;gap:16px;padding:14px 20px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);border-radius:6px;margin-top:auto}
+.timer-val{font-size:clamp(40px,5vw,64px);font-weight:700;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-2px;font-variant-numeric:tabular-nums;transition:color .3s}
+.timer-val.urgent{color:#f87171;animation:tpulse 1s infinite}
+@keyframes tpulse{0%,100%{opacity:1}50%{opacity:.4}}
+.timer-label{font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;line-height:1.6}
 
 /* LEADERBOARD */
-.lb-panel{display:flex;flex-direction:column;gap:8px;overflow-y:auto}
-.lb-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);font-family:'Cinzel',serif;margin-bottom:4px}
-.lb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:4px;background:var(--bg3);border:1px solid var(--border);transition:all .3s}
-.lb-item.first{background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));border-color:rgba(201,168,76,.4)}
-.lb-pos{font-size:13px;font-weight:700;min-width:22px;color:var(--text2);font-family:'Cinzel',serif}
+.lb-panel{display:flex;flex-direction:column;gap:8px}
+.lb-head{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);font-family:'Cinzel',serif;margin-bottom:6px}
+.lb-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:4px;background:rgba(17,21,32,.8);border:1px solid var(--border);transition:all .4s}
+.lb-item.first{background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(201,168,76,.06));border-color:rgba(201,168,76,.4)}
+.lb-pos{font-size:13px;font-weight:700;min-width:24px;color:var(--text2);font-family:'Cinzel',serif}
 .lb-item.first .lb-pos{color:var(--gold)}
-.lb-fl{font-size:22px}
-.lb-nm{flex:1;font-size:13px;font-weight:600;color:#fff;font-family:'Cinzel',serif}
-.lb-pw{font-size:12px;color:var(--text2)}
-.lb-bw{width:100%;height:2px;background:var(--bg);margin-top:5px}
-.lb-bf{height:100%;transition:width .5s}
-.bfh{background:linear-gradient(90deg,var(--green),#4ade80)}.bfm{background:linear-gradient(90deg,#854d0e,#ca8a04)}.bfl{background:linear-gradient(90deg,var(--red),#f87171)}
+.lb-fl{font-size:24px}
+.lb-info{flex:1}
+.lb-nm{font-size:13px;font-weight:600;color:#fff;font-family:'Cinzel',serif}
+.lb-team{font-size:10px;color:var(--text2);margin-top:1px}
+.lb-pw{font-size:13px;color:var(--text2);font-family:'Cinzel',serif;white-space:nowrap}
+.lb-bw{width:100%;height:2px;background:rgba(255,255,255,.05);margin-top:6px;border-radius:1px}
+.lb-bf{height:100%;border-radius:1px;transition:width .6s ease}
+.bfh{background:linear-gradient(90deg,#1a7a4a,#4ade80)}.bfm{background:linear-gradient(90deg,#854d0e,#ca8a04)}.bfl{background:linear-gradient(90deg,#7f1d1d,#f87171)}
 
-/* WAR */
-#view-war{background:#05020a}
-.war-header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid #2a0a0a;flex-shrink:0}
-.war-logo{font-size:22px;color:#f87171;font-family:'Cinzel',serif;letter-spacing:2px}
-.war-body{flex:1;display:grid;grid-template-columns:1fr 300px;overflow:hidden;padding:16px;gap:16px}
-
-/* MAP */
-.map-wrap{display:flex;flex-direction:column;gap:12px}
-#world-map{flex:1;border:1px solid #1a0408;border-radius:8px}
-
-/* WAR NATIONS */
+/* WAR VIEW */
+#view-war{background:#03010a}
+.war-header{display:flex;align-items:center;justify-content:space-between;padding:12px 28px;border-bottom:1px solid #1a0408;flex-shrink:0}
+.war-logo{font-size:20px;color:#f87171;font-family:'Cinzel',serif;letter-spacing:3px}
+.war-timer-wrap{display:flex;align-items:center;gap:10px;padding:8px 18px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.25);border-radius:4px}
+.war-timer-val{font-size:clamp(28px,3.5vw,44px);font-weight:700;color:#f87171;font-family:'Cinzel',serif;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.war-timer-val.urgent{animation:tpulse 1s infinite}
+.war-body{flex:1;display:grid;grid-template-columns:1fr 280px;overflow:hidden;padding:16px 20px;gap:16px}
+.map-wrap{display:flex;flex-direction:column;gap:10px}
+#world-map{flex:1;border:1px solid #1a0408;border-radius:6px;min-height:0}
 .war-nations{display:flex;flex-direction:column;gap:6px;overflow-y:auto}
-.wn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:4px;border:1px solid #1a0408;background:#0a0204;transition:all .4s;position:relative;overflow:hidden}
-.wn.elim{opacity:.25;filter:grayscale(1)}
-.wn.elim::after{content:'CONQUIS';position:absolute;right:10px;font-size:9px;letter-spacing:2px;color:var(--red);font-family:'Cinzel',serif}
-.wn-flag{font-size:22px}
-.wn-name{flex:1;font-size:13px;font-weight:600;color:#fff;font-family:'Cinzel',serif}
+.wn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:4px;border:1px solid #1a0408;background:#080108;transition:all .4s;position:relative;overflow:hidden}
+.wn.elim{opacity:.2;filter:grayscale(1)}
+.wn.elim::after{content:'CONQUIS';position:absolute;right:10px;font-size:9px;letter-spacing:2px;color:#f87171;font-family:'Cinzel',serif}
+.wn-flag{font-size:20px}
+.wn-body{flex:1}
+.wn-top{display:flex;justify-content:space-between;align-items:center}
+.wn-name{font-size:12px;font-weight:600;color:#fff;font-family:'Cinzel',serif}
 .wn-pts{font-size:11px;color:#f87171;font-family:'Cinzel',serif}
-.wbw{width:100%;height:2px;background:#1a0408;margin-top:4px}
-.wbf{height:100%;background:linear-gradient(90deg,var(--red),#f87171);transition:width .5s}
+.wbw{width:100%;height:2px;background:#1a0408;margin-top:4px;border-radius:1px}
+.wbf{height:100%;background:linear-gradient(90deg,#7f1d1d,#f87171);transition:width .5s}
 
-/* WAR TIMER */
-.war-timer-wrap{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 16px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);border-radius:6px}
-.war-timer-val{font-size:40px;font-weight:700;color:#f87171;font-family:'Cinzel',serif;letter-spacing:-2px;font-variant-numeric:tabular-nums}
-.war-timer-val.urgent{animation:pulse 1s infinite}
+/* BATTLE POPUP */
+.battle-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:2px solid var(--gold);border-radius:10px;padding:36px 52px;z-index:300;text-align:center;display:none;min-width:420px}
+.battle-popup.show{display:block;animation:bpop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes bpop{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.battle-popup.war-popup{border-color:var(--red)}
 
-/* ATTACK ANIMATION */
-.attack-anim{position:fixed;inset:0;background:rgba(192,57,43,0);z-index:50;pointer-events:none}
-.attack-anim.flash{animation:warflash 2s ease-out forwards}
-@keyframes warflash{0%{background:rgba(192,57,43,0)}8%{background:rgba(192,57,43,.7)}25%{background:rgba(192,57,43,.35)}100%{background:rgba(192,57,43,0)}}
-.battle-result{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:2px solid var(--gold);border-radius:10px;padding:32px 44px;z-index:51;text-align:center;display:none;min-width:380px}
-.battle-result.show{display:block;animation:bpop .5s ease-out}
-@keyframes bpop{0%{transform:translate(-50%,-50%) scale(.6);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+/* ATTACK FLASH */
+.anim-flash{position:fixed;inset:0;pointer-events:none;z-index:250}
+.anim-flash.flash{animation:warflash 2s ease-out forwards}
+@keyframes warflash{0%{background:rgba(192,57,43,0)}8%{background:rgba(192,57,43,.75)}25%{background:rgba(192,57,43,.4)}100%{background:rgba(192,57,43,0)}}
 </style>
 </head>
 <body>
 
-<div class="attack-anim" id="anim-flash"></div>
-<div class="battle-result" id="battle-result">
-  <div id="br-icon" style="font-size:52px;margin-bottom:10px"></div>
-  <div id="br-title" style="font-size:22px;font-weight:700;font-family:'Cinzel',serif;margin-bottom:8px;color:#fff"></div>
-  <div id="br-flags" style="font-size:36px;margin-bottom:10px"></div>
-  <div id="br-scores" style="font-size:14px;color:var(--text2);line-height:1.8"></div>
+<div class="anim-flash" id="anim-flash"></div>
+
+<!-- CINEMATIC OVERLAY -->
+<div id="cinematic">
+  <div class="cin-bg" id="cin-bg"></div>
+  <div class="cin-particles" id="cin-particles"></div>
+  <div class="cin-line" style="left:20%;height:100vh;animation-delay:0s"></div>
+  <div class="cin-line" style="left:80%;height:100vh;animation-delay:1.5s"></div>
+  <div class="cin-bars-top"></div>
+  <div class="cin-bars-bot"></div>
+  <div class="cin-content" id="cin-content">
+    <div class="cin-overline" id="cin-overline"></div>
+    <div class="cin-title" id="cin-title"></div>
+    <div class="cin-subtitle" id="cin-subtitle"></div>
+    <div class="cin-effect" id="cin-effect"></div>
+  </div>
+  <div class="cin-skip" onclick="hideCinematic()">Passer →</div>
 </div>
 
-<!-- VIDEO -->
-<div id="video-overlay">
-  <div class="vt-overlay"><h2 id="vt-title"></h2><p id="vt-sub"></p></div>
-  <iframe id="video-iframe" allowfullscreen allow="autoplay"></iframe>
-  <button id="video-skip" onclick="hideVideo()">Passer →</button>
+<!-- BATTLE POPUP -->
+<div class="battle-popup" id="battle-popup">
+  <div id="bp-icon" style="font-size:56px;margin-bottom:12px"></div>
+  <div id="bp-title" style="font-size:24px;font-weight:700;font-family:'Cinzel',serif;margin-bottom:8px;color:#fff"></div>
+  <div id="bp-flags" style="font-size:42px;margin-bottom:12px"></div>
+  <div id="bp-scores" style="font-size:14px;color:var(--text2);line-height:2"></div>
 </div>
 
 <!-- WAITING -->
 <div id="view-waiting" class="view active">
-  <div class="pulse"></div>
+  <div class="pulse-ring"></div>
   <div class="wait-logo">Geopolitica</div>
   <div class="wait-sub">En attente du début de la partie</div>
 </div>
@@ -128,25 +161,28 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
   <div class="pros-header">
     <div class="screen-logo">Geopolitica</div>
     <div class="per-badge" id="sc-per-badge">Période 1/6</div>
-    <div style="font-size:12px;color:var(--text2)" id="sc-nations">0 nations</div>
+    <div style="font-size:11px;color:var(--text2);letter-spacing:1px" id="sc-nations">0 nations</div>
   </div>
   <div class="pros-body">
-    <div style="display:flex;flex-direction:column;gap:16px">
-      <div class="ev-card">
+    <div style="display:flex;flex-direction:column;gap:16px;min-height:0">
+      <div class="ev-card" style="flex:1">
         <div class="ev-period" id="sc-ev-period">Période 1</div>
         <div class="ev-name" id="sc-ev-name">—</div>
         <div class="ev-desc" id="sc-ev-desc"></div>
         <div class="ev-effect" id="sc-ev-effect"></div>
       </div>
-      <div class="screen-timer">
+      <div class="timer-block">
         <div>
-          <div class="screen-timer-label">Temps restant</div>
-          <div class="screen-timer-val" id="sc-timer">10:00</div>
+          <div class="timer-label">Temps restant</div>
+          <div class="timer-val" id="sc-timer">10:00</div>
+        </div>
+        <div style="flex:1;height:2px;background:rgba(201,168,76,.1);border-radius:1px;overflow:hidden">
+          <div id="sc-timer-bar" style="height:100%;background:linear-gradient(90deg,var(--gold),#e8c97a);width:100%;transition:width 1s linear"></div>
         </div>
       </div>
     </div>
     <div class="lb-panel">
-      <div class="lb-title">Classement des nations</div>
+      <div class="lb-head">Classement des nations</div>
       <div id="sc-lb"></div>
     </div>
   </div>
@@ -159,24 +195,24 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
     <div class="war-timer-wrap">
       <div class="war-timer-val" id="war-timer">10:00</div>
     </div>
-    <div style="font-size:12px;color:#f87171;letter-spacing:2px;text-transform:uppercase" id="war-alive">0 nations</div>
+    <div style="font-size:11px;color:#f87171;letter-spacing:2px;text-transform:uppercase" id="war-alive">0 nations actives</div>
   </div>
   <div class="war-body">
     <div class="map-wrap">
-      <svg id="world-map" viewBox="0 0 800 380" style="width:100%;flex:1">
-        <rect width="800" height="380" fill="#05020a" rx="8"/>
-        <g stroke="#140308" stroke-width="0.5" fill="none">
-          <line x1="0" y1="127" x2="800" y2="127"/><line x1="0" y1="190" x2="800" y2="190"/>
-          <line x1="0" y1="253" x2="800" y2="253"/><line x1="200" y1="0" x2="200" y2="380"/>
-          <line x1="400" y1="0" x2="400" y2="380"/><line x1="600" y1="0" x2="600" y2="380"/>
+      <svg id="world-map" viewBox="0 0 800 370" preserveAspectRatio="xMidYMid meet" style="width:100%;flex:1">
+        <rect width="800" height="370" fill="#03010a" rx="6"/>
+        <g stroke="#120208" stroke-width="0.5" fill="none">
+          <line x1="0" y1="123" x2="800" y2="123"/><line x1="0" y1="185" x2="800" y2="185"/>
+          <line x1="0" y1="247" x2="800" y2="247"/><line x1="200" y1="0" x2="200" y2="370"/>
+          <line x1="400" y1="0" x2="400" y2="370"/><line x1="600" y1="0" x2="600" y2="370"/>
         </g>
-        <g fill="#0a0204" stroke="#1a0408" stroke-width="1">
-          <ellipse cx="150" cy="150" rx="105" ry="75"/>
-          <ellipse cx="195" cy="285" rx="55" ry="75"/>
-          <ellipse cx="375" cy="118" rx="58" ry="45"/>
-          <ellipse cx="385" cy="265" rx="75" ry="90"/>
-          <ellipse cx="585" cy="150" rx="135" ry="95"/>
-          <ellipse cx="655" cy="305" rx="65" ry="45"/>
+        <g fill="#090109" stroke="#160412" stroke-width="1">
+          <ellipse cx="148" cy="148" rx="108" ry="77"/>
+          <ellipse cx="198" cy="288" rx="58" ry="78"/>
+          <ellipse cx="378" cy="115" rx="60" ry="46"/>
+          <ellipse cx="388" cy="268" rx="78" ry="88"/>
+          <ellipse cx="588" cy="148" rx="138" ry="96"/>
+          <ellipse cx="658" cy="308" rx="68" ry="46"/>
         </g>
         <g id="map-countries"></g>
         <g id="map-anims"></g>
@@ -188,79 +224,124 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 
 <script>
 const socket = io();
-let state = {}, timerSec = 600, lastPhase = null, lastPeriod = 0;
+let state={}, timerSec=600, timerTotal=600, lastPhase=null, lastPeriod=0;
 
-const MAP_POS = {
-  usa:{x:130,y:150}, china:{x:615,y:145}, russia:{x:555,y:92},
-  germany:{x:385,y:108}, qatar:{x:475,y:188}, france:{x:360,y:118},
-  brazil:{x:205,y:285}, india:{x:555,y:195}, morocco:{x:348,y:205}, guinea:{x:325,y:242},
+const MAP_POS={
+  usa:{x:128,y:148},china:{x:618,y:142},russia:{x:558,y:90},
+  germany:{x:382,y:106},qatar:{x:478,y:185},france:{x:358,y:116},
+  brazil:{x:202,y:286},india:{x:558,y:192},morocco:{x:346,y:202},guinea:{x:322,y:240},
 };
-const COLORS = {
+const COLORS={
   usa:'#3b82f6',china:'#ef4444',russia:'#8b5cf6',germany:'#f59e0b',
   qatar:'#06b6d4',france:'#ec4899',brazil:'#22c55e',india:'#f97316',
   morocco:'#84cc16',guinea:'#14b8a6',
 };
 
+// Period cinematic configs
+const PERIOD_THEMES = [
+  { overline:'Période 1 · Janvier — Juin · An 1', bg:'radial-gradient(ellipse at center,#0a1628,#000)', accent:'#c9a84c' },
+  { overline:'Période 2 · Juillet — Déc · An 1',  bg:'radial-gradient(ellipse at center,#0e1a10,#000)', accent:'#c9a84c' },
+  { overline:'Période 3 · Janvier — Juin · An 2',  bg:'radial-gradient(ellipse at center,#1a0808,#000)', accent:'#f87171' },
+  { overline:'Période 4 · Juillet — Déc · An 2',   bg:'radial-gradient(ellipse at center,#0e0a1a,#000)', accent:'#8b5cf6' },
+  { overline:'Période 5 · Janvier — Juin · An 3',  bg:'radial-gradient(ellipse at center,#1a0e00,#000)', accent:'#f59e0b' },
+  { overline:'Période 6 · Juillet — Déc · An 3',   bg:'radial-gradient(ellipse at center,#1a0208,#000)', accent:'#f87171' },
+];
+
 socket.on('state', s => { const prev=state; state=s; onUpdate(prev); });
 socket.on('timer', ({seconds,running,ended}) => {
   timerSec=seconds;
   updateTimers();
-  if(ended) flashTimer();
+  if(ended) onTimerEnd();
 });
 socket.on('attackAnimation', ({attackerId,defenderId,success,scoreAtt,scoreDef}) => {
-  showBattleResult(attackerId,defenderId,success,scoreAtt,scoreDef);
+  showBattle(attackerId,defenderId,success,scoreAtt,scoreDef);
 });
 
 function showView(id){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 
-function showVideo(src,title,sub,dur){
-  document.getElementById('video-iframe').src=src;
-  document.getElementById('vt-title').textContent=title;
-  document.getElementById('vt-sub').textContent=sub||'';
-  document.getElementById('video-overlay').classList.add('active');
-  if(dur) setTimeout(hideVideo,dur);
+function showCinematic(opts, duration) {
+  const cin = document.getElementById('cinematic');
+  const bg = document.getElementById('cin-bg');
+  const content = document.getElementById('cin-content');
+  bg.style.background = opts.bg || 'radial-gradient(ellipse at center,#0a1628,#000)';
+  document.getElementById('cin-overline').textContent = opts.overline || '';
+  document.getElementById('cin-overline').className = 'cin-overline' + (opts.war ? ' cin-war-overline' : '');
+  document.getElementById('cin-title').textContent = opts.title || '';
+  document.getElementById('cin-title').className = 'cin-title' + (opts.war ? ' cin-war-title' : '');
+  document.getElementById('cin-subtitle').textContent = opts.subtitle || '';
+  document.getElementById('cin-effect').textContent = opts.effect || '';
+  document.getElementById('cin-effect').className = 'cin-effect' + (opts.war ? ' cin-war-effect' : '');
+  // Generate particles
+  const pp = document.getElementById('cin-particles'); pp.innerHTML = '';
+  for(let i=0;i<30;i++){
+    const p=document.createElement('div'); p.className='cin-particle';
+    const drift = (Math.random()-0.5)*200;
+    p.style.cssText=`left:${Math.random()*100}%;animation-duration:${3+Math.random()*4}s;animation-delay:${Math.random()*3}s;--drift:${drift}px;${opts.war?'background:#f87171':''}`;
+    pp.appendChild(p);
+  }
+  cin.classList.add('active');
+  if(duration) setTimeout(hideCinematic, duration);
 }
-function hideVideo(){ document.getElementById('video-overlay').classList.remove('active'); document.getElementById('video-iframe').src=''; }
+
+function hideCinematic(){
+  document.getElementById('cinematic').classList.remove('active');
+}
 
 function updateTimers(){
-  const m=Math.floor(timerSec/60),s=timerSec%60;
+  const m=Math.floor(timerSec/60), s=timerSec%60;
   const fmt=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   const urgent=timerSec<60;
-  const st=document.getElementById('sc-timer');
-  const wt=document.getElementById('war-timer');
-  if(st){ st.textContent=fmt; st.className='screen-timer-val'+(urgent?' urgent':''); }
-  if(wt){ wt.textContent=fmt; wt.className='war-timer-val'+(urgent?' urgent':''); }
+  ['sc-timer','war-timer'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.textContent=fmt; el.className=(id==='sc-timer'?'timer-val':'war-timer-val')+(urgent?' urgent':''); }});
+  const bar=document.getElementById('sc-timer-bar');
+  if(bar) bar.style.width=Math.max(0,timerSec/timerTotal*100)+'%';
 }
 
-function flashTimer(){
-  ['sc-timer','war-timer'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.style.color='#f87171'; setTimeout(()=>el.style.color='',3000); }});
+function onTimerEnd(){
+  ['sc-timer','war-timer'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.color='#f87171'; setTimeout(()=>{ if(el) el.style.color=''; },4000); });
 }
 
-function showBattleResult(attId,defId,success,scoreAtt,scoreDef){
+function showBattle(attId,defId,success,scoreAtt,scoreDef){
   const fl=document.getElementById('anim-flash');
-  fl.classList.add('flash'); setTimeout(()=>fl.classList.remove('flash'),2000);
+  fl.className='anim-flash flash'; setTimeout(()=>fl.className='anim-flash',2000);
   const att=state.countries&&state.countries[attId];
   const def=state.countries&&state.countries[defId];
   if(!att||!def) return;
-  document.getElementById('br-icon').textContent=success?'💥':'🛡️';
-  document.getElementById('br-title').textContent=success?'Victoire écrasante !':'Attaque repoussée !';
-  document.getElementById('br-flags').textContent=att.flag+' ⚔️ '+def.flag;
-  document.getElementById('br-scores').innerHTML=`<strong style="color:${success?'#4ade80':'#f87171'}">${att.flag} ${att.name}</strong>: ${scoreAtt} pts<br><strong style="color:${success?'#f87171':'#4ade80'}">${def.flag} ${def.name}</strong>: ${scoreDef} pts<br><br>${success?att.flag+' '+att.name+' pille toutes les ressources !':def.flag+' '+def.name+' tient bon !'}`;
-  const br=document.getElementById('battle-result');
-  br.classList.add('show'); setTimeout(()=>br.classList.remove('show'),8000);
+  const popup=document.getElementById('battle-popup');
+  popup.className='battle-popup war-popup show';
+  document.getElementById('bp-icon').textContent=success?'💥':'🛡️';
+  document.getElementById('bp-title').textContent=success?'Victoire écrasante !':'Attaque repoussée !';
+  document.getElementById('bp-flags').textContent=att.flag+' ⚔️ '+def.flag;
+  document.getElementById('bp-scores').innerHTML=`<span style="color:${success?'#4ade80':'#f87171'}">${att.flag} ${att.name}: ${scoreAtt} pts</span><br><span style="color:${success?'#f87171':'#4ade80'}">${def.flag} ${def.name}: ${scoreDef} pts</span><br><br><span style="color:var(--gold)">${success?'🏴 Toutes les ressources pillées !':'🛡️ La défense a tenu !'}</span>`;
+  setTimeout(()=>popup.classList.remove('show'),9000);
 }
 
 function onUpdate(prev){
   if(state.phase!==lastPhase){
     if(state.phase==='war'&&lastPhase!=='war'){
-      showVideo(state.warVideo,'⚔️ La Guerre Commence','Le monde entier attend son maître. Personne ne veut plier.',35000);
-      setTimeout(()=>showView('view-war'),500);
+      showCinematic({
+        war:true,
+        overline:'Breaking News · Alerte Mondiale',
+        bg:'radial-gradient(ellipse at center,#1a0205,#000)',
+        title:'La Guerre est Déclarée',
+        subtitle:'Le monde tel que nous le connaissions vient de basculer. Dix nations se disputent la suprématie. Une seule survivra.',
+        effect:'⚔️ Que le meilleur règne sur le monde'
+      }, 12000);
+      setTimeout(()=>showView('view-war'), 600);
     } else if(state.phase==='prosperity') showView('view-prosperity');
-    else if(state.phase==='draft'||state.phase==='setup') showView('view-waiting');
+    else showView('view-waiting');
     lastPhase=state.phase;
   }
   if(state.currentPeriod!==lastPeriod&&state.currentPeriod>0&&state.phase==='prosperity'){
-    if(state.currentEvent?.periodVideo) showVideo(state.currentEvent.periodVideo,state.currentEvent.periodName,state.currentEvent.periodSubtitle,22000);
+    const theme=PERIOD_THEMES[(state.currentPeriod-1)%PERIOD_THEMES.length];
+    const ev=state.currentEvent;
+    showCinematic({
+      overline: theme.overline,
+      bg: theme.bg,
+      title: ev?.periodName||'Nouvelle Période',
+      subtitle: ev?.periodDesc||'',
+      effect: ev ? ('⚡ '+ev.title+' — '+ev.effect) : '',
+    }, 8000);
+    timerTotal=600;
     lastPeriod=state.currentPeriod;
   }
   if(state.phase==='prosperity') renderProsperity();
@@ -273,7 +354,7 @@ function renderProsperity(){
   const sorted=[...alive].sort((a,b)=>b.power-a.power);
   const maxP=sorted[0]?.power||1;
   document.getElementById('sc-per-badge').textContent=`Période ${state.currentPeriod||1}/6`;
-  document.getElementById('sc-nations').textContent=alive.length+' nations';
+  document.getElementById('sc-nations').textContent=alive.length+' nations actives';
   if(state.currentEvent){
     const ev=state.currentEvent;
     document.getElementById('sc-ev-period').textContent=`Période ${ev.periodNumber||''} · ${ev.periodSubtitle||''}`;
@@ -284,7 +365,18 @@ function renderProsperity(){
   document.getElementById('sc-lb').innerHTML=sorted.map((c,i)=>{
     const pct=Math.round(c.power/maxP*100);
     const bc=pct<30?'bfl':pct<60?'bfm':'bfh';
-    return `<div class="lb-item ${i===0?'first':''}"><div class="lb-pos">${i+1}</div><div class="lb-fl">${c.flag}</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><div class="lb-nm">${c.name}</div><div class="lb-pw">${c.power} pts</div></div><div class="lb-bw"><div class="lb-bf ${bc}" style="width:${pct}%"></div></div></div></div>`;
+    return `<div class="lb-item ${i===0?'first':''}">
+      <div class="lb-pos">${i+1}</div>
+      <div class="lb-fl">${c.flag}</div>
+      <div class="lb-info">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="lb-nm">${c.name}</div>
+          <div class="lb-pw">${c.power.toLocaleString()} pts</div>
+        </div>
+        <div class="lb-team">${c.team||''}</div>
+        <div class="lb-bw"><div class="lb-bf ${bc}" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
   }).join('');
 }
 
@@ -297,31 +389,44 @@ function renderWar(){
   document.getElementById('war-alive').textContent=alive.length+' nations actives';
   document.getElementById('war-nations').innerHTML=sorted.map(c=>{
     const pct=Math.round(c.power/maxP*100);
-    return `<div class="wn ${c.eliminated?'elim':''}"><div class="wn-flag">${c.flag}</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><div class="wn-name">${c.name}</div><div class="wn-pts">${c.power} pts</div></div><div class="wbw"><div class="wbf" style="width:${pct}%"></div></div></div></div>`;
+    return `<div class="wn ${c.eliminated?'elim':''}">
+      <div class="wn-flag">${c.flag}</div>
+      <div class="wn-body">
+        <div class="wn-top"><div class="wn-name">${c.name}</div><div class="wn-pts">${c.power.toLocaleString()}</div></div>
+        <div class="wbw"><div class="wbf" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
   }).join('');
   // Map
-  const mapG=document.getElementById('map-countries');
-  mapG.innerHTML='';
+  const mapG=document.getElementById('map-countries'); mapG.innerHTML='';
+  const animG=document.getElementById('map-anims');
   teams.forEach(c=>{
     const pos=MAP_POS[c.id]; if(!pos) return;
     const color=COLORS[c.id]||'#fff';
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    // Pulse glow
     const glow=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    glow.setAttribute('cx',pos.x);glow.setAttribute('cy',pos.y);glow.setAttribute('r','20');
-    glow.setAttribute('fill',c.eliminated?'#1a0408':color);glow.setAttribute('opacity',c.eliminated?'0.05':'0.18');
+    glow.setAttribute('cx',pos.x); glow.setAttribute('cy',pos.y); glow.setAttribute('r','22');
+    glow.setAttribute('fill',c.eliminated?'#0a0204':color); glow.setAttribute('opacity',c.eliminated?'0.03':'0.15');
     g.appendChild(glow);
+    // Main dot
     const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    dot.setAttribute('cx',pos.x);dot.setAttribute('cy',pos.y);dot.setAttribute('r','9');
-    dot.setAttribute('fill',c.eliminated?'#2a0a0a':color);dot.setAttribute('stroke','#000');dot.setAttribute('stroke-width','1.5');
+    dot.setAttribute('cx',pos.x); dot.setAttribute('cy',pos.y); dot.setAttribute('r','9');
+    dot.setAttribute('fill',c.eliminated?'#1a0408':color); dot.setAttribute('stroke','#000'); dot.setAttribute('stroke-width','1.5');
     g.appendChild(dot);
+    // Flag
     const flag=document.createElementNS('http://www.w3.org/2000/svg','text');
-    flag.setAttribute('x',pos.x);flag.setAttribute('y',pos.y-18);flag.setAttribute('text-anchor','middle');flag.setAttribute('font-size','22');
-    flag.setAttribute('opacity',c.eliminated?'0.15':'1');
-    flag.textContent=c.flag;g.appendChild(flag);
+    flag.setAttribute('x',pos.x); flag.setAttribute('y',pos.y-19);
+    flag.setAttribute('text-anchor','middle'); flag.setAttribute('font-size','20');
+    flag.setAttribute('opacity',c.eliminated?'0.1':'1');
+    flag.textContent=c.flag; g.appendChild(flag);
+    // Name
     const nm=document.createElementNS('http://www.w3.org/2000/svg','text');
-    nm.setAttribute('x',pos.x);nm.setAttribute('y',pos.y+22);nm.setAttribute('text-anchor','middle');nm.setAttribute('font-size','8');
-    nm.setAttribute('fill',c.eliminated?'#2a0a0a':color);nm.setAttribute('font-family','Cinzel,serif');nm.setAttribute('letter-spacing','1');
-    nm.textContent=c.name.toUpperCase();g.appendChild(nm);
+    nm.setAttribute('x',pos.x); nm.setAttribute('y',pos.y+22);
+    nm.setAttribute('text-anchor','middle'); nm.setAttribute('font-size','8');
+    nm.setAttribute('fill',c.eliminated?'#1a0408':color);
+    nm.setAttribute('font-family','Cinzel,serif'); nm.setAttribute('letter-spacing','1');
+    nm.textContent=c.name.toUpperCase(); g.appendChild(nm);
     mapG.appendChild(g);
   });
 }
