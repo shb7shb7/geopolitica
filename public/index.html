@@ -5,186 +5,275 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Geopolitica</title>
 <script src="/socket.io/socket.io.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,sans-serif;background:#f5f4f0;color:#1a1a18;min-height:100vh}
+:root{
+  --bg:#0a0c10;--bg2:#111520;--bg3:#161b28;--border:#1e2640;
+  --gold:#c9a84c;--gold2:#e8c97a;--red:#c0392b;--green:#1a7a4a;
+  --text:#d4d8e8;--text2:#8892b0;--text3:#4a5568;
+  --blue:#1e3a5f;--bluelight:#2d5a8e;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+h1,h2,.logo,.logo-sm{font-family:'Cinzel',serif}
+
 .screen{display:none;min-height:100vh;flex-direction:column}
 .screen.active{display:flex}
-#screen-landing{align-items:center;justify-content:center;gap:1.5rem;padding:2rem;text-align:center}
-.logo{font-size:52px;font-weight:700;letter-spacing:-2px;color:#1a1a18}
-.logo span{color:#c84b1f}
-.tagline{font-size:15px;color:#888;max-width:340px}
-.btn-group{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px}
-.btn-primary{background:#1a1a18;color:#fff;border:none;border-radius:10px;padding:13px 30px;font-size:15px;font-weight:600;cursor:pointer}
-.btn-primary:hover{opacity:.85}
-.btn-secondary{background:transparent;color:#1a1a18;border:1.5px solid #d0cec6;border-radius:10px;padding:13px 30px;font-size:15px;cursor:pointer}
-.btn-secondary:hover{background:#ece9e2}
-.game-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#fff;border-bottom:1px solid #ece9e2;flex-shrink:0}
-.logo-sm{font-size:20px;font-weight:700;letter-spacing:-1px}
-.logo-sm span{color:#c84b1f}
-.phase-badge{font-size:12px;padding:4px 12px;border-radius:20px;font-weight:600}
-.phase-setup{background:#f0ede6;color:#888}
-.phase-draft{background:#dbeafe;color:#1e40af}
-.phase-prosper{background:#dcfce7;color:#166534}
-.phase-war{background:#fee2e2;color:#991b1b}
-.card{background:#fff;border:1px solid #ece9e2;border-radius:14px;padding:16px}
-.card-title{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+
+/* LANDING */
+#screen-landing{align-items:center;justify-content:center;gap:2rem;padding:2rem;text-align:center;background:radial-gradient(ellipse at center,#0d1424 0%,#050709 70%)}
+.landing-bg{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231e2640' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");opacity:.3;pointer-events:none}
+.logo{font-size:64px;font-weight:700;letter-spacing:-2px;color:var(--gold);text-shadow:0 0 40px rgba(201,168,76,0.3);position:relative}
+.logo span{color:#fff}
+.tagline{font-size:14px;color:var(--text2);letter-spacing:3px;text-transform:uppercase;position:relative}
+.divider{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto}
+.btn-group{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;position:relative}
+.btn-primary{background:linear-gradient(135deg,#8b6914,var(--gold));color:#0a0c10;border:none;border-radius:4px;padding:14px 36px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif;transition:all .2s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,0.4)}
+.btn-secondary{background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:4px;padding:14px 36px;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif;transition:all .2s}
+.btn-secondary:hover{background:rgba(201,168,76,0.1);transform:translateY(-2px)}
+.share-hint{font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;position:relative}
+
+/* HEADER */
+.game-header{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.logo-sm{font-size:22px;font-weight:700;color:var(--gold);letter-spacing:-1px}
+.phase-badge{font-size:11px;padding:4px 14px;border-radius:2px;font-weight:600;letter-spacing:2px;text-transform:uppercase}
+.phase-setup{background:rgba(74,85,104,.3);color:var(--text2);border:1px solid var(--text3)}
+.phase-draft{background:rgba(30,58,95,.5);color:#60a5fa;border:1px solid #1e3a5f}
+.phase-prosper{background:rgba(26,122,74,.3);color:#4ade80;border:1px solid #1a7a4a}
+.phase-war{background:rgba(192,57,43,.3);color:#f87171;border:1px solid var(--red)}
+
+/* MJ LAYOUT */
 #screen-mj{flex-direction:column}
-.mj-body{display:grid;grid-template-columns:1fr 300px;flex:1;overflow:hidden;height:calc(100vh - 57px)}
+.mj-body{display:grid;grid-template-columns:1fr 280px;flex:1;overflow:hidden;height:calc(100vh - 57px)}
 .mj-main{padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
-.mj-sidebar{padding:14px;background:#faf9f6;border-left:1px solid #ece9e2;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
-.countries-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
-.country-card{border:1px solid #ece9e2;border-radius:12px;padding:10px 12px;background:#fff}
-.country-card.eliminated{opacity:.4}
-.country-flag{font-size:22px;margin-bottom:4px}
-.country-name{font-size:13px;font-weight:600;margin-bottom:3px}
-.country-stats{font-size:11px;color:#888}
-.power-bar{height:4px;background:#f0ede6;border-radius:2px;margin-top:6px}
-.power-fill{height:100%;border-radius:2px;transition:width .4s}
-.fill-high{background:#16a34a}
-.fill-mid{background:#ca8a04}
-.fill-low{background:#dc2626}
-.lb-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:#f5f4f0;margin-bottom:5px}
-.lb-row.first{background:#fef3c7}
-.lb-rank{font-size:13px;font-weight:600;min-width:22px;color:#888}
-.lb-row.first .lb-rank{color:#92400e}
+.mj-sidebar{padding:14px;background:var(--bg2);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:16px}
+.card-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;font-family:'Cinzel',serif}
+
+/* PERIOD DISPLAY */
+.period-display{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--gold);border-radius:6px;padding:20px;position:relative;overflow:hidden}
+.period-display::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.period-number{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;font-family:'Cinzel',serif}
+.period-name{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px;font-family:'Cinzel',serif}
+.period-subtitle{font-size:12px;color:var(--text2);margin-bottom:10px}
+.period-desc{font-size:13px;color:var(--text);line-height:1.6}
+.event-tag{display:inline-block;margin-top:10px;font-size:11px;padding:4px 12px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);border-radius:2px;color:var(--gold);letter-spacing:1px}
+
+/* COUNTRIES */
+.countries-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px}
+.country-card{border:1px solid var(--border);border-radius:6px;padding:10px 12px;background:var(--bg3);transition:border-color .2s}
+.country-card:hover{border-color:var(--gold)}
+.country-card.eliminated{opacity:.3;filter:grayscale(1)}
+.country-flag{font-size:24px;margin-bottom:4px}
+.country-name{font-size:12px;font-weight:600;margin-bottom:4px;color:#fff;font-family:'Cinzel',serif}
+.country-stats{font-size:10px;color:var(--text2)}
+.power-bar{height:3px;background:var(--bg);border-radius:2px;margin-top:8px}
+.power-fill{height:100%;border-radius:2px;transition:width .5s}
+.fill-high{background:linear-gradient(90deg,#1a7a4a,#4ade80)}
+.fill-mid{background:linear-gradient(90deg,#854d0e,#ca8a04)}
+.fill-low{background:linear-gradient(90deg,var(--red),#f87171)}
+
+/* LEADERBOARD */
+.lb-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:4px;background:var(--bg3);margin-bottom:5px;border:1px solid transparent;transition:border-color .2s}
+.lb-row.first{background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));border-color:rgba(201,168,76,.3)}
+.lb-rank{font-size:12px;font-weight:700;min-width:22px;color:var(--text2);font-family:'Cinzel',serif}
+.lb-row.first .lb-rank{color:var(--gold)}
 .lb-flag{font-size:18px}
-.lb-name{flex:1;font-size:13px;font-weight:600}
-.lb-power{font-size:13px;color:#888}
-.event-box{padding:14px;background:#f0f4ff;border-radius:12px;border-left:3px solid #3b82f6}
-.event-title{font-size:14px;font-weight:600;margin-bottom:4px}
-.event-desc{font-size:13px;color:#555;line-height:1.5}
-.event-effect{font-size:12px;margin-top:6px;color:#3b82f6;font-weight:500}
-.timer-big{font-size:42px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-1px}
-.timer-big.urgent{color:#dc2626}
+.lb-name{flex:1;font-size:13px;font-weight:600;color:#fff}
+.lb-power{font-size:12px;color:var(--text2)}
+
+/* TIMER */
+.timer-big{font-size:48px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-2px;color:var(--gold);font-family:'Cinzel',serif}
+.timer-big.urgent{color:#f87171;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* CONTROLS */
 .ctrl-row{display:flex;gap:8px;flex-wrap:wrap}
-.btn-sm{font-size:13px;padding:7px 14px;border-radius:8px;border:1px solid #d0cec6;background:transparent;color:#1a1a18;cursor:pointer;white-space:nowrap;font-weight:500}
-.btn-sm:hover{background:#f0ede6}
-.btn-green{border-color:#16a34a;color:#16a34a}
-.btn-green:hover{background:#dcfce7}
-.btn-red{border-color:#dc2626;color:#dc2626}
-.btn-red:hover{background:#fee2e2}
-.btn-amber{border-color:#ca8a04;color:#ca8a04}
-.btn-amber:hover{background:#fef9c3}
-.sel{font-size:13px;padding:7px 10px;border-radius:8px;border:1px solid #d0cec6;background:#fff;color:#1a1a18;width:100%}
-.log-entry{font-size:12px;padding:6px 10px;border-radius:8px;margin-bottom:4px;line-height:1.4}
-.log-attack{background:#fee2e2;color:#991b1b}
-.log-economy{background:#dcfce7;color:#166534}
-.log-event{background:#dbeafe;color:#1e40af}
-.log-eliminated{background:#fee2e2;color:#7f1d1d;font-weight:600}
-#screen-lobby{align-items:center;justify-content:center;padding:2rem}
-.lobby-card{background:#fff;border:1px solid #ece9e2;border-radius:16px;padding:28px 32px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:14px}
-.lobby-title{font-size:20px;font-weight:700}
-.input{width:100%;font-size:14px;padding:11px 13px;border:1px solid #d0cec6;border-radius:10px;background:#fff;color:#1a1a18;outline:none}
-.input:focus{border-color:#1a1a18}
-.error{color:#dc2626;font-size:13px;min-height:18px}
-#screen-draft{flex-direction:column}
+.btn-sm{font-size:11px;padding:7px 14px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;white-space:nowrap;font-weight:500;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+.btn-sm:hover{background:var(--bg3)}
+.btn-green{border-color:#1a7a4a;color:#4ade80}
+.btn-green:hover{background:rgba(26,122,74,.2)}
+.btn-red{border-color:var(--red);color:#f87171}
+.btn-red:hover{background:rgba(192,57,43,.2)}
+.btn-gold{border-color:var(--gold);color:var(--gold)}
+.btn-gold:hover{background:rgba(201,168,76,.1)}
+.sel{font-size:12px;padding:7px 10px;border-radius:3px;border:1px solid var(--border);background:var(--bg3);color:var(--text);width:100%}
+.inp{width:100%;font-size:13px;padding:9px 12px;border:1px solid var(--border);border-radius:4px;background:var(--bg3);color:var(--text);outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--gold)}
+
+/* LOG */
+.log-entry{font-size:11px;padding:6px 10px;border-radius:3px;margin-bottom:4px;line-height:1.5;border-left:2px solid transparent}
+.log-attack{background:rgba(192,57,43,.15);border-color:var(--red);color:#f87171}
+.log-economy{background:rgba(26,122,74,.15);border-color:#1a7a4a;color:#4ade80}
+.log-event{background:rgba(30,58,95,.3);border-color:var(--bluelight);color:#60a5fa}
+.log-eliminated{background:rgba(192,57,43,.25);border-color:var(--red);color:#fca5a5;font-weight:600}
+
+/* LOBBY */
+#screen-lobby{align-items:center;justify-content:center;padding:2rem;background:var(--bg)}
+.lobby-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:32px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:16px;position:relative;overflow:hidden}
+.lobby-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.lobby-title{font-size:22px;font-weight:700;color:#fff;font-family:'Cinzel',serif}
+.error{color:#f87171;font-size:12px;min-height:16px}
+
+/* DRAFT */
+#screen-draft{flex-direction:column;background:var(--bg)}
 .draft-body{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
-.draft-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
-.draft-card{border:1.5px solid #ece9e2;border-radius:14px;padding:14px;background:#fff;cursor:pointer;text-align:center;transition:border-color .15s,transform .1s}
-.draft-card:hover:not(.taken){border-color:#3b82f6;transform:translateY(-2px)}
-.draft-card.taken{opacity:.45;cursor:not-allowed}
-.draft-card.selected{border-color:#16a34a;border-width:2px}
-.draft-flag{font-size:34px;margin-bottom:6px}
-.draft-cname{font-size:14px;font-weight:700;margin-bottom:5px}
-.tier-badge{font-size:11px;padding:3px 10px;border-radius:20px;display:inline-block;font-weight:600}
-.tier-S{background:#fef3c7;color:#92400e}
-.tier-A{background:#dbeafe;color:#1e40af}
-.tier-B{background:#dcfce7;color:#166534}
-.draft-stats{font-size:11px;color:#888;margin-top:6px;line-height:1.6}
-.draft-taken{font-size:11px;color:#888;margin-top:4px;font-style:italic}
-#screen-team{flex-direction:column}
+.draft-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.draft-card{border:1px solid var(--border);border-radius:6px;padding:16px;background:var(--bg2);cursor:pointer;text-align:center;transition:all .2s;position:relative;overflow:hidden}
+.draft-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .2s}
+.draft-card:hover:not(.taken){border-color:var(--gold);transform:translateY(-3px)}
+.draft-card:hover:not(.taken)::before{opacity:1}
+.draft-card.taken{opacity:.35;cursor:not-allowed;filter:grayscale(.8)}
+.draft-card.selected{border-color:var(--gold);border-width:2px}
+.draft-card.selected::before{opacity:1}
+.draft-flag{font-size:36px;margin-bottom:8px}
+.draft-cname{font-size:14px;font-weight:700;margin-bottom:6px;color:#fff;font-family:'Cinzel',serif}
+.tier-badge{font-size:10px;padding:3px 10px;border-radius:2px;display:inline-block;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.tier-S{background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.4)}
+.tier-A{background:rgba(30,58,95,.5);color:#60a5fa;border:1px solid #1e3a5f}
+.tier-B{background:rgba(26,122,74,.2);color:#4ade80;border:1px solid #1a7a4a}
+.draft-stats{font-size:10px;color:var(--text2);margin-top:8px;line-height:1.8}
+.draft-taken{font-size:10px;color:var(--text3);margin-top:4px;font-style:italic}
+
+/* TEAM SCREEN */
+#screen-team{flex-direction:column;background:var(--bg)}
 .team-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
 .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.stat-card{background:#f5f4f0;border-radius:12px;padding:12px;text-align:center}
-.stat-label{font-size:11px;color:#888;margin-bottom:3px;font-weight:500}
-.stat-val{font-size:22px;font-weight:700}
-.gold-c{color:#b45309}
-.oil-c{color:#374151}
-.food-c{color:#166534}
-.army-c{color:#991b1b}
-.tabs{display:flex;border:1px solid #ece9e2;border-radius:10px;overflow:hidden}
-.tab{flex:1;padding:9px;font-size:13px;font-weight:600;text-align:center;cursor:pointer;background:#fff;color:#888;border-right:1px solid #ece9e2}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:12px;text-align:center;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px}
+.stat-card.gold-s::after{background:var(--gold)}
+.stat-card.oil-s::after{background:#60a5fa}
+.stat-card.food-s::after{background:#4ade80}
+.stat-card.army-s::after{background:#f87171}
+.stat-label{font-size:10px;color:var(--text2);margin-bottom:4px;font-weight:500;letter-spacing:1px;text-transform:uppercase}
+.stat-val{font-size:24px;font-weight:700;font-family:'Cinzel',serif}
+.gold-c{color:var(--gold)}
+.oil-c{color:#60a5fa}
+.food-c{color:#4ade80}
+.army-c{color:#f87171}
+
+.tabs{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.tab{flex:1;padding:10px;font-size:11px;font-weight:600;text-align:center;cursor:pointer;background:var(--bg2);color:var(--text2);border-right:1px solid var(--border);transition:all .15s;letter-spacing:1px;text-transform:uppercase}
 .tab:last-child{border-right:none}
-.tab.active{background:#1a1a18;color:#fff}
+.tab.active{background:var(--gold);color:#0a0c10}
 .panel{display:none}
 .panel.active{display:block}
-.market-row{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border:1px solid #ece9e2;border-radius:12px;margin-bottom:8px;flex-wrap:wrap;gap:8px}
-.market-name{font-size:14px;font-weight:600;margin-bottom:2px}
-.market-price{font-size:12px;color:#888}
+
+.market-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;background:var(--bg3);flex-wrap:wrap;gap:8px;transition:border-color .2s}
+.market-row:hover{border-color:var(--gold)}
+.market-name{font-size:13px;font-weight:600;margin-bottom:2px;color:#fff;font-family:'Cinzel',serif}
+.market-price{font-size:11px;color:var(--text2)}
 .qty-ctrl{display:flex;align-items:center;gap:8px}
-.qty-btn{width:28px;height:28px;border-radius:50%;border:1px solid #d0cec6;background:transparent;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#1a1a18;line-height:1}
-.qty-btn:hover{background:#f0ede6}
-.qty-val{font-size:14px;font-weight:700;min-width:22px;text-align:center}
-.buy-btn{font-size:12px;padding:5px 12px;border-radius:8px;border:1px solid #16a34a;background:transparent;color:#16a34a;cursor:pointer;font-weight:600}
-.buy-btn:hover{background:#dcfce7}
-.sell-btn{font-size:12px;padding:5px 12px;border-radius:8px;border:1px solid #dc2626;background:transparent;color:#dc2626;cursor:pointer;font-weight:600}
-.sell-btn:hover{background:#fee2e2}
-.news-entry{padding:10px 12px;border-left:3px solid #d0cec6;margin-bottom:8px;border-radius:0 8px 8px 0}
-.news-good{border-color:#16a34a;background:#f0fdf4}
-.news-bad{border-color:#dc2626;background:#fff5f5}
-.news-neutral{border-color:#3b82f6;background:#eff6ff}
-.news-time{font-size:11px;color:#888;margin-bottom:2px}
-.news-text{font-size:13px;line-height:1.5}
-.attack-warning{background:#fef9c3;color:#713f12;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.5;border:1px solid #fde68a}
-.elim-banner{background:#fee2e2;color:#991b1b;text-align:center;padding:20px;border-radius:14px;margin-bottom:8px}
-.elim-banner h2{font-size:20px;font-weight:700;margin-bottom:6px}
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a18;color:#fff;padding:10px 22px;border-radius:10px;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap}
+.qty-btn{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:transparent;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);transition:all .15s}
+.qty-btn:hover{border-color:var(--gold);color:var(--gold)}
+.qty-val{font-size:14px;font-weight:700;min-width:22px;text-align:center;font-family:'Cinzel',serif}
+.buy-btn{font-size:11px;padding:5px 14px;border-radius:3px;border:1px solid #1a7a4a;background:transparent;color:#4ade80;cursor:pointer;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+.buy-btn:hover{background:rgba(26,122,74,.2)}
+.sell-btn{font-size:11px;padding:5px 14px;border-radius:3px;border:1px solid var(--red);background:transparent;color:#f87171;cursor:pointer;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+.sell-btn:hover{background:rgba(192,57,43,.2)}
+
+.news-entry{padding:10px 14px;border-left:2px solid var(--border);margin-bottom:8px;border-radius:0 4px 4px 0;background:var(--bg3)}
+.news-good{border-color:#1a7a4a}
+.news-bad{border-color:var(--red)}
+.news-neutral{border-color:var(--bluelight)}
+.news-time{font-size:10px;color:var(--text3);margin-bottom:3px;letter-spacing:1px}
+.news-text{font-size:13px;line-height:1.5;color:var(--text)}
+
+.attack-warning{background:rgba(30,58,95,.3);color:#60a5fa;border-radius:4px;padding:14px;font-size:13px;line-height:1.6;border:1px solid #1e3a5f}
+.elim-banner{background:rgba(192,57,43,.2);color:#f87171;text-align:center;padding:24px;border-radius:6px;border:1px solid var(--red)}
+.elim-banner h2{font-size:22px;font-weight:700;margin-bottom:8px;font-family:'Cinzel',serif}
+
+/* COALITION */
+.coalition-box{background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.4);border-radius:6px;padding:20px;text-align:center;position:relative;overflow:hidden}
+.coalition-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.coalition-title{font-size:16px;font-weight:700;color:var(--gold);margin-bottom:8px;font-family:'Cinzel',serif}
+.coalition-desc{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:16px}
+.coalition-btns{display:flex;gap:10px;justify-content:center}
+
+/* RULES */
+.rules-content{padding:4px}
+.rules-section{margin-bottom:16px}
+.rules-section h3{font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif}
+.rules-section p,.rules-section li{font-size:13px;color:var(--text);line-height:1.7}
+.rules-section ul{padding-left:16px}
+.rules-section li{margin-bottom:4px}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg2);color:var(--gold);padding:10px 24px;border-radius:4px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap;border:1px solid var(--gold);letter-spacing:1px}
 #toast.show{opacity:1}
-@media(max-width:640px){.mj-body{grid-template-columns:1fr}.mj-sidebar{display:none}.stat-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* SOUND indicator */
+.sound-on{color:#4ade80}
+.sound-off{color:var(--text3)}
+
+@media(max-width:640px){
+  .mj-body{grid-template-columns:1fr}.mj-sidebar{display:none}
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .logo{font-size:42px}
+}
 </style>
 </head>
 <body>
 
+<!-- LANDING -->
 <div id="screen-landing" class="screen active">
+  <div class="landing-bg"></div>
   <div class="logo">Geo<span>politica</span></div>
-  <div class="tagline">Business Game de conquête économique · 10 équipes · 1 seul vainqueur</div>
+  <div class="divider"></div>
+  <div class="tagline">Business Game · Conquête Économique · 10 Nations</div>
   <div class="btn-group">
     <button class="btn-primary" onclick="showScreen('screen-mj')">Maître du Jeu</button>
-    <button class="btn-secondary" onclick="showScreen('screen-lobby')">Rejoindre (équipe)</button>
+    <button class="btn-secondary" onclick="showScreen('screen-lobby')">Rejoindre</button>
   </div>
-  <div style="font-size:12px;color:#aaa;margin-top:6px">Partagez cette URL à chaque équipe — ils cliquent "Rejoindre"</div>
+  <div class="share-hint">Partagez cette URL à chaque équipe</div>
 </div>
 
+<!-- LOBBY -->
 <div id="screen-lobby" class="screen">
-  <div style="padding:14px"><button class="btn-sm" onclick="showScreen('screen-landing')">← Retour</button></div>
+  <div style="padding:16px"><button class="btn-sm" onclick="showScreen('screen-landing')">← Retour</button></div>
   <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:1rem">
     <div class="lobby-card">
-      <div class="logo-sm">Geo<span>politica</span></div>
+      <div class="logo-sm">Geopolitica</div>
       <div class="lobby-title">Rejoindre la partie</div>
-      <input class="input" id="team-input" placeholder="Nom de votre équipe (ex: Équipe 3)" maxlength="20"/>
+      <input class="inp" id="team-input" placeholder="Nom de votre équipe (ex: Équipe 3)" maxlength="20"/>
       <div class="error" id="lobby-error"></div>
       <button class="btn-primary" onclick="joinGame()" style="width:100%">Rejoindre →</button>
     </div>
   </div>
 </div>
 
+<!-- DRAFT -->
 <div id="screen-draft" class="screen">
   <div class="game-header">
-    <div class="logo-sm">Geo<span>politica</span></div>
+    <div class="logo-sm">Geopolitica</div>
     <span class="phase-badge phase-draft">Phase de Draft</span>
-    <span id="draft-team-name" style="font-size:13px;font-weight:600"></span>
+    <span id="draft-team-name" style="font-size:13px;font-weight:600;color:var(--gold)"></span>
   </div>
   <div class="draft-body">
     <div>
-      <div style="font-size:18px;font-weight:700;margin-bottom:6px">Choisissez votre pays</div>
-      <div style="font-size:13px;color:#888">Tier S = Superpuissance · Tier A = Puissance majeure · Tier B = Pays émergent. Chaque pays ne peut être pris qu'une seule fois.</div>
+      <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;font-family:'Cinzel',serif">Choisissez votre Nation</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6">Tier S = Superpuissance · Tier A = Puissance majeure · Tier B = Nation émergente.<br>Chaque nation ne peut être choisie qu'une seule fois.</div>
     </div>
     <div class="draft-grid" id="draft-grid"></div>
-    <div style="display:flex;gap:10px;align-items:center">
-      <button class="btn-primary" id="confirm-draft-btn" onclick="confirmDraft()" disabled>Confirmer ce pays →</button>
-      <div id="draft-waiting" style="display:none;font-size:13px;color:#888">En attente du début de la partie...</div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <button class="btn-primary" id="confirm-draft-btn" onclick="confirmDraft()" disabled>Confirmer cette nation →</button>
+      <div id="draft-waiting" style="display:none;font-size:12px;color:var(--text2);letter-spacing:1px">En attente du début de la partie...</div>
     </div>
   </div>
 </div>
 
+<!-- MJ -->
 <div id="screen-mj" class="screen">
   <div class="game-header">
-    <div class="logo-sm">Geo<span>politica</span></div>
+    <div class="logo-sm">Geopolitica</div>
     <span class="phase-badge phase-setup" id="mj-phase-badge">Configuration</span>
     <div style="display:flex;gap:8px;align-items:center">
-      <span style="font-size:12px;color:#888">Maître du Jeu</span>
-      <button class="btn-sm btn-red" onclick="if(confirm('Réinitialiser ?'))socket.emit('mj:reset')">Reset</button>
+      <button class="btn-sm" id="sound-btn" onclick="toggleSound()" title="Son">🔔</button>
+      <span style="font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase">Maître du Jeu</span>
+      <button class="btn-sm btn-red" onclick="if(confirm('Réinitialiser la partie ?'))socket.emit('mj:reset')">Reset</button>
     </div>
   </div>
   <div class="mj-body">
@@ -194,17 +283,13 @@ body{font-family:system-ui,sans-serif;background:#f5f4f0;color:#1a1a18;min-heigh
         <div class="ctrl-row" id="phase-btns">
           <button class="btn-sm btn-green" onclick="socket.emit('mj:startDraft')">Lancer le Draft →</button>
         </div>
-        <div style="margin-top:8px;font-size:13px;color:#888" id="phase-desc">Attendez que toutes les équipes aient rejoint, puis lancez le draft.</div>
+        <div style="margin-top:8px;font-size:12px;color:var(--text2)" id="phase-desc">Attendez que toutes les équipes aient rejoint, puis lancez le draft.</div>
       </div>
-      <div class="card" id="event-card" style="display:none">
-        <div class="card-title">Événement mondial</div>
-        <div class="event-box" id="event-display">
-          <div class="event-title">Aucun événement actif</div>
-          <div class="event-desc">Tirez un événement pour démarrer la manche.</div>
-        </div>
-        <div class="ctrl-row" style="margin-top:12px">
-          <button class="btn-sm btn-amber" onclick="socket.emit('mj:drawEvent')">Tirer un événement</button>
-          <button class="btn-sm" onclick="socket.emit('mj:nextRound')">Manche suivante →</button>
+      <div id="period-card" style="display:none">
+        <div class="period-display" id="period-display">
+          <div class="period-number">Période —</div>
+          <div class="period-name">En attente</div>
+          <div class="period-desc">Lancez la prospérité pour commencer.</div>
         </div>
       </div>
       <div class="card">
@@ -218,87 +303,110 @@ body{font-family:system-ui,sans-serif;background:#f5f4f0;color:#1a1a18;min-heigh
     </div>
     <div class="mj-sidebar">
       <div class="card-title">Timer</div>
-      <div class="timer-big" id="mj-timer">03:00</div>
+      <div class="timer-big" id="mj-timer">10:00</div>
       <div class="ctrl-row">
         <button class="btn-sm btn-green" onclick="startTimer()">Start</button>
         <button class="btn-sm" onclick="pauseTimer()">Pause</button>
         <button class="btn-sm" onclick="resetTimer()">Reset</button>
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
-        <label style="font-size:12px;color:#888">Minutes</label>
-        <input type="number" id="timer-min" value="3" min="1" max="30" class="input" style="width:60px;padding:5px 8px" onchange="resetTimer()"/>
+        <label style="font-size:11px;color:var(--text2);letter-spacing:1px">MIN</label>
+        <input type="number" id="timer-min" value="10" min="1" max="60" class="inp" style="width:60px;padding:5px 8px" onchange="resetTimer()"/>
       </div>
-      <div style="height:1px;background:#ece9e2;margin:4px 0"></div>
+      <div style="height:1px;background:var(--border);margin:4px 0"></div>
       <div class="card-title">Résoudre une attaque</div>
       <select class="sel" id="att-sel"><option value="">Attaquant</option></select>
       <select class="sel" id="def-sel" style="margin-top:6px"><option value="">Défenseur</option></select>
       <div class="ctrl-row" style="margin-top:6px">
-        <button class="btn-sm btn-green" onclick="socket.emit('mj:resolveAttack',{attackerId:document.getElementById('att-sel').value,defenderId:document.getElementById('def-sel').value,success:true})">Victoire</button>
-        <button class="btn-sm btn-red" onclick="socket.emit('mj:resolveAttack',{attackerId:document.getElementById('att-sel').value,defenderId:document.getElementById('def-sel').value,success:false})">Échec</button>
+        <button class="btn-sm btn-green" onclick="resolveAttack(true)">Victoire</button>
+        <button class="btn-sm btn-red" onclick="resolveAttack(false)">Échec</button>
       </div>
       <div class="card-title" style="margin-top:4px">Éliminer</div>
       <div style="display:flex;gap:6px">
-        <select class="sel" id="elim-sel"><option value="">Pays</option></select>
+        <select class="sel" id="elim-sel"><option value="">Nation</option></select>
         <button class="btn-sm btn-red" onclick="socket.emit('mj:eliminate',{countryId:document.getElementById('elim-sel').value})">Élim.</button>
       </div>
       <div class="card-title" style="margin-top:4px">Bonus / Malus</div>
-      <select class="sel" id="bonus-sel"><option value="">Pays</option></select>
+      <select class="sel" id="bonus-sel"><option value="">Nation</option></select>
       <div style="display:flex;gap:6px;margin-top:6px">
-        <input type="number" id="bonus-amt" value="100" class="input" style="flex:1;padding:6px 8px"/>
-        <button class="btn-sm btn-green" onclick="socket.emit('mj:bonus',{countryId:document.getElementById('bonus-sel').value,amount:parseInt(document.getElementById('bonus-amt').value)||100})">+</button>
-        <button class="btn-sm btn-red" onclick="socket.emit('mj:bonus',{countryId:document.getElementById('bonus-sel').value,amount:-(parseInt(document.getElementById('bonus-amt').value)||100)})">−</button>
+        <input type="number" id="bonus-amt" value="100" class="inp" style="flex:1;padding:6px 8px"/>
+        <button class="btn-sm btn-green" onclick="applyBonus(1)">+</button>
+        <button class="btn-sm btn-red" onclick="applyBonus(-1)">−</button>
       </div>
-      <div style="height:1px;background:#ece9e2;margin:4px 0"></div>
+      <div style="height:1px;background:var(--border);margin:4px 0"></div>
       <div class="card-title">Journal</div>
-      <div id="mj-log" style="max-height:280px;overflow-y:auto"></div>
+      <div id="mj-log" style="max-height:300px;overflow-y:auto"></div>
     </div>
   </div>
 </div>
 
+<!-- TEAM -->
 <div id="screen-team" class="screen">
   <div class="game-header">
-    <div class="logo-sm">Geo<span>politica</span></div>
+    <div class="logo-sm">Geopolitica</div>
     <span class="phase-badge phase-setup" id="team-phase-badge">En attente</span>
-    <span id="team-country-header" style="font-size:15px;font-weight:700"></span>
+    <span id="team-country-header" style="font-size:15px;font-weight:700;color:var(--gold);font-family:'Cinzel',serif"></span>
   </div>
   <div class="team-body">
     <div id="elim-banner" style="display:none" class="elim-banner">
-      <h2>Votre nation a été conquise</h2>
-      <p>Vous pouvez continuer à observer la partie.</p>
+      <h2>Nation Conquise</h2>
+      <p style="font-size:13px;color:#fca5a5">Votre nation a été vaincue. Vous pouvez observer la suite.</p>
     </div>
-    <div class="stat-grid">
-      <div class="stat-card"><div class="stat-label">Or</div><div class="stat-val gold-c" id="t-gold">0</div></div>
-      <div class="stat-card"><div class="stat-label">Pétrole</div><div class="stat-val oil-c" id="t-oil">0</div></div>
-      <div class="stat-card"><div class="stat-label">Nourriture</div><div class="stat-val food-c" id="t-food">0</div></div>
-      <div class="stat-card"><div class="stat-label">Armée</div><div class="stat-val army-c" id="t-army">0</div></div>
-    </div>
-    <div class="card" style="padding:12px 16px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><div style="font-size:11px;color:#888;font-weight:500">Puissance</div><div style="font-size:22px;font-weight:700" id="t-power">0</div></div>
-        <div><div style="font-size:11px;color:#888;font-weight:500">Trésor (or dispo)</div><div style="font-size:22px;font-weight:700" id="t-treasury">0</div></div>
-        <div><div style="font-size:11px;color:#888;font-weight:500">Manche</div><div style="font-size:22px;font-weight:700" id="t-round">—</div></div>
+
+    <!-- COALITION -->
+    <div id="coalition-box" style="display:none" class="coalition-box">
+      <div class="coalition-title">🤝 Proposition de Coalition</div>
+      <div class="coalition-desc">Le Maroc et la Guinée peuvent unir leurs forces pour la phase de guerre.<br>Vos ressources seront fusionnées. Vous partagez victoires et défaites.</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px" id="coalition-status"></div>
+      <div class="coalition-btns" id="coalition-btns">
+        <button class="btn-primary" onclick="respondCoalition(true)">Accepter la coalition</button>
+        <button class="btn-secondary" onclick="respondCoalition(false)">Refuser</button>
       </div>
     </div>
-    <div class="event-box" id="team-event" style="display:none">
-      <div class="event-title" id="team-event-title"></div>
-      <div class="event-desc" id="team-event-desc"></div>
-      <div class="event-effect" id="team-event-effect"></div>
+
+    <div class="stat-grid">
+      <div class="stat-card gold-s"><div class="stat-label">Or</div><div class="stat-val gold-c" id="t-gold">0</div></div>
+      <div class="stat-card oil-s"><div class="stat-label">Pétrole</div><div class="stat-val oil-c" id="t-oil">0</div></div>
+      <div class="stat-card food-s"><div class="stat-label">Nourriture</div><div class="stat-val food-c" id="t-food">0</div></div>
+      <div class="stat-card army-s"><div class="stat-label">Armée</div><div class="stat-val army-c" id="t-army">0</div></div>
     </div>
+
+    <div class="card" style="padding:12px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div><div style="font-size:10px;color:var(--text2);font-weight:500;letter-spacing:1px;text-transform:uppercase">Puissance</div><div style="font-size:24px;font-weight:700;font-family:'Cinzel',serif;color:var(--gold)" id="t-power">0</div></div>
+        <div><div style="font-size:10px;color:var(--text2);font-weight:500;letter-spacing:1px;text-transform:uppercase">Trésor</div><div style="font-size:24px;font-weight:700;font-family:'Cinzel',serif" id="t-treasury">0</div></div>
+        <div><div style="font-size:10px;color:var(--text2);font-weight:500;letter-spacing:1px;text-transform:uppercase">Période</div><div style="font-size:24px;font-weight:700;font-family:'Cinzel',serif" id="t-round">—</div></div>
+      </div>
+    </div>
+
+    <div id="team-period" style="display:none" class="period-display">
+      <div class="period-number" id="team-period-number"></div>
+      <div class="period-name" id="team-period-name"></div>
+      <div class="period-subtitle" id="team-period-subtitle"></div>
+      <div class="period-desc" id="team-period-desc"></div>
+      <div class="event-tag" id="team-event-tag"></div>
+    </div>
+
     <div class="tabs">
       <div class="tab active" onclick="switchTab('market')">Marché</div>
       <div class="tab" onclick="switchTab('army')">Armée</div>
       <div class="tab" onclick="switchTab('attack')">Attaquer</div>
       <div class="tab" onclick="switchTab('news')">Actualités</div>
+      <div class="tab" onclick="switchTab('rules')">Règles</div>
     </div>
+
+    <!-- MARKET -->
     <div id="panel-market" class="panel active">
       <div id="market-rows"></div>
-      <div style="font-size:12px;color:#888;padding:8px 4px">Achetez bas, vendez haut. Les prix bougent à chaque événement.</div>
+      <div style="font-size:11px;color:var(--text3);padding:8px 4px;letter-spacing:1px">Achetez bas, vendez haut. Le pétrole génère de l'or passif chaque période.</div>
     </div>
+
+    <!-- ARMY -->
     <div id="panel-army" class="panel">
       <div class="card" style="margin-bottom:8px">
-        <div class="card-title">Recruter</div>
+        <div class="card-title">Recruter des forces</div>
         <div class="market-row">
-          <div><div class="market-name">Bataillon</div><div class="market-price">150 or · +20 puissance</div></div>
+          <div><div class="market-name">Bataillon</div><div class="market-price">150 or · +20 puissance militaire</div></div>
           <div class="qty-ctrl">
             <button class="qty-btn" onclick="changeQty('army',-1)">−</button>
             <div class="qty-val" id="army-qty">1</div>
@@ -312,31 +420,78 @@ body{font-family:system-ui,sans-serif;background:#f5f4f0;color:#1a1a18;min-heigh
             <button class="qty-btn" onclick="changeQty('tech',-1)">−</button>
             <div class="qty-val" id="tech-qty">1</div>
             <button class="qty-btn" onclick="changeQty('tech',1)">+</button>
-            <button class="buy-btn" onclick="recruitArmy('tech')">Acheter</button>
+            <button class="buy-btn" onclick="recruitArmy('tech')">Acquérir</button>
           </div>
         </div>
       </div>
       <div class="card">
         <div class="card-title">Défense</div>
         <div class="market-row">
-          <div><div class="market-name">Bunker défensif</div><div class="market-price">200 or · dommages reçus −30% (1 manche)</div></div>
+          <div><div class="market-name">Bunker défensif</div><div class="market-price">200 or · dommages reçus −30% (1 période)</div></div>
           <button class="buy-btn" onclick="socket.emit('team:buyDefense',{teamName:myTeam})">Activer</button>
         </div>
       </div>
     </div>
+
+    <!-- ATTACK -->
     <div id="panel-attack" class="panel">
       <div class="attack-warning" id="attack-warning">Les attaques sont disponibles uniquement en Phase de Guerre.</div>
       <div id="attack-form" style="display:none">
         <div class="card">
           <div class="card-title">Déclarer une attaque</div>
-          <div style="font-size:13px;color:#888;margin-bottom:12px;line-height:1.6">Coût : 200 or. Victoire → vous pillez 40% des ressources ennemies. Défaite → vous perdez 30% de votre trésor.</div>
-          <select class="sel" id="attack-target" style="margin-bottom:10px"><option value="">Choisir la cible...</option></select>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.7">Coût : 200 or. <span style="color:#4ade80">Victoire</span> → vous pillez 40% des ressources ennemies. <span style="color:#f87171">Défaite</span> → vous perdez 30% de votre trésor.</div>
+          <select class="sel" id="attack-target" style="margin-bottom:12px"><option value="">Choisir la cible...</option></select>
           <button class="btn-primary" onclick="declareAttack()" style="width:100%">Déclarer l'attaque →</button>
         </div>
       </div>
     </div>
+
+    <!-- NEWS -->
     <div id="panel-news" class="panel">
       <div id="news-log"></div>
+    </div>
+
+    <!-- RULES -->
+    <div id="panel-rules" class="panel">
+      <div class="card">
+        <div class="rules-content">
+          <div class="rules-section">
+            <h3>🎯 Objectif</h3>
+            <p>Être la dernière nation debout. La partie se déroule en 2 phases : 6 périodes de Prospérité économique, puis la Guerre jusqu'au dernier survivant.</p>
+          </div>
+          <div class="rules-section">
+            <h3>📅 Les 6 Périodes</h3>
+            <ul>
+              <li>Chaque période dure ~10 minutes (timer MJ)</li>
+              <li>Un événement mondial affecte les prix et ressources</li>
+              <li>Investissez intelligemment pour préparer la guerre</li>
+            </ul>
+          </div>
+          <div class="rules-section">
+            <h3>💰 Ressources</h3>
+            <ul>
+              <li><span style="color:var(--gold)">Or</span> — monnaie principale, sert à tout acheter</li>
+              <li><span style="color:#60a5fa">Pétrole</span> — génère de l'or passif chaque période</li>
+              <li><span style="color:#4ade80">Nourriture</span> — consommée selon votre population. Pénurie = perte de puissance militaire</li>
+              <li><span style="color:#f87171">Armée</span> — détermine votre puissance de combat</li>
+            </ul>
+          </div>
+          <div class="rules-section">
+            <h3>⚔️ La Guerre</h3>
+            <ul>
+              <li>Coût d'une attaque : 200 or</li>
+              <li>Victoire → vous pillez 40% des ressources ennemies</li>
+              <li>Défaite → vous perdez 30% de votre trésor</li>
+              <li>Le MJ résout chaque attaque selon vos puissances</li>
+              <li>Un bunker (200 or) réduit les dégâts reçus de 30%</li>
+            </ul>
+          </div>
+          <div class="rules-section">
+            <h3>🤝 Coalition (Maroc + Guinée)</h3>
+            <p>Au début de la guerre, le Maroc et la Guinée peuvent former une coalition. Si les deux acceptent, leurs ressources sont fusionnées et ils combattent ensemble.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -345,27 +500,27 @@ body{font-family:system-ui,sans-serif;background:#f5f4f0;color:#1a1a18;min-heigh
 
 <script>
 const socket = io();
-let state = {};
-let myTeam = null;
-let myCountryId = null;
-let selectedDraft = null;
+let state = {}, periods = [];
+let myTeam = null, myCountryId = null, selectedDraft = null;
 let qtys = { oil:1, food:1, army:1, tech:1 };
-let timerSec = 180, timerInterval = null;
+let timerSec = 600, timerInterval = null;
+let soundEnabled = true;
 
 const ALL_COUNTRIES = [
-  {id:'usa',flag:'🇺🇸',name:'États-Unis',tier:'S',gold:800,oil:300,food:400,army:500},
-  {id:'china',flag:'🇨🇳',name:'Chine',tier:'S',gold:750,oil:350,food:500,army:450},
-  {id:'russia',flag:'🇷🇺',name:'Russie',tier:'A',gold:500,oil:500,food:200,army:400},
-  {id:'germany',flag:'🇩🇪',name:'Allemagne',tier:'A',gold:600,oil:150,food:300,army:300},
-  {id:'qatar',flag:'🇶🇦',name:'Qatar',tier:'A',gold:680,oil:550,food:80,army:200},
-  {id:'france',flag:'🇫🇷',name:'France',tier:'A',gold:550,oil:100,food:350,army:280},
-  {id:'brazil',flag:'🇧🇷',name:'Brésil',tier:'B',gold:400,oil:200,food:600,army:150},
-  {id:'india',flag:'🇮🇳',name:'Inde',tier:'B',gold:400,oil:150,food:450,army:200},
-  {id:'morocco',flag:'🇲🇦',name:'Maroc',tier:'B',gold:320,oil:80,food:380,army:160},
-  {id:'guinea',flag:'🇬🇳',name:'Guinée',tier:'B',gold:200,oil:60,food:300,army:90},
+  {id:'usa',flag:'🇺🇸',name:'États-Unis',tier:'S',gold:800,oil:300,food:400,army:500,population:330},
+  {id:'china',flag:'🇨🇳',name:'Chine',tier:'S',gold:750,oil:350,food:500,army:450,population:1400},
+  {id:'russia',flag:'🇷🇺',name:'Russie',tier:'A',gold:500,oil:500,food:200,army:400,population:145},
+  {id:'germany',flag:'🇩🇪',name:'Allemagne',tier:'A',gold:600,oil:150,food:300,army:300,population:83},
+  {id:'qatar',flag:'🇶🇦',name:'Qatar',tier:'A',gold:680,oil:550,food:80,army:200,population:3},
+  {id:'france',flag:'🇫🇷',name:'France',tier:'A',gold:550,oil:100,food:350,army:280,population:68},
+  {id:'brazil',flag:'🇧🇷',name:'Brésil',tier:'B',gold:400,oil:200,food:600,army:150,population:215},
+  {id:'india',flag:'🇮🇳',name:'Inde',tier:'B',gold:400,oil:150,food:450,army:200,population:1400},
+  {id:'morocco',flag:'🇲🇦',name:'Maroc',tier:'B',gold:320,oil:80,food:380,army:160,population:37},
+  {id:'guinea',flag:'🇬🇳',name:'Guinée',tier:'B',gold:200,oil:60,food:300,army:90,population:13},
 ];
 
 socket.on('state', s => { state = s; onStateUpdate(); });
+socket.on('periods', p => { periods = p; });
 socket.on('error', msg => toast(msg));
 
 function showScreen(id) {
@@ -377,7 +532,31 @@ function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function playAlarm() {
+  if (!soundEnabled) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.3, 0.6].forEach(delay => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.4, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.4);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.4);
+    });
+  } catch(e) {}
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.getElementById('sound-btn').textContent = soundEnabled ? '🔔' : '🔕';
+  toast(soundEnabled ? 'Son activé' : 'Son désactivé');
 }
 
 function joinGame() {
@@ -402,12 +581,12 @@ function renderDraftGrid() {
     const taken = state.takenCountries && state.takenCountries[c.id];
     const isSel = selectedDraft === c.id;
     const div = document.createElement('div');
-    div.className = 'draft-card' + (taken ? ' taken' : '') + (isSel ? ' selected' : '');
+    div.className = 'draft-card' + (taken?' taken':'') + (isSel?' selected':'');
     div.innerHTML = `<div class="draft-flag">${c.flag}</div>
       <div class="draft-cname">${c.name}</div>
       <span class="tier-badge tier-${c.tier}">${c.tier}</span>
       <div class="draft-stats">Or: ${c.gold} · Pétrole: ${c.oil}<br>Nourr: ${c.food} · Armée: ${c.army}</div>
-      ${taken ? `<div class="draft-taken">Pris par ${taken}</div>` : ''}`;
+      ${taken?`<div class="draft-taken">Pris par ${taken}</div>`:''}`;
     if (!taken) div.onclick = () => {
       selectedDraft = c.id;
       document.getElementById('confirm-draft-btn').disabled = false;
@@ -423,7 +602,7 @@ function confirmDraft() {
   myCountryId = selectedDraft;
   document.getElementById('confirm-draft-btn').style.display = 'none';
   document.getElementById('draft-waiting').style.display = 'block';
-  toast('Pays confirmé ! En attente du MJ...');
+  toast('Nation confirmée ! En attente du MJ...');
 }
 
 function enterGame() {
@@ -455,40 +634,68 @@ function updateTeamUI() {
   document.getElementById('t-army').textContent = c.army;
   document.getElementById('t-power').textContent = c.power;
   document.getElementById('t-treasury').textContent = c.treasury;
-  document.getElementById('t-round').textContent = state.round || '—';
+  document.getElementById('t-round').textContent = state.currentPeriod || '—';
   document.getElementById('team-country-header').textContent = c.flag + ' ' + c.name;
   const pb = document.getElementById('team-phase-badge');
-  pb.className = 'phase-badge ' + (state.phase === 'war' ? 'phase-war' : state.phase === 'prosperity' ? 'phase-prosper' : 'phase-draft');
-  pb.textContent = state.phase === 'prosperity' ? 'Prospérité' : state.phase === 'war' ? 'Guerre ⚔️' : 'Draft';
+  const phaseMap = { prosperity:'phase-prosper', war:'phase-war', draft:'phase-draft', setup:'phase-setup' };
+  const phaseLabel = { prosperity:'Prospérité', war:'Guerre ⚔️', draft:'Draft', setup:'En attente' };
+  pb.className = 'phase-badge ' + (phaseMap[state.phase] || 'phase-setup');
+  pb.textContent = phaseLabel[state.phase] || 'En attente';
   document.getElementById('elim-banner').style.display = c.eliminated ? 'block' : 'none';
+
+  // Coalition
+  const coal = state.coalition;
+  const isMarocOrGuinee = myCountryId === 'morocco' || myCountryId === 'guinea';
+  const coalBox = document.getElementById('coalition-box');
+  if (coal && coal.proposed && isMarocOrGuinee && !coal.active) {
+    coalBox.style.display = 'block';
+    const myAccepted = (myCountryId === 'morocco' && coal.moroccoAccepted) || (myCountryId === 'guinea' && coal.guineaAccepted);
+    document.getElementById('coalition-status').textContent = myAccepted ? '✅ Vous avez accepté — en attente de l\'autre équipe...' : '';
+    document.getElementById('coalition-btns').style.display = myAccepted ? 'none' : 'flex';
+  } else if (coal && coal.active && isMarocOrGuinee) {
+    coalBox.style.display = 'block';
+    coalBox.innerHTML = '<div class="coalition-title">🤝 Coalition Active</div><div class="coalition-desc" style="color:var(--gold)">Maroc + Guinée combattent ensemble. Ressources fusionnées.</div>';
+  } else {
+    coalBox.style.display = 'none';
+  }
+
   const isWar = state.phase === 'war';
   document.getElementById('attack-warning').style.display = isWar ? 'none' : 'block';
   document.getElementById('attack-form').style.display = isWar ? 'block' : 'none';
+
   if (state.currentEvent) {
-    document.getElementById('team-event').style.display = 'block';
-    document.getElementById('team-event-title').textContent = state.currentEvent.title;
-    document.getElementById('team-event-desc').textContent = state.currentEvent.desc;
-    document.getElementById('team-event-effect').textContent = '→ ' + state.currentEvent.effect;
+    document.getElementById('team-period').style.display = 'block';
+    document.getElementById('team-period-number').textContent = `Période ${state.currentEvent.periodNumber || ''} — ${state.currentEvent.periodSubtitle || ''}`;
+    document.getElementById('team-period-name').textContent = state.currentEvent.periodName || '';
+    document.getElementById('team-period-subtitle').textContent = state.currentEvent.periodDesc || '';
+    document.getElementById('team-period-desc').textContent = '';
+    document.getElementById('team-event-tag').textContent = '→ ' + (state.currentEvent.effect || '');
   } else {
-    document.getElementById('team-event').style.display = 'none';
+    document.getElementById('team-period').style.display = 'none';
   }
+
   renderMarket();
   renderAttackTargets();
   renderNews();
 }
 
+function respondCoalition(accept) {
+  if (accept) socket.emit('team:acceptCoalition', { teamName: myTeam });
+  else socket.emit('team:refuseCoalition', { teamName: myTeam });
+}
+
 function renderMarket() {
   const div = document.getElementById('market-rows');
   const resources = [
-    { id:'oil', name:'Pétrole (baril)', base:80 },
-    { id:'food', name:'Nourriture (tonne)', base:40 },
+    { id:'oil', name:'Pétrole (baril)', base:80, hint:'Génère de l\'or passif chaque période' },
+    { id:'food', name:'Nourriture (tonne)', base:40, hint:'Consommée par votre population chaque période' },
   ];
   div.innerHTML = '';
   resources.forEach(r => {
     const price = Math.round(state.prices ? (state.prices[r.id] || r.base) : r.base);
     const row = document.createElement('div');
     row.className = 'market-row';
-    row.innerHTML = `<div><div class="market-name">${r.name}</div><div class="market-price">Prix actuel : ${price} or</div></div>
+    row.innerHTML = `<div><div class="market-name">${r.name}</div><div class="market-price">Prix : ${price} or · ${r.hint}</div></div>
       <div class="qty-ctrl">
         <button class="qty-btn" onclick="changeQty('${r.id}',-1)">−</button>
         <div class="qty-val" id="${r.id}-qty">${qtys[r.id]||1}</div>
@@ -507,7 +714,7 @@ function renderAttackTargets() {
   sel.innerHTML = '<option value="">Choisir la cible...</option>';
   if (!state.countries) return;
   Object.values(state.countries).forEach(c => {
-    if (c.id !== myCountryId && !c.eliminated) {
+    if (c.id !== myCountryId && !c.eliminated && c.team) {
       const o = document.createElement('option');
       o.value = c.id;
       o.textContent = c.flag + ' ' + c.name + ' — ' + c.power + ' pts';
@@ -523,7 +730,7 @@ function renderNews() {
   const div = document.getElementById('news-log');
   div.innerHTML = news.length ? news.map(n =>
     `<div class="news-entry news-${n.type||'neutral'}"><div class="news-time">${n.time||''}</div><div class="news-text">${n.text}</div></div>`
-  ).join('') : '<div style="font-size:13px;color:#888;padding:8px">Aucune actualité pour le moment.</div>';
+  ).join('') : '<div style="font-size:13px;color:var(--text3);padding:8px">Aucune actualité pour le moment.</div>';
 }
 
 function changeQty(key, delta) {
@@ -540,16 +747,28 @@ function declareAttack() {
   const targetId = document.getElementById('attack-target').value;
   if (!targetId) { toast('Choisissez une cible !'); return; }
   socket.emit('team:declareAttack', { teamName: myTeam, targetId });
-  toast('Attaque déclarée ! En attente du MJ...');
+  toast('Attaque déclarée — en attente du MJ...');
 }
 
 function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    const tabs = ['market','army','attack','news'];
-    t.classList.toggle('active', tabs[i] === tab);
-  });
+  const tabs = ['market','army','attack','news','rules'];
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', tabs[i] === tab));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-'+tab).classList.add('active');
+}
+
+function resolveAttack(success) {
+  const attackerId = document.getElementById('att-sel').value;
+  const defenderId = document.getElementById('def-sel').value;
+  if (!attackerId || !defenderId) { toast('Choisissez attaquant et défenseur'); return; }
+  socket.emit('mj:resolveAttack', { attackerId, defenderId, success });
+}
+
+function applyBonus(sign) {
+  const countryId = document.getElementById('bonus-sel').value;
+  const amount = (parseInt(document.getElementById('bonus-amt').value) || 100) * sign;
+  if (!countryId) { toast('Choisissez une nation'); return; }
+  socket.emit('mj:bonus', { countryId, amount });
 }
 
 function renderMJ() {
@@ -559,50 +778,65 @@ function renderMJ() {
   const sorted = [...alive].sort((a,b) => b.power - a.power);
   const maxP = sorted[0]?.power || 1;
   document.getElementById('alive-count').textContent = alive.length;
+
   const pb = document.getElementById('mj-phase-badge');
   const phaseLabels = { setup:'Configuration', draft:'Draft', prosperity:'Prospérité', war:'Guerre ⚔️' };
   const phaseClasses = { setup:'phase-setup', draft:'phase-draft', prosperity:'phase-prosper', war:'phase-war' };
   pb.className = 'phase-badge ' + (phaseClasses[state.phase] || 'phase-setup');
   pb.textContent = phaseLabels[state.phase] || 'Configuration';
-  if (state.phase === 'draft') {
-    document.getElementById('phase-btns').innerHTML = '<button class="btn-sm btn-green" onclick="socket.emit(\'mj:startProsperity\')">Lancer la Prospérité →</button>';
-    document.getElementById('phase-desc').textContent = 'Les équipes choisissent leur pays. Lancez quand tout le monde a choisi.';
-    document.getElementById('event-card').style.display = 'none';
+
+  const pbtns = document.getElementById('phase-btns');
+  const pdesc = document.getElementById('phase-desc');
+  if (state.phase === 'setup') {
+    pbtns.innerHTML = '<button class="btn-sm btn-green" onclick="socket.emit(\'mj:startDraft\')">Lancer le Draft →</button>';
+    pdesc.textContent = 'Attendez que toutes les équipes aient rejoint, puis lancez le draft.';
+    document.getElementById('period-card').style.display = 'none';
+  } else if (state.phase === 'draft') {
+    pbtns.innerHTML = '<button class="btn-sm btn-green" onclick="socket.emit(\'mj:startProsperity\')">Lancer la Prospérité →</button>';
+    pdesc.textContent = 'Les équipes choisissent leur nation. Lancez quand tout le monde a choisi.';
+    document.getElementById('period-card').style.display = 'none';
   } else if (state.phase === 'prosperity') {
-    document.getElementById('phase-btns').innerHTML = '<button class="btn-sm btn-red" onclick="socket.emit(\'mj:startWar\')">Démarrer la Guerre →</button>';
-    document.getElementById('phase-desc').textContent = 'Phase économique · Manche ' + (state.round || 1);
-    document.getElementById('event-card').style.display = 'block';
+    const canNext = state.currentPeriod < 6;
+    pbtns.innerHTML = (canNext ? `<button class="btn-sm btn-gold" onclick="socket.emit('mj:nextPeriod')">Période suivante →</button>` : '') +
+      `<button class="btn-sm btn-red" onclick="socket.emit('mj:startWar')">Démarrer la Guerre ⚔️</button>`;
+    pdesc.textContent = `Période ${state.currentPeriod}/6 en cours.`;
+    document.getElementById('period-card').style.display = 'block';
   } else if (state.phase === 'war') {
-    document.getElementById('phase-btns').innerHTML = '';
-    document.getElementById('phase-desc').textContent = 'Phase de conquête — résolvez les attaques et éliminez les nations.';
-    document.getElementById('event-card').style.display = 'block';
+    pbtns.innerHTML = '';
+    pdesc.textContent = 'Phase de conquête — résolvez les attaques, éliminez les nations.';
+    document.getElementById('period-card').style.display = 'none';
   }
+
   if (state.currentEvent) {
-    document.getElementById('event-display').innerHTML =
-      `<div class="event-title">${state.currentEvent.title}</div>
-       <div class="event-desc">${state.currentEvent.desc}</div>
-       <div class="event-effect">→ ${state.currentEvent.effect}</div>`;
+    const ev = state.currentEvent;
+    document.getElementById('period-display').innerHTML = `
+      <div class="period-number">Période ${ev.periodNumber || ''} · ${ev.periodSubtitle || ''}</div>
+      <div class="period-name">${ev.periodName || ''}</div>
+      <div class="period-desc">${ev.periodDesc || ''}</div>
+      <div class="event-tag">⚡ ${ev.title} — ${ev.effect}</div>`;
   }
+
   document.getElementById('mj-leaderboard').innerHTML = sorted.map((c, i) =>
     `<div class="lb-row ${i===0?'first':''}">
       <div class="lb-rank">${i+1}</div>
       <div class="lb-flag">${c.flag}</div>
-      <div class="lb-name">${c.name} <span style="font-size:11px;font-weight:400;color:#888">· ${c.team}</span></div>
+      <div class="lb-name">${c.name} <span style="font-size:11px;font-weight:400;color:var(--text3)">· ${c.team}</span></div>
       <div class="lb-power">${c.power} pts</div>
     </div>`
   ).join('');
-  const allWithTeam = [...teams, ...Object.values(countries).filter(c => c.eliminated && c.team)];
-  document.getElementById('mj-countries-grid').innerHTML = allWithTeam.map(c => {
+
+  document.getElementById('mj-countries-grid').innerHTML = teams.map(c => {
     const pct = Math.min(100, Math.round(c.power / maxP * 100));
     const cls = pct < 30 ? 'fill-low' : pct < 60 ? 'fill-mid' : 'fill-high';
     return `<div class="country-card ${c.eliminated?'eliminated':''}">
       <div class="country-flag">${c.flag}</div>
       <div class="country-name">${c.name}</div>
-      <div class="country-stats">Or:${c.treasury} · Arm:${c.army}${c.defense?' · 🛡️':''}${c.eliminated?' · ÉLIMINÉ':''}</div>
+      <div class="country-stats">Or:${c.treasury} · Pétr:${c.oil} · Nourr:${c.food}${c.defense?' · 🛡️':''}${c.eliminated?' · ☠️':''}</div>
       <div class="power-bar"><div class="power-fill ${cls}" style="width:${pct}%"></div></div>
-      <div style="font-size:10px;color:#aaa;margin-top:2px">${c.power} pts</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:3px">${c.power} pts puissance</div>
     </div>`;
   }).join('');
+
   ['att-sel','def-sel','elim-sel','bonus-sel'].forEach(sid => {
     const sel = document.getElementById(sid);
     if (!sel) return;
@@ -615,23 +849,29 @@ function renderMJ() {
     });
     if (cur) sel.value = cur;
   });
+
   document.getElementById('mj-log').innerHTML = (state.log || []).map(l =>
-    `<div class="log-entry log-${l.type}">${l.time ? '<span style="opacity:.6">'+l.time+'</span> ' : ''}${l.text}</div>`
+    `<div class="log-entry log-${l.type}">${l.time?'<span style="opacity:.5">'+l.time+'</span> ':''}${l.text}</div>`
   ).join('');
 }
 
+// TIMER
 function startTimer() {
   if (timerInterval) return;
   timerInterval = setInterval(() => {
     timerSec--;
     updateTimerDisplay();
-    if (timerSec <= 0) { clearInterval(timerInterval); timerInterval = null; toast('⏰ Temps écoulé !'); }
+    if (timerSec <= 0) {
+      clearInterval(timerInterval); timerInterval = null;
+      playAlarm();
+      toast('⏰ Temps écoulé !');
+    }
   }, 1000);
 }
 function pauseTimer() { clearInterval(timerInterval); timerInterval = null; }
 function resetTimer() {
   clearInterval(timerInterval); timerInterval = null;
-  timerSec = (parseInt(document.getElementById('timer-min').value) || 3) * 60;
+  timerSec = (parseInt(document.getElementById('timer-min').value) || 10) * 60;
   updateTimerDisplay();
 }
 function updateTimerDisplay() {
