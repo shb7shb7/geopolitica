@@ -13,103 +13,110 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .screen{display:none;min-height:100vh;flex-direction:column}.screen.active{display:flex}
 h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 
-/* ATTACK FLASH */
 .atk-flash{position:fixed;inset:0;pointer-events:none;z-index:500}
 .atk-flash.go{animation:wf 2s ease-out forwards}
 @keyframes wf{0%{background:rgba(192,57,43,0)}8%{background:rgba(192,57,43,.7)}25%{background:rgba(192,57,43,.35)}100%{background:rgba(192,57,43,0)}}
-.atk-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:2px solid var(--gold);border-radius:10px;padding:28px 40px;z-index:501;text-align:center;display:none;min-width:320px}
-.atk-popup.show{display:block;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
-@keyframes pop{0%{transform:translate(-50%,-50%) scale(.6);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
-
-/* DEFENSE FLASH */
 .def-flash{position:fixed;inset:0;pointer-events:none;z-index:490;display:none}
 .def-flash.show{display:block;animation:df 1.5s ease-out forwards}
 @keyframes df{0%{background:rgba(26,122,74,0)}15%{background:rgba(26,122,74,.5)}100%{background:rgba(26,122,74,0)}}
+.atk-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:2px solid var(--gold);border-radius:10px;padding:26px 38px;z-index:501;text-align:center;display:none;min-width:300px}
+.atk-popup.show{display:block;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{0%{transform:translate(-50%,-50%) scale(.6);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
 
-/* WAR TURN BANNER */
-.turn-banner{position:fixed;top:0;left:0;right:0;z-index:450;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;transition:all .3s;transform:translateY(-100%)}
+/* CHOICE EVENT MODAL */
+.choice-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
+.choice-modal.show{display:flex}
+.choice-card{background:var(--bg2);border:2px solid var(--gold);border-radius:12px;padding:28px;max-width:500px;width:100%;position:relative;overflow:hidden}
+.choice-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.choice-countdown{font-size:48px;font-weight:700;font-family:'Cinzel',serif;color:var(--gold);text-align:center;margin-bottom:8px}
+.choice-countdown.urgent{color:#f87171;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.choice-btn{width:100%;padding:14px 16px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text);cursor:pointer;text-align:left;margin-bottom:10px;transition:all .2s;font-size:13px;line-height:1.5}
+.choice-btn:hover{border-color:var(--gold);background:rgba(201,168,76,.08)}
+.choice-btn.selected{border-color:var(--gold);background:rgba(201,168,76,.15)}
+.choice-btn-label{font-size:12px;font-weight:700;color:var(--gold);margin-bottom:4px;font-family:'Cinzel',serif;letter-spacing:1px;text-transform:uppercase}
+
+.turn-banner{position:fixed;top:0;left:0;right:0;z-index:450;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;transition:transform .3s;transform:translateY(-100%)}
 .turn-banner.active{transform:translateY(0)}
 .turn-banner.my-turn{background:linear-gradient(135deg,rgba(201,168,76,.95),rgba(184,126,30,.95));border-bottom:2px solid var(--gold)}
-.turn-banner.other-turn{background:rgba(17,21,40,.95);border-bottom:1px solid var(--border)}
-.turn-timer{font-size:28px;font-weight:700;font-family:'Cinzel',serif;font-variant-numeric:tabular-nums}
-.turn-timer.urgent{color:#f87171;animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.turn-banner.other-turn{background:rgba(17,21,40,.96);border-bottom:1px solid var(--border)}
+.turn-timer-d{font-size:26px;font-weight:700;font-family:'Cinzel',serif;font-variant-numeric:tabular-nums}
+.turn-timer-d.urgent{color:#f87171;animation:pulse 1s infinite}
 
-/* LANDING */
 #screen-landing{align-items:center;justify-content:center;gap:2rem;padding:2rem;text-align:center;background:radial-gradient(ellipse at center,#0d1424,#050709)}
-.logo{font-size:56px;font-weight:700;color:var(--gold);letter-spacing:-2px;text-shadow:0 0 40px rgba(201,168,76,.2)}
+.logo{font-size:54px;font-weight:700;color:var(--gold);letter-spacing:-2px;text-shadow:0 0 40px rgba(201,168,76,.2)}
 .tagline{font-size:12px;color:var(--text2);letter-spacing:4px;text-transform:uppercase}
 .divider{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto}
 .btn-group{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
-.btn-primary{background:linear-gradient(135deg,#8b6914,var(--gold));color:#0a0c10;border:none;border-radius:4px;padding:13px 32px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,#8b6914,var(--gold));color:#0a0c10;border:none;border-radius:4px;padding:12px 30px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif;transition:all .2s}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,.4)}
-.btn-secondary{background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:4px;padding:13px 32px;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif;transition:all .2s}
+.btn-secondary{background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:4px;padding:12px 30px;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif;transition:all .2s}
 .btn-secondary:hover{background:rgba(201,168,76,.1)}
 
-/* HEADER */
-.game-header{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
-.logo-sm{font-size:18px;font-weight:700;color:var(--gold);letter-spacing:-1px}
+.game-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.logo-sm{font-size:17px;font-weight:700;color:var(--gold);letter-spacing:-1px}
 .phase-badge{font-size:10px;padding:3px 10px;border-radius:2px;font-weight:600;letter-spacing:2px;text-transform:uppercase}
 .ph-s{background:rgba(74,85,104,.3);color:var(--text2);border:1px solid var(--text3)}
 .ph-d{background:rgba(30,58,95,.5);color:#60a5fa;border:1px solid #1e3a5f}
 .ph-p{background:rgba(26,122,74,.3);color:#4ade80;border:1px solid var(--green)}
 .ph-w{background:rgba(192,57,43,.3);color:#f87171;border:1px solid var(--red)}
 
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:14px}
-.card-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;font-family:'Cinzel',serif}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:13px}
+.card-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:9px;font-family:'Cinzel',serif}
 
-/* ACTION LIMIT INDICATOR */
-.action-indicator{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:4px;font-size:12px;margin-bottom:8px}
-.action-indicator.used{background:rgba(192,57,43,.15);border:1px solid var(--red);color:#f87171}
-.action-indicator.free{background:rgba(26,122,74,.15);border:1px solid var(--green);color:#4ade80}
-.action-indicator.war{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);color:#f87171}
+/* EVENT TYPE TAGS */
+.ev-type-market{background:rgba(26,122,74,.2);color:#4ade80;border:1px solid var(--green)}
+.ev-type-choice{background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.4)}
+.ev-type-targeted{background:rgba(192,57,43,.2);color:#f87171;border:1px solid var(--red)}
+.ev-type-tag{font-size:10px;padding:2px 8px;border-radius:2px;font-weight:700;letter-spacing:1px;text-transform:uppercase;display:inline-block;margin-bottom:6px}
 
-/* MJ */
+/* ALERT BADGES */
+.alert-badge{position:absolute;top:4px;right:4px;font-size:10px;display:flex;gap:3px}
+
 #screen-mj{flex-direction:column}
 .mj-body{display:grid;grid-template-columns:1fr 270px;flex:1;overflow:hidden;height:calc(100vh - 57px)}
-.mj-main{padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
-.mj-sidebar{padding:12px;background:var(--bg2);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.mj-main{padding:13px;overflow-y:auto;display:flex;flex-direction:column;gap:11px}
+.mj-sidebar{padding:11px;background:var(--bg2);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;gap:9px}
 
-.period-box{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--gold);border-radius:6px;padding:16px;position:relative;overflow:hidden}
+.period-box{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--gold);border-radius:6px;padding:14px;position:relative;overflow:hidden}
 .period-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.pnum{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:4px}
-.pname{font-size:17px;font-weight:700;color:#fff;font-family:'Cinzel',serif;margin-bottom:4px}
-.psub{font-size:11px;color:var(--text2);margin-bottom:8px}
+.pnum{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:3px}
+.pname{font-size:16px;font-weight:700;color:#fff;font-family:'Cinzel',serif;margin-bottom:3px}
+.psub{font-size:11px;color:var(--text2);margin-bottom:6px}
 .pdesc{font-size:12px;color:var(--text);line-height:1.7}
-.epill{display:inline-block;margin-top:8px;font-size:11px;padding:3px 12px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);border-radius:2px;color:var(--gold)}
+.epill{display:inline-block;margin-top:7px;font-size:11px;padding:3px 10px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);border-radius:2px;color:var(--gold)}
 
-.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:7px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:7px}
 .cc{border:1px solid var(--border);border-radius:5px;padding:9px;background:var(--bg3);transition:border-color .2s;position:relative}
 .cc:hover{border-color:var(--gold)}
 .cc.eliminated{opacity:.3;filter:grayscale(1)}
 .cc.has-defense{border-color:#4ade80;box-shadow:0 0 8px rgba(74,222,128,.2)}
-.cc-flag{font-size:20px;margin-bottom:3px}
-.cc-name{font-size:11px;font-weight:700;color:#fff;font-family:'Cinzel',serif;margin-bottom:2px}
-.cc-stats{font-size:10px;color:var(--text2);line-height:1.5}
-.cc-defense-badge{position:absolute;top:6px;right:6px;font-size:9px;color:#4ade80;letter-spacing:1px}
+.cc.alert-treasury{border-color:#f87171}
+.cc.alert-food{border-color:#f59e0b}
+.cc-flag{font-size:19px;margin-bottom:2px}
+.cc-name{font-size:10px;font-weight:700;color:#fff;font-family:'Cinzel',serif;margin-bottom:2px}
+.cc-stats{font-size:9px;color:var(--text2);line-height:1.5}
+.cc-alerts{position:absolute;top:4px;right:4px;font-size:11px;display:flex;gap:2px}
 .pbar{height:3px;background:var(--bg);border-radius:2px;margin-top:5px}
 .pfill{height:100%;border-radius:2px;transition:width .5s}
-.ph{background:linear-gradient(90deg,var(--green),#4ade80)}
-.pm{background:linear-gradient(90deg,#854d0e,#ca8a04)}
-.pl{background:linear-gradient(90deg,var(--red),#f87171)}
+.ph{background:linear-gradient(90deg,var(--green),#4ade80)}.pm{background:linear-gradient(90deg,#854d0e,#ca8a04)}.pl{background:linear-gradient(90deg,var(--red),#f87171)}
 
 .lbr{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:4px;background:var(--bg3);margin-bottom:4px;border:1px solid transparent}
 .lbr.first{background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));border-color:rgba(201,168,76,.3)}
 .lbr-rank{font-size:11px;font-weight:700;min-width:18px;color:var(--text2);font-family:'Cinzel',serif}
 .lbr.first .lbr-rank{color:var(--gold)}
-.lbr-name{flex:1;font-size:12px;font-weight:600;color:#fff}
+.lbr-name{flex:1;font-size:11px;font-weight:600;color:#fff}
 .lbr-pts{font-size:11px;color:var(--text2)}
 
-.timer-big{font-size:40px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-2px}
+.timer-big{font-size:38px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-2px}
 .timer-big.urgent{color:#f87171;animation:pulse 1s infinite}
 
-/* WAR TURN BOX */
-.war-turn-box{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);border-radius:6px;padding:12px;text-align:center}
-.war-turn-team{font-size:14px;font-weight:700;color:#f87171;font-family:'Cinzel',serif;margin-bottom:4px}
-.war-turn-countdown{font-size:32px;font-weight:700;color:#f87171;font-family:'Cinzel',serif;font-variant-numeric:tabular-nums}
+.war-turn-box{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);border-radius:6px;padding:11px;text-align:center}
+.war-turn-team{font-size:13px;font-weight:700;color:#f87171;font-family:'Cinzel',serif;margin-bottom:3px}
+.war-turn-cd{font-size:28px;font-weight:700;color:#f87171;font-family:'Cinzel',serif;font-variant-numeric:tabular-nums}
 
 .ctrl-row{display:flex;gap:6px;flex-wrap:wrap}
-.btn-sm{font-size:10px;padding:6px 11px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;white-space:nowrap;font-weight:500;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+.btn-sm{font-size:10px;padding:6px 10px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;white-space:nowrap;font-weight:500;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
 .btn-sm:hover{background:var(--bg3)}
 .bg{border-color:var(--green);color:#4ade80}.bg:hover{background:rgba(26,122,74,.2)}
 .br{border-color:var(--red);color:#f87171}.br:hover{background:rgba(192,57,43,.2)}
@@ -123,92 +130,100 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 .lec{background:rgba(26,122,74,.15);border-color:var(--green);color:#4ade80}
 .lel{background:rgba(192,57,43,.25);border-color:var(--red);color:#fca5a5;font-weight:600}
 
-/* LOBBY */
 #screen-lobby{align-items:center;justify-content:center;background:var(--bg)}
-.lobby-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:28px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.lobby-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:26px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:13px;position:relative;overflow:hidden}
 .lobby-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .err{color:#f87171;font-size:12px;min-height:16px}
 
-/* DRAFT */
 #screen-draft{flex-direction:column;background:var(--bg)}
-.draft-body{flex:1;padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
-.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(162px,1fr));gap:9px}
-.dc{border:1px solid var(--border);border-radius:6px;padding:13px;background:var(--bg2);cursor:pointer;text-align:center;transition:all .2s}
+.draft-body{flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:13px}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:8px}
+.dc{border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--bg2);cursor:pointer;text-align:center;transition:all .2s}
 .dc:hover:not(.taken){border-color:var(--gold);transform:translateY(-2px)}
 .dc.taken{opacity:.35;cursor:not-allowed}
 .dc.selected{border-color:var(--gold);border-width:2px}
-.dc-flag{font-size:32px;margin-bottom:6px}
-.dc-name{font-size:13px;font-weight:700;color:#fff;font-family:'Cinzel',serif;margin-bottom:4px}
-.tier-S{background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.4);font-size:10px;padding:2px 8px;border-radius:2px;display:inline-block;font-weight:700;letter-spacing:1px}
-.tier-A{background:rgba(30,58,95,.5);color:#60a5fa;border:1px solid #1e3a5f;font-size:10px;padding:2px 8px;border-radius:2px;display:inline-block;font-weight:700;letter-spacing:1px}
-.tier-B{background:rgba(26,122,74,.2);color:#4ade80;border:1px solid var(--green);font-size:10px;padding:2px 8px;border-radius:2px;display:inline-block;font-weight:700;letter-spacing:1px}
-.dc-stats{font-size:10px;color:var(--text2);margin-top:6px;line-height:1.7}
+.dc-flag{font-size:30px;margin-bottom:5px}
+.dc-name{font-size:12px;font-weight:700;color:#fff;font-family:'Cinzel',serif;margin-bottom:4px}
+.tier-S{background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.4);font-size:10px;padding:2px 7px;border-radius:2px;display:inline-block;font-weight:700;letter-spacing:1px}
+.tier-A{background:rgba(30,58,95,.5);color:#60a5fa;border:1px solid #1e3a5f;font-size:10px;padding:2px 7px;border-radius:2px;display:inline-block;font-weight:700;letter-spacing:1px}
+.tier-B{background:rgba(26,122,74,.2);color:#4ade80;border:1px solid var(--green);font-size:10px;padding:2px 7px;border-radius:2px;display:inline-block;font-weight:700;letter-spacing:1px}
+.dc-stats{font-size:10px;color:var(--text2);margin-top:5px;line-height:1.7}
 .dc-taken{font-size:10px;color:var(--text3);margin-top:3px;font-style:italic}
 
-/* TEAM */
 #screen-team{flex-direction:column;background:var(--bg)}
-.team-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;padding-top:60px}
-.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.sc{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;position:relative;overflow:hidden}
+.team-body{flex:1;overflow-y:auto;padding:11px;display:flex;flex-direction:column;gap:9px;padding-top:58px}
+
+.treasury-card{background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.3);border-radius:6px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.treasury-val{font-size:30px;font-weight:700;font-family:'Cinzel',serif;color:var(--gold)}
+.treasury-meta{font-size:11px;color:var(--text2);display:flex;flex-direction:column;gap:3px;text-align:right}
+
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:9px;text-align:center;position:relative;overflow:hidden}
 .sc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px}
 .sc.os::after{background:#60a5fa}.sc.fs::after{background:#4ade80}.sc.as::after{background:#f87171}
-.sl{font-size:10px;color:var(--text2);margin-bottom:3px;letter-spacing:1px;text-transform:uppercase}
-.sv{font-size:22px;font-weight:700;font-family:'Cinzel',serif}
-.oc{color:#60a5fa}.fc{color:#4ade80}.ac{color:#f87171}.gc{color:var(--gold)}
+.sl{font-size:10px;color:var(--text2);margin-bottom:2px;letter-spacing:1px;text-transform:uppercase}
+.sv{font-size:20px;font-weight:700;font-family:'Cinzel',serif}
+.oc{color:#60a5fa}.fc{color:#4ade80}.ac{color:#f87171}
 
-.treasury-card{background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.3);border-radius:6px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-.treasury-main{display:flex;flex-direction:column}
-.treasury-label{font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px}
-.treasury-val{font-size:32px;font-weight:700;font-family:'Cinzel',serif;color:var(--gold)}
-.treasury-meta{font-size:11px;color:var(--text2);display:flex;flex-direction:column;gap:4px;text-align:right}
-
-.defense-active-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(26,122,74,.2);border:1px solid var(--green);border-radius:4px;font-size:12px;color:#4ade80;font-weight:500;animation:defpulse 2s ease-in-out infinite}
+.food-warning{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.4);border-radius:4px;padding:7px 10px;font-size:11px;color:#fbbf24;display:none}
+.defense-badge{display:none;align-items:center;gap:6px;padding:6px 11px;background:rgba(26,122,74,.2);border:1px solid var(--green);border-radius:4px;font-size:12px;color:#4ade80;font-weight:500;animation:defpulse 2s ease-in-out infinite}
 @keyframes defpulse{0%,100%{box-shadow:0 0 0 rgba(74,222,128,0)}50%{box-shadow:0 0 12px rgba(74,222,128,.3)}}
 
+.action-bar{display:flex;gap:6px;padding:8px 11px;border-radius:4px;font-size:11px;align-items:center}
+.action-bar.free{background:rgba(26,122,74,.12);border:1px solid rgba(26,122,74,.3);color:#4ade80}
+.action-bar.one-left{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:#fbbf24}
+.action-bar.used{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);color:#f87171}
+.action-bar.war{background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.2);color:#f87171}
+.action-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
+
 .tabs{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden}
-.tab{flex:1;padding:8px;font-size:10px;font-weight:600;text-align:center;cursor:pointer;background:var(--bg2);color:var(--text2);border-right:1px solid var(--border);letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+.tab{flex:1;padding:8px 4px;font-size:10px;font-weight:600;text-align:center;cursor:pointer;background:var(--bg2);color:var(--text2);border-right:1px solid var(--border);letter-spacing:1px;text-transform:uppercase;transition:all .15s}
 .tab:last-child{border-right:none}.tab.active{background:var(--gold);color:#0a0c10}
 .panel{display:none}.panel.active{display:block}
 
-/* MARKET — numeric inputs */
-.mrow{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:6px;margin-bottom:7px;background:var(--bg3);flex-wrap:wrap;gap:8px;transition:border-color .2s}
-.mrow:hover{border-color:var(--gold)}
-.mrow.blocked{opacity:.5;border-color:var(--red);cursor:not-allowed}
-.mn{font-size:13px;font-weight:600;color:#fff;font-family:'Cinzel',serif;margin-bottom:2px}
-.mp{font-size:11px;color:var(--text2)}
-.mcontrols{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.qty-input{width:60px;font-size:14px;font-weight:700;text-align:center;padding:5px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg2);color:var(--text);font-family:'Cinzel',serif;outline:none}
+.mrow{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border:1px solid var(--border);border-radius:6px;margin-bottom:6px;background:var(--bg3);flex-wrap:wrap;gap:7px;transition:border-color .2s}
+.mrow:hover:not(.blocked){border-color:var(--gold)}
+.mrow.blocked{opacity:.5;border-color:#f87171;cursor:not-allowed}
+.mn{font-size:12px;font-weight:600;color:#fff;font-family:'Cinzel',serif;margin-bottom:2px}
+.mp{font-size:10px;color:var(--text2)}
+.mcontrols{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.qty-input{width:56px;font-size:13px;font-weight:700;text-align:center;padding:5px 5px;border:1px solid var(--border);border-radius:4px;background:var(--bg2);color:var(--text);font-family:'Cinzel',serif;outline:none}
 .qty-input:focus{border-color:var(--gold)}
-.buybtn{font-size:10px;padding:6px 14px;border-radius:3px;border:1px solid var(--green);background:transparent;color:#4ade80;cursor:pointer;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+.buybtn{font-size:10px;padding:5px 11px;border-radius:3px;border:1px solid var(--green);background:transparent;color:#4ade80;cursor:pointer;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
 .buybtn:hover{background:rgba(26,122,74,.2)}
 .buybtn:disabled{opacity:.4;cursor:not-allowed}
-.sellbtn{font-size:10px;padding:6px 14px;border-radius:3px;border:1px solid var(--red);background:transparent;color:#f87171;cursor:pointer;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+.sellbtn{font-size:10px;padding:5px 11px;border-radius:3px;border:1px solid var(--red);background:transparent;color:#f87171;cursor:pointer;font-weight:600;letter-spacing:1px;text-transform:uppercase}
 .sellbtn:hover{background:rgba(192,57,43,.2)}
-.blocked-tag{font-size:10px;color:#f87171;letter-spacing:1px}
+.sellbtn:disabled{opacity:.4;cursor:not-allowed}
 
-.ne{padding:9px 12px;border-left:2px solid var(--border);margin-bottom:6px;border-radius:0 4px 4px 0;background:var(--bg3)}
+/* ATTACK PAYMENT */
+.pay-select{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.pay-opt{flex:1;padding:8px;border:1px solid var(--border);border-radius:4px;background:var(--bg3);cursor:pointer;text-align:center;transition:all .15s;font-size:11px;min-width:80px}
+.pay-opt:hover{border-color:var(--gold)}
+.pay-opt.selected{border-color:var(--gold);background:rgba(201,168,76,.1)}
+.pay-opt-icon{font-size:18px;margin-bottom:3px}
+.pay-opt-label{font-size:10px;color:var(--text2)}
+.pay-opt-cost{font-size:11px;font-weight:700;font-family:'Cinzel',serif;color:#fff}
+
+.ne{padding:8px 11px;border-left:2px solid var(--border);margin-bottom:5px;border-radius:0 4px 4px 0;background:var(--bg3)}
 .ng{border-color:var(--green)}.nb{border-color:var(--red)}.nn{border-color:#2d5a8e}
 .nt{font-size:10px;color:var(--text3);margin-bottom:2px;letter-spacing:1px}
-.nm{font-size:12px;line-height:1.5;white-space:pre-line}
+.nm{font-size:11px;line-height:1.5;white-space:pre-line}
 
-.aw{background:rgba(30,58,95,.3);color:#60a5fa;border-radius:4px;padding:12px;font-size:12px;line-height:1.6;border:1px solid #1e3a5f}
-.elim-banner{background:rgba(192,57,43,.2);color:#f87171;text-align:center;padding:18px;border-radius:6px;border:1px solid var(--red)}
-.elim-banner h2{font-size:18px;margin-bottom:5px;font-family:'Cinzel',serif}
-
-.coal-box{background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.4);border-radius:6px;padding:16px;text-align:center;position:relative;overflow:hidden}
+.aw{background:rgba(30,58,95,.3);color:#60a5fa;border-radius:4px;padding:11px;font-size:12px;line-height:1.6;border:1px solid #1e3a5f}
+.elim-banner{background:rgba(192,57,43,.2);color:#f87171;text-align:center;padding:16px;border-radius:6px;border:1px solid var(--red)}
+.elim-banner h2{font-size:17px;margin-bottom:4px;font-family:'Cinzel',serif}
+.coal-box{background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.4);border-radius:6px;padding:14px;text-align:center;position:relative;overflow:hidden}
 .coal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-
-/* MY TURN BOX */
-.my-turn-box{background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.08));border:2px solid var(--gold);border-radius:8px;padding:16px;text-align:center;animation:myturnpulse 1.5s ease-in-out infinite}
+.my-turn-box{background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.08));border:2px solid var(--gold);border-radius:8px;padding:14px;text-align:center;animation:myturnpulse 1.5s ease-in-out infinite}
 @keyframes myturnpulse{0%,100%{box-shadow:0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 20px rgba(201,168,76,.3)}}
-.other-turn-box{background:rgba(17,21,40,.6);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center}
+.other-turn-box{background:rgba(17,21,40,.6);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center}
+.rules-s{margin-bottom:11px}
+.rules-s h3{font-size:11px;color:var(--gold);margin-bottom:5px;letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif}
+.rules-s p,.rules-s li{font-size:11px;color:var(--text);line-height:1.7}
+.rules-s ul{padding-left:13px}
 
-.rules-s{margin-bottom:12px}
-.rules-s h3{font-size:11px;color:var(--gold);margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif}
-.rules-s p,.rules-s li{font-size:12px;color:var(--text);line-height:1.7}
-.rules-s ul{padding-left:14px}
-
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg2);color:var(--gold);padding:10px 20px;border-radius:4px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap;border:1px solid var(--gold)}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg2);color:var(--gold);padding:9px 18px;border-radius:4px;font-size:12px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap;border:1px solid var(--gold)}
 #toast.show{opacity:1}
 @media(max-width:640px){.mj-body{grid-template-columns:1fr}.mj-sidebar{display:none}.sgrid{grid-template-columns:repeat(2,1fr)}}
 </style>
@@ -217,19 +232,37 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 
 <div class="atk-flash" id="atk-flash"></div>
 <div class="def-flash" id="def-flash"></div>
-
 <div class="atk-popup" id="atk-popup">
-  <div id="ap-icon" style="font-size:40px;margin-bottom:10px"></div>
-  <div id="ap-title" style="font-size:17px;font-weight:700;font-family:'Cinzel',serif;margin-bottom:6px;color:#fff"></div>
+  <div id="ap-icon" style="font-size:38px;margin-bottom:8px"></div>
+  <div id="ap-title" style="font-size:16px;font-weight:700;font-family:'Cinzel',serif;margin-bottom:5px;color:#fff"></div>
   <div id="ap-detail" style="font-size:12px;color:var(--text2);line-height:1.7"></div>
-  <button onclick="document.getElementById('atk-popup').classList.remove('show')" style="margin-top:12px;font-size:10px;padding:5px 14px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;letter-spacing:1px;text-transform:uppercase">Fermer</button>
+  <button onclick="document.getElementById('atk-popup').classList.remove('show')" style="margin-top:10px;font-size:10px;padding:5px 12px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;letter-spacing:1px;text-transform:uppercase">Fermer</button>
 </div>
 
-<!-- WAR TURN BANNER -->
+<!-- CHOICE EVENT MODAL -->
+<div class="choice-modal" id="choice-modal">
+  <div class="choice-card">
+    <div style="font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:6px">⚡ Événement — Choix requis</div>
+    <div class="choice-countdown" id="choice-countdown">60</div>
+    <div style="font-size:16px;font-weight:700;color:#fff;font-family:'Cinzel',serif;margin-bottom:6px" id="choice-title"></div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:16px" id="choice-desc"></div>
+    <button class="choice-btn" id="choice-btn-a" onclick="submitChoice('A')">
+      <div class="choice-btn-label">Option A</div>
+      <div id="choice-label-a"></div>
+    </button>
+    <button class="choice-btn" id="choice-btn-b" onclick="submitChoice('B')">
+      <div class="choice-btn-label">Option B</div>
+      <div id="choice-label-b"></div>
+    </button>
+    <div style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center">Si vous ne choisissez pas, l'Option B s'applique automatiquement</div>
+  </div>
+</div>
+
+<!-- TURN BANNER -->
 <div class="turn-banner" id="turn-banner">
-  <div id="turn-banner-text" style="font-size:13px;font-weight:600"></div>
-  <div class="turn-timer" id="turn-timer-display">30</div>
-  <button id="turn-skip-btn" onclick="skipMyTurn()" style="display:none" class="btn-sm bo">Passer mon tour</button>
+  <div id="turn-banner-text" style="font-size:12px;font-weight:600"></div>
+  <div class="turn-timer-d" id="turn-timer-display">30</div>
+  <button id="turn-skip-btn" onclick="skipMyTurn()" style="display:none;font-size:10px;padding:5px 12px;border-radius:3px;border:1px solid rgba(0,0,0,.3);background:rgba(0,0,0,.2);color:#0a0c10;cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-weight:600">Passer</button>
 </div>
 
 <!-- LANDING -->
@@ -241,17 +274,17 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
     <button class="btn-primary" onclick="showScreen('screen-mj')">Maître du Jeu</button>
     <button class="btn-secondary" onclick="showScreen('screen-lobby')">Rejoindre</button>
   </div>
-  <div style="font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:8px">Partagez cette URL à chaque équipe</div>
+  <div style="font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:6px">Partagez cette URL à chaque équipe</div>
 </div>
 
 <!-- LOBBY -->
 <div id="screen-lobby" class="screen">
-  <div style="padding:14px"><button class="btn-sm" onclick="showScreen('screen-landing')">← Retour</button></div>
+  <div style="padding:13px"><button class="btn-sm" onclick="showScreen('screen-landing')">← Retour</button></div>
   <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:1rem">
     <div class="lobby-card">
       <div class="logo-sm">Geopolitica</div>
-      <h2 style="font-size:19px;color:#fff">Rejoindre la partie</h2>
-      <input class="inp" id="team-input" placeholder="Nom de votre équipe (ex: Équipe 3)" maxlength="20"/>
+      <h2 style="font-size:18px;color:#fff">Rejoindre la partie</h2>
+      <input class="inp" id="team-input" placeholder="Nom de votre équipe" maxlength="20"/>
       <div class="err" id="lobby-error"></div>
       <button class="btn-primary" onclick="joinGame()" style="width:100%">Rejoindre →</button>
     </div>
@@ -267,13 +300,13 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
   </div>
   <div class="draft-body">
     <div>
-      <div style="font-size:19px;font-weight:700;color:#fff;margin-bottom:6px;font-family:'Cinzel',serif">Choisissez votre Nation</div>
-      <div style="font-size:12px;color:var(--text2);line-height:1.6">S = Superpuissance · A = Puissance majeure · B = Nation émergente (+15% bonus de combat)<br>La nourriture et le pétrole ont désormais autant d'importance que l'armée dans le calcul de puissance.</div>
+      <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:5px;font-family:'Cinzel',serif">Choisissez votre Nation</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.7">S = Superpuissance · A = Puissance majeure · B = Émergente (+15% combat)<br>Puissance = Armée×10 + Trésor×0.25 + Pétrole×0.8 + Nourriture×1.2 (×Tier bonus)<br>La nourriture diminue chaque période selon votre population. Le pétrole génère des revenus passifs.</div>
     </div>
     <div class="dgrid" id="draft-grid"></div>
     <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-      <button class="btn-primary" id="confirm-draft-btn" onclick="confirmDraft()" disabled>Confirmer cette nation →</button>
-      <div id="draft-waiting" style="display:none;font-size:12px;color:var(--text2)">En attente du début de la partie...</div>
+      <button class="btn-primary" id="confirm-draft-btn" onclick="confirmDraft()" disabled>Confirmer →</button>
+      <div id="draft-waiting" style="display:none;font-size:12px;color:var(--text2)">En attente...</div>
     </div>
   </div>
 </div>
@@ -283,9 +316,9 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
   <div class="game-header">
     <div class="logo-sm">Geopolitica</div>
     <span class="phase-badge ph-s" id="mj-phase-badge">Configuration</span>
-    <div style="display:flex;gap:8px;align-items:center">
+    <div style="display:flex;gap:7px;align-items:center">
       <button class="btn-sm" onclick="toggleSound()" id="sound-btn">🔔</button>
-      <button class="btn-sm br" onclick="if(confirm('Réinitialiser ?'))socket.emit('mj:reset')">Reset</button>
+      <button class="btn-sm br" onclick="if(confirm('Reset ?'))socket.emit('mj:reset')">Reset</button>
     </div>
   </div>
   <div class="mj-body">
@@ -293,7 +326,7 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
       <div class="card">
         <div class="card-title">Contrôle de partie</div>
         <div class="ctrl-row" id="phase-btns"><button class="btn-sm bg" onclick="socket.emit('mj:startDraft')">Lancer le Draft →</button></div>
-        <div style="margin-top:8px;font-size:12px;color:var(--text2)" id="phase-desc">Attendez que les équipes rejoignent.</div>
+        <div style="margin-top:7px;font-size:11px;color:var(--text2)" id="phase-desc">Attendez que les équipes rejoignent.</div>
       </div>
       <div id="period-card" style="display:none" class="period-box">
         <div class="pnum" id="pc-num"></div>
@@ -306,9 +339,9 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
         <div class="card-title">Tour actuel</div>
         <div class="war-turn-box">
           <div class="war-turn-team" id="mj-turn-team">—</div>
-          <div class="war-turn-countdown" id="mj-turn-countdown">30</div>
+          <div class="war-turn-cd" id="mj-turn-cd">30</div>
         </div>
-        <div class="ctrl-row" style="margin-top:10px">
+        <div class="ctrl-row" style="margin-top:8px">
           <button class="btn-sm br" onclick="socket.emit('mj:nextWarTurn')">Tour suivant →</button>
           <button class="btn-sm" onclick="socket.emit('mj:startWarTurns')">Relancer les tours</button>
         </div>
@@ -318,7 +351,7 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
         <div id="mj-lb"></div>
       </div>
       <div class="card">
-        <div class="card-title">Vue détaillée</div>
+        <div class="card-title">Vue détaillée <span style="font-size:9px;color:var(--text3)">🚨trésor critique · 🍞famine · 🛡️bunker</span></div>
         <div class="cgrid" id="mj-grid"></div>
       </div>
     </div>
@@ -330,26 +363,26 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
         <button class="btn-sm" onclick="socket.emit('mj:timerPause')">Pause</button>
         <button class="btn-sm" onclick="resetTimer()">Reset</button>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+      <div style="display:flex;align-items:center;gap:7px;margin-top:3px">
         <label style="font-size:10px;color:var(--text2);letter-spacing:1px">MIN</label>
-        <input type="number" id="timer-min" value="10" min="1" max="60" class="inp" style="width:58px;padding:4px 8px" onchange="resetTimer()"/>
+        <input type="number" id="timer-min" value="10" min="1" max="60" class="inp" style="width:55px;padding:4px 7px" onchange="resetTimer()"/>
       </div>
       <div style="height:1px;background:var(--border);margin:4px 0"></div>
-      <div class="card-title">Éliminer manuellement</div>
-      <div style="display:flex;gap:6px">
+      <div class="card-title">Éliminer</div>
+      <div style="display:flex;gap:5px">
         <select class="sel" id="elim-sel"><option value="">Nation</option></select>
         <button class="btn-sm br" onclick="socket.emit('mj:eliminate',{countryId:document.getElementById('elim-sel').value})">Élim.</button>
       </div>
-      <div class="card-title" style="margin-top:4px">Bonus / Malus</div>
+      <div class="card-title" style="margin-top:3px">Bonus / Malus</div>
       <select class="sel" id="bonus-sel"><option value="">Nation</option></select>
-      <div style="display:flex;gap:6px;margin-top:6px">
-        <input type="number" id="bonus-amt" value="100" class="inp" style="flex:1;padding:5px 8px"/>
+      <div style="display:flex;gap:5px;margin-top:5px">
+        <input type="number" id="bonus-amt" value="100" class="inp" style="flex:1;padding:5px 7px"/>
         <button class="btn-sm bg" onclick="applyBonus(1)">+</button>
         <button class="btn-sm br" onclick="applyBonus(-1)">−</button>
       </div>
       <div style="height:1px;background:var(--border);margin:4px 0"></div>
       <div class="card-title">Journal</div>
-      <div id="mj-log" style="max-height:300px;overflow-y:auto"></div>
+      <div id="mj-log" style="max-height:280px;overflow-y:auto"></div>
     </div>
   </div>
 </div>
@@ -359,40 +392,34 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
   <div class="game-header">
     <div class="logo-sm">Geopolitica</div>
     <span class="phase-badge ph-s" id="team-phase-badge">En attente</span>
-    <span id="team-country-header" style="font-size:13px;font-weight:700;color:var(--gold);font-family:'Cinzel',serif"></span>
+    <span id="team-country-header" style="font-size:12px;font-weight:700;color:var(--gold);font-family:'Cinzel',serif"></span>
   </div>
   <div class="team-body">
-    <div id="elim-banner" style="display:none" class="elim-banner">
-      <h2>Nation Conquise</h2>
-      <p style="font-size:12px;color:#fca5a5">Votre nation a été vaincue.</p>
-    </div>
+    <div id="elim-banner" style="display:none" class="elim-banner"><h2>Nation Conquise</h2><p style="font-size:11px;color:#fca5a5">Votre nation a été vaincue.</p></div>
     <div id="coal-box" style="display:none" class="coal-box">
-      <div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:6px;font-family:'Cinzel',serif">🤝 Proposition de Coalition</div>
-      <div style="font-size:12px;color:var(--text);line-height:1.6;margin-bottom:10px">Une alliance vous est proposée pour la phase de guerre. Vos ressources seront fusionnées. Vous partagez victoires et défaites.</div>
-      <div style="font-size:11px;color:var(--text2);margin-bottom:10px" id="coal-status"></div>
-      <div style="display:flex;gap:10px;justify-content:center" id="coal-btns">
+      <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:5px;font-family:'Cinzel',serif">🤝 Proposition de Coalition</div>
+      <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:9px">Unissez vos forces pour la guerre. Ressources fusionnées, victoires et défaites partagées.</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:9px" id="coal-status"></div>
+      <div style="display:flex;gap:9px;justify-content:center" id="coal-btns">
         <button class="btn-primary" onclick="respondCoalition(true)">Accepter</button>
         <button class="btn-secondary" onclick="respondCoalition(false)">Refuser</button>
       </div>
     </div>
 
-    <!-- TREASURY (prominent) -->
     <div class="treasury-card">
-      <div class="treasury-main">
-        <div class="treasury-label">Trésor</div>
+      <div>
+        <div style="font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px">Trésor</div>
         <div class="treasury-val" id="t-treasury">0</div>
       </div>
       <div class="treasury-meta">
         <div>Puissance: <strong id="t-power" style="color:var(--gold)">0</strong> pts</div>
         <div>Période: <strong id="t-round">—</strong></div>
-        <div id="action-left-text" style="color:#4ade80">✓ 1 action disponible</div>
+        <div id="action-summary" style="color:#4ade80">✓ 2 actions disponibles</div>
       </div>
     </div>
 
-    <!-- DEFENSE BADGE -->
-    <div id="defense-badge" style="display:none" class="defense-active-badge">
-      🛡️ Bunker actif — Dommages réduits de 30%
-    </div>
+    <div id="defense-badge" style="display:none" class="defense-badge">🛡️ Bunker actif — Dommages −30%</div>
+    <div id="food-warning" class="food-warning">⚠️ Stock de nourriture faible — risque de famine à la prochaine transition !</div>
 
     <div class="sgrid">
       <div class="sc os"><div class="sl">Pétrole</div><div class="sv oc" id="t-oil">0</div></div>
@@ -408,17 +435,16 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
       <div class="epill" id="tp-event"></div>
     </div>
 
-    <!-- WAR TURN indicator -->
     <div id="my-turn-box" style="display:none" class="my-turn-box">
-      <div style="font-size:16px;font-weight:700;color:var(--gold);font-family:'Cinzel',serif;margin-bottom:4px">⚔️ C'est votre tour !</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Attaquez une nation ou passez votre tour. Temps restant :</div>
-      <div style="font-size:36px;font-weight:700;color:var(--gold);font-family:'Cinzel',serif;font-variant-numeric:tabular-nums" id="my-turn-countdown">30</div>
-      <button class="btn-sm bo" onclick="skipMyTurn()" style="margin-top:10px">Passer mon tour</button>
+      <div style="font-size:15px;font-weight:700;color:var(--gold);font-family:'Cinzel',serif;margin-bottom:3px">⚔️ C'est votre tour !</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Attaquez ou passez. Temps restant :</div>
+      <div style="font-size:34px;font-weight:700;color:var(--gold);font-family:'Cinzel',serif;font-variant-numeric:tabular-nums" id="my-turn-countdown">30</div>
+      <button class="btn-sm bo" onclick="skipMyTurn()" style="margin-top:8px">Passer mon tour</button>
     </div>
     <div id="other-turn-box" style="display:none" class="other-turn-box">
-      <div style="font-size:13px;color:var(--text2);margin-bottom:4px">Tour de :</div>
-      <div style="font-size:15px;font-weight:700;color:#fff;font-family:'Cinzel',serif" id="other-turn-name">—</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:4px">Attendez votre tour pour attaquer</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:3px">Tour de :</div>
+      <div style="font-size:14px;font-weight:700;color:#fff;font-family:'Cinzel',serif" id="other-turn-name">—</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:3px">Attendez votre tour</div>
     </div>
 
     <div class="tabs">
@@ -431,27 +457,27 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 
     <!-- MARKET -->
     <div id="panel-market" class="panel active">
-      <div id="action-indicator" class="action-indicator free">✓ 1 action disponible cette période</div>
-      <div id="market-rows"></div>
-      <div style="font-size:11px;color:var(--text3);padding:6px 2px;line-height:1.6">Le pétrole génère 0.70 or par unité à chaque fin de période. La nourriture est consommée selon votre population.</div>
+      <div class="action-bar free" id="action-bar-market">✓ 2 actions disponibles cette période</div>
+      <div id="market-rows" style="margin-top:7px"></div>
+      <div style="font-size:10px;color:var(--text3);padding:5px 2px;line-height:1.6">Pétrole: revenus passifs ×0.35/unité/période (×3 lors des booms). Nourriture: consommée selon population.</div>
     </div>
 
     <!-- ARMY -->
     <div id="panel-army" class="panel">
-      <div id="action-indicator-army" class="action-indicator free">✓ 1 action disponible cette période</div>
-      <div class="card" style="margin-bottom:8px">
-        <div class="card-title">Recruter des forces</div>
+      <div class="action-bar free" id="action-bar-army">✓ 2 actions disponibles cette période</div>
+      <div class="card" style="margin-top:7px;margin-bottom:7px">
+        <div class="card-title">Recruter</div>
         <div class="mrow">
           <div><div class="mn">Bataillon</div><div class="mp">150 or · +20 puissance</div></div>
           <div class="mcontrols">
-            <input type="number" class="qty-input" id="army-qty-inp" value="1" min="1" max="100"/>
+            <input type="number" class="qty-input" id="army-qty-inp" value="1" min="1" max="999"/>
             <button class="buybtn" onclick="recruitArmy('bataillon')">Recruter</button>
           </div>
         </div>
         <div class="mrow">
           <div><div class="mn">Tech militaire</div><div class="mp">300 or · +50 puissance</div></div>
           <div class="mcontrols">
-            <input type="number" class="qty-input" id="tech-qty-inp" value="1" min="1" max="100"/>
+            <input type="number" class="qty-input" id="tech-qty-inp" value="1" min="1" max="999"/>
             <button class="buybtn" onclick="recruitArmy('tech')">Acquérir</button>
           </div>
         </div>
@@ -459,7 +485,7 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
       <div class="card">
         <div class="card-title">Défense</div>
         <div class="mrow">
-          <div><div class="mn">Bunker défensif</div><div class="mp">200 or · −30% dommages reçus cette période</div></div>
+          <div><div class="mn">Bunker défensif</div><div class="mp">200 or · −30% dommages reçus</div></div>
           <button class="buybtn" id="bunker-btn" onclick="socket.emit('team:buyDefense',{teamName:myTeam})">Activer</button>
         </div>
       </div>
@@ -467,11 +493,29 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 
     <!-- ATTACK -->
     <div id="panel-attack" class="panel">
-      <div class="aw" id="attack-warning">Les attaques sont disponibles uniquement en Phase de Guerre, et uniquement pendant votre tour.</div>
+      <div class="aw" id="attack-warning">Les attaques sont disponibles en Phase de Guerre uniquement, pendant votre tour.</div>
       <div id="attack-form" style="display:none">
         <div class="card">
           <div class="card-title">Déclarer une attaque</div>
-          <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.7">Coût: 150 or. Résultat automatique basé sur vos puissances + aléatoire (20-40%) + bonus défenseur (+15%) + nourriture (+7%).<br><span style="color:#4ade80">Victoire</span> → vous récupérez TOUTES les ressources ennemies.<br><span style="color:#f87171">Défaite</span> → vous perdez 35% de votre trésor + armée des deux côtés.</div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.7">Résultat automatique: puissance + aléatoire (20-40%) + défenseur +15% + nourriture +7%.<br><span style="color:#4ade80">Victoire</span> → toutes les ressources ennemies pillées.<br><span style="color:#f87171">Défaite</span> → −35% trésor + pertes armée des deux côtés.</div>
+          <div style="font-size:11px;color:var(--gold);margin-bottom:7px;font-weight:600">Payer avec :</div>
+          <div class="pay-select" id="pay-select">
+            <div class="pay-opt selected" onclick="selectPayment('gold')" id="pay-gold">
+              <div class="pay-opt-icon">💰</div>
+              <div class="pay-opt-label">Or</div>
+              <div class="pay-opt-cost">150</div>
+            </div>
+            <div class="pay-opt" onclick="selectPayment('oil')" id="pay-oil">
+              <div class="pay-opt-icon">🛢️</div>
+              <div class="pay-opt-label">Pétrole</div>
+              <div class="pay-opt-cost">200</div>
+            </div>
+            <div class="pay-opt" onclick="selectPayment('food')" id="pay-food">
+              <div class="pay-opt-icon">🌾</div>
+              <div class="pay-opt-label">Nourriture</div>
+              <div class="pay-opt-cost">300</div>
+            </div>
+          </div>
           <select class="sel" id="attack-target" style="margin-bottom:10px"><option value="">Choisir la cible...</option></select>
           <button class="btn-primary" id="attack-btn" onclick="declareAttack()" style="width:100%">⚔️ Déclarer l'attaque</button>
         </div>
@@ -484,11 +528,12 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
     <!-- RULES -->
     <div id="panel-rules" class="panel">
       <div class="card">
-        <div class="rules-s"><h3>🎯 Objectif</h3><p>Être la dernière nation debout. 6 périodes de prospérité économique, puis la guerre.</p></div>
-        <div class="rules-s"><h3>📊 Calcul de puissance</h3><ul><li>Armée × 10</li><li>Trésor × 0.25</li><li>Pétrole × 0.8</li><li>Nourriture × 1.2</li><li>Tier B: ×1.15 bonus</li></ul></div>
-        <div class="rules-s"><h3>📅 Périodes (1 achat par période)</h3><ul><li>6 périodes de ~10 min chacune</li><li>1 seul achat par équipe par période</li><li>Vendre ne compte pas comme achat</li><li>En guerre: aucun achat possible</li></ul></div>
-        <div class="rules-s"><h3>💰 Ressources</h3><ul><li><span style="color:#60a5fa">Pétrole</span> → +0.70 or/unité à chaque fin de période</li><li><span style="color:#4ade80">Nourriture</span> → consommée selon population. Pénurie = −puissance</li><li><span style="color:#f87171">Armée</span> → force de combat</li></ul></div>
-        <div class="rules-s"><h3>⚔️ Système de combat (tour par tour)</h3><ul><li>30 secondes par équipe pour attaquer ou passer</li><li>Coût d'attaque: 150 or</li><li>Résultat automatique calculé par le serveur</li><li>Victoire: toutes les ressources ennemies pillées</li><li>Défaite: −35% trésor + pertes d'armée des deux côtés</li></ul></div>
+        <div class="rules-s"><h3>🎯 Objectif</h3><p>Être la dernière nation debout. 6 périodes économiques, puis la guerre.</p></div>
+        <div class="rules-s"><h3>📊 Puissance</h3><ul><li>Armée × 10 · Trésor × 0.25 · Pétrole × 0.8 · Nourriture × 1.2</li><li>Tier B: ×1.15 bonus combat et puissance</li></ul></div>
+        <div class="rules-s"><h3>📅 Périodes (2 actions par période)</h3><ul><li>2 achats max par équipe par période</li><li>Vendre ne compte pas comme achat</li><li>En guerre: aucun achat possible</li></ul></div>
+        <div class="rules-s"><h3>⚡ Types d'événements</h3><ul><li><span style="color:#4ade80">MARCHÉ</span> — modifie les prix et revenus drastiquement</li><li><span style="color:var(--gold)">CHOIX</span> — 60 sec pour décider entre 2 options (coûts/gains différents)</li><li><span style="color:#f87171">CIBLÉ</span> — affecte des pays spécifiques ou aléatoires</li></ul></div>
+        <div class="rules-s"><h3>💰 Ressources</h3><ul><li>Pétrole → revenus passifs ×0.35/unité/période (×3 lors des booms pétroliers)</li><li>Nourriture → consommée selon population. Famine = −puissance proportionnelle</li><li>Or → monnaie principale</li></ul></div>
+        <div class="rules-s"><h3>⚔️ Combat (tour par tour, 30 sec)</h3><ul><li>Payer avec: 150 or OU 200 pétrole OU 300 nourriture</li><li>Victoire: toutes les ressources ennemies pillées</li><li>Défaite: −35% trésor + pertes armée</li></ul></div>
       </div>
     </div>
   </div>
@@ -497,113 +542,106 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 <div id="toast"></div>
 
 <script>
-const socket = io();
+const socket=io();
 let state={}, myTeam=null, myCountryId=null, selectedDraft=null;
 let timerSec=600, soundEnabled=true;
-let currentWarTurn=null, myTurnCountdown=0, myTurnInterval=null;
+let currentWarTurn=null, choiceCountdownInterval=null;
+let selectedPayment='gold';
 
 const ALL_COUNTRIES=[
-  {id:'usa',flag:'🇺🇸',name:'États-Unis',tier:'S',gold:800,oil:300,food:400,army:320,population:330},
-  {id:'china',flag:'🇨🇳',name:'Chine',tier:'S',gold:750,oil:300,food:500,army:300,population:1400},
-  {id:'russia',flag:'🇷🇺',name:'Russie',tier:'A',gold:500,oil:500,food:200,army:260,population:145},
-  {id:'germany',flag:'🇩🇪',name:'Allemagne',tier:'A',gold:600,oil:150,food:300,army:230,population:83},
-  {id:'qatar',flag:'🇶🇦',name:'Qatar',tier:'A',gold:680,oil:550,food:80,army:180,population:3},
-  {id:'france',flag:'🇫🇷',name:'France',tier:'A',gold:550,oil:100,food:350,army:220,population:68},
-  {id:'brazil',flag:'🇧🇷',name:'Brésil',tier:'B',gold:400,oil:200,food:650,army:160,population:215},
-  {id:'india',flag:'🇮🇳',name:'Inde',tier:'B',gold:380,oil:150,food:600,army:180,population:1400},
-  {id:'morocco',flag:'🇲🇦',name:'Maroc',tier:'B',gold:320,oil:80,food:400,army:150,population:37},
-  {id:'guinea',flag:'🇬🇳',name:'Guinée',tier:'B',gold:220,oil:60,food:380,army:130,population:13},
+  {id:'usa',flag:'🇺🇸',name:'États-Unis',tier:'S',gold:800,oil:300,food:500,army:320,population:330},
+  {id:'china',flag:'🇨🇳',name:'Chine',tier:'S',gold:750,oil:300,food:600,army:300,population:1400},
+  {id:'russia',flag:'🇷🇺',name:'Russie',tier:'A',gold:500,oil:500,food:300,army:260,population:145},
+  {id:'germany',flag:'🇩🇪',name:'Allemagne',tier:'A',gold:600,oil:150,food:350,army:230,population:83},
+  {id:'qatar',flag:'🇶🇦',name:'Qatar',tier:'A',gold:680,oil:550,food:120,army:180,population:3},
+  {id:'france',flag:'🇫🇷',name:'France',tier:'A',gold:550,oil:100,food:400,army:220,population:68},
+  {id:'brazil',flag:'🇧🇷',name:'Brésil',tier:'B',gold:400,oil:200,food:700,army:160,population:215},
+  {id:'india',flag:'🇮🇳',name:'Inde',tier:'B',gold:380,oil:150,food:650,army:180,population:1400},
+  {id:'morocco',flag:'🇲🇦',name:'Maroc',tier:'B',gold:320,oil:80,food:450,army:150,population:37},
+  {id:'guinea',flag:'🇬🇳',name:'Guinée',tier:'B',gold:220,oil:60,food:420,army:130,population:13},
 ];
 
-socket.on('state', s => { state=s; onStateUpdate(); });
-socket.on('timer', ({seconds,running,ended}) => {
-  timerSec=seconds; updateTimerDisplay();
-  if(ended){ playAlarm(); toast('⏰ Temps écoulé !'); }
+socket.on('state', s=>{ state=s; onStateUpdate(); });
+socket.on('timer', ({seconds,running,ended})=>{ timerSec=seconds; updateTimerDisplay(); if(ended){ playAlarm(); toast('⏰ Temps écoulé !'); }});
+socket.on('attackAnimation', ({attackerId,defenderId,success,scoreAtt,scoreDef})=>showAtkResult(attackerId,defenderId,success,scoreAtt,scoreDef));
+socket.on('defenseActivated', ({countryId})=>{ if(countryId===myCountryId){ showDefenseFlash(); toast('🛡️ Bunker activé !'); }});
+socket.on('warTurn', ({team,seconds})=>{ currentWarTurn=team; updateWarTurnUI(team,seconds); });
+socket.on('warTurnTimer', ({seconds,team})=>{
+  if(team===myTeam){ const el=document.getElementById('my-turn-countdown'); if(el) el.textContent=seconds; }
+  const d=document.getElementById('turn-timer-display'); if(d){ d.textContent=seconds; d.className='turn-timer-d'+(seconds<10?' urgent':''); }
+  const mj=document.getElementById('mj-turn-cd'); if(mj) mj.textContent=seconds;
 });
-socket.on('attackAnimation', ({attackerId,defenderId,success,scoreAtt,scoreDef}) => showAttackResult(attackerId,defenderId,success,scoreAtt,scoreDef));
-socket.on('defenseActivated', ({countryId}) => {
-  if(countryId===myCountryId){ showDefenseFlash(); toast('🛡️ Bunker activé !'); }
-});
-socket.on('warTurn', ({team,seconds,turnIndex,total}) => {
-  currentWarTurn=team;
-  updateWarTurnUI(team,seconds);
-  if(team===myTeam) startMyTurnCountdown(seconds);
-  else clearMyTurnCountdown();
-});
-socket.on('warTurnTimer', ({seconds,team}) => {
-  if(team===myTeam){ myTurnCountdown=seconds; updateMyTurnCountdown(); }
-  updateWarTurnBanner(team,seconds);
-  const mj=document.getElementById('mj-turn-countdown'); if(mj) mj.textContent=seconds;
-});
-socket.on('error', msg => toast(msg));
+socket.on('choiceEvent', ev=>showChoiceModal(ev));
+socket.on('error', msg=>toast(msg));
 
 function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
-
-function playAlarm(){
-  if(!soundEnabled) return;
-  try{ const ctx=new(window.AudioContext||window.webkitAudioContext)(); [0,.3,.6].forEach(d=>{ const o=ctx.createOscillator(),g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.value=880; o.type='sine'; g.gain.setValueAtTime(.4,ctx.currentTime+d); g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+d+.4); o.start(ctx.currentTime+d); o.stop(ctx.currentTime+d+.4); }); }catch(e){}
-}
+function playAlarm(){ if(!soundEnabled) return; try{ const ctx=new(window.AudioContext||window.webkitAudioContext)(); [0,.3,.6].forEach(d=>{ const o=ctx.createOscillator(),g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.value=880; o.type='sine'; g.gain.setValueAtTime(.4,ctx.currentTime+d); g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+d+.4); o.start(ctx.currentTime+d); o.stop(ctx.currentTime+d+.4); }); }catch(e){} }
 function toggleSound(){ soundEnabled=!soundEnabled; document.getElementById('sound-btn').textContent=soundEnabled?'🔔':'🔕'; }
-
 function showDefenseFlash(){ const f=document.getElementById('def-flash'); f.classList.add('show'); setTimeout(()=>f.classList.remove('show'),1600); }
 
-function showAttackResult(attId,defId,success,scoreAtt,scoreDef){
+function showAtkResult(attId,defId,success,scoreAtt,scoreDef){
   const fl=document.getElementById('atk-flash'); fl.className='atk-flash go'; setTimeout(()=>fl.className='atk-flash',2000);
-  const att=state.countries&&state.countries[attId]; const def=state.countries&&state.countries[defId];
-  if(!att||!def) return;
-  const popup=document.getElementById('atk-popup');
+  const att=state.countries&&state.countries[attId]; const def=state.countries&&state.countries[defId]; if(!att||!def) return;
+  const p=document.getElementById('atk-popup');
   document.getElementById('ap-icon').textContent=success?'💥':'🛡️';
   document.getElementById('ap-title').textContent=success?`${att.flag} ${att.name} VICTOIRE !`:`${def.flag} ${def.name} repousse l'attaque !`;
-  document.getElementById('ap-detail').innerHTML=`Attaquant <strong>${att.flag}</strong>: ${scoreAtt} pts<br>Défenseur <strong>${def.flag}</strong>: ${scoreDef} pts<br><br>${success?'<span style="color:#4ade80">Toutes les ressources pillées !</span>':'<span style="color:#60a5fa">La défense a tenu !</span>'}`;
-  popup.classList.add('show'); setTimeout(()=>popup.classList.remove('show'),7000);
+  document.getElementById('ap-detail').innerHTML=`${att.flag}: ${scoreAtt} pts<br>${def.flag}: ${scoreDef} pts<br><br>${success?'<span style="color:#4ade80">Toutes les ressources pillées !</span>':'<span style="color:#60a5fa">La défense a tenu !</span>'}`;
+  p.classList.add('show'); setTimeout(()=>p.classList.remove('show'),6000);
 }
 
-function updateWarTurnUI(team, seconds){
-  // MJ view
-  const mjBox=document.getElementById('war-turn-mj');
-  if(mjBox){ mjBox.style.display='block'; document.getElementById('mj-turn-team').textContent=team+' ('+seconds+'s)'; }
+function showChoiceModal(ev){
+  if(!document.getElementById('screen-team').classList.contains('active')) return;
+  const modal=document.getElementById('choice-modal');
+  document.getElementById('choice-title').textContent=ev.title;
+  document.getElementById('choice-desc').textContent=ev.desc;
+  document.getElementById('choice-label-a').textContent=ev.choiceA?.label||'Option A';
+  document.getElementById('choice-label-b').textContent=ev.choiceB?.label||'Option B';
+  let secs=60;
+  document.getElementById('choice-countdown').textContent=secs;
+  modal.classList.add('show');
+  if(choiceCountdownInterval) clearInterval(choiceCountdownInterval);
+  choiceCountdownInterval=setInterval(()=>{
+    secs--; const el=document.getElementById('choice-countdown'); if(el){ el.textContent=secs; el.className='choice-countdown'+(secs<15?' urgent':''); }
+    if(secs<=0){ clearInterval(choiceCountdownInterval); submitChoice('B'); }
+  },1000);
 }
 
-function updateWarTurnBanner(team, seconds){
+function submitChoice(choice){
+  clearInterval(choiceCountdownInterval);
+  document.getElementById('choice-modal').classList.remove('show');
+  socket.emit('team:choiceResponse',{teamName:myTeam,choice});
+  toast(`Choix ${choice} soumis !`);
+}
+
+function selectPayment(type){
+  selectedPayment=type;
+  ['gold','oil','food'].forEach(t=>{ const el=document.getElementById('pay-'+t); if(el) el.classList.toggle('selected',t===type); });
+}
+
+function updateWarTurnUI(team,seconds){
   const banner=document.getElementById('turn-banner');
   const txt=document.getElementById('turn-banner-text');
-  const timerEl=document.getElementById('turn-timer-display');
-  const skipBtn=document.getElementById('turn-skip-btn');
-  if(!banner) return;
+  const d=document.getElementById('turn-timer-display');
+  const skip=document.getElementById('turn-skip-btn');
   banner.classList.add('active');
-  timerEl.textContent=seconds;
-  timerEl.className='turn-timer'+(seconds<10?' urgent':'');
+  d.textContent=seconds;
+  const mj=document.getElementById('mj-turn-team'); if(mj) mj.textContent=team;
   if(team===myTeam){
     banner.className='turn-banner my-turn active';
-    txt.textContent='⚔️ C\'est votre tour !';
-    txt.style.color='#0a0c10';
-    timerEl.style.color='#0a0c10';
-    if(skipBtn) skipBtn.style.display='block';
+    txt.textContent="⚔️ C'est votre tour !"; txt.style.color='#0a0c10'; d.style.color='#0a0c10';
+    if(skip) skip.style.display='block';
+    const mb=document.getElementById('my-turn-box'); if(mb) mb.style.display='block';
+    const ob=document.getElementById('other-turn-box'); if(ob) ob.style.display='none';
+    const ab=document.getElementById('attack-btn'); if(ab) ab.disabled=false;
   } else {
     banner.className='turn-banner other-turn active';
-    txt.textContent=`Tour de ${team}`;
-    txt.style.color='var(--text2)';
-    timerEl.style.color='var(--text2)';
-    if(skipBtn) skipBtn.style.display='none';
+    txt.textContent=`Tour de ${team}`; txt.style.color='var(--text2)'; d.style.color='var(--text2)';
+    if(skip) skip.style.display='none';
+    const mb=document.getElementById('my-turn-box'); if(mb) mb.style.display='none';
+    const ob=document.getElementById('other-turn-box'); if(ob){ ob.style.display='block'; document.getElementById('other-turn-name').textContent=team; }
+    const ab=document.getElementById('attack-btn'); if(ab) ab.disabled=true;
   }
-}
-
-function startMyTurnCountdown(seconds){
-  clearMyTurnCountdown();
-  myTurnCountdown=seconds;
-  document.getElementById('my-turn-box').style.display='block';
-  document.getElementById('other-turn-box').style.display='none';
-  updateMyTurnCountdown();
-}
-
-function clearMyTurnCountdown(){
-  if(myTurnInterval){ clearInterval(myTurnInterval); myTurnInterval=null; }
-  const b=document.getElementById('my-turn-box'); if(b) b.style.display='none';
-}
-
-function updateMyTurnCountdown(){
-  const el=document.getElementById('my-turn-countdown'); if(el) el.textContent=myTurnCountdown;
 }
 
 function skipMyTurn(){ socket.emit('team:skipTurn',{teamName:myTeam}); }
@@ -611,8 +649,7 @@ function skipMyTurn(){ socket.emit('team:skipTurn',{teamName:myTeam}); }
 function joinGame(){
   const name=document.getElementById('team-input').value.trim();
   if(!name){ document.getElementById('lobby-error').textContent='Entrez un nom.'; return; }
-  myTeam=name;
-  socket.emit('team:join',{teamName:name});
+  myTeam=name; socket.emit('team:join',{teamName:name});
   if(state.teams&&state.teams[name]&&state.teams[name].country){ myCountryId=state.teams[name].country; enterGame(); }
   else{ document.getElementById('draft-team-name').textContent=name; renderDraftGrid(); showScreen('screen-draft'); }
 }
@@ -620,11 +657,9 @@ function joinGame(){
 function renderDraftGrid(){
   const grid=document.getElementById('draft-grid'); grid.innerHTML='';
   ALL_COUNTRIES.forEach(c=>{
-    const taken=state.takenCountries&&state.takenCountries[c.id];
-    const isSel=selectedDraft===c.id;
-    const div=document.createElement('div');
-    div.className='dc'+(taken?' taken':'')+(isSel?' selected':'');
-    div.innerHTML=`<div class="dc-flag">${c.flag}</div><div class="dc-name">${c.name}</div><span class="tier-${c.tier}">${c.tier}</span><div class="dc-stats">Or: ${c.gold} · Pétrole: ${c.oil}<br>Nourr: ${c.food} · Armée: ${c.army}</div>${taken?`<div class="dc-taken">Pris par ${taken}</div>`:''}`;
+    const taken=state.takenCountries&&state.takenCountries[c.id]; const isSel=selectedDraft===c.id;
+    const div=document.createElement('div'); div.className='dc'+(taken?' taken':'')+(isSel?' selected':'');
+    div.innerHTML=`<div class="dc-flag">${c.flag}</div><div class="dc-name">${c.name}</div><span class="tier-${c.tier}">${c.tier}</span><div class="dc-stats">Or: ${c.gold} · Pétrole: ${c.oil}<br>Nourr: ${c.food} · Armée: ${c.army}<br>Pop: ${c.population}M</div>${taken?`<div class="dc-taken">→ ${taken}</div>`:''}`;
     if(!taken) div.onclick=()=>{ selectedDraft=c.id; document.getElementById('confirm-draft-btn').disabled=false; renderDraftGrid(); };
     grid.appendChild(div);
   });
@@ -632,10 +667,8 @@ function renderDraftGrid(){
 
 function confirmDraft(){
   if(!selectedDraft) return;
-  socket.emit('team:draftCountry',{teamName:myTeam,countryId:selectedDraft});
-  myCountryId=selectedDraft;
-  document.getElementById('confirm-draft-btn').style.display='none';
-  document.getElementById('draft-waiting').style.display='block';
+  socket.emit('team:draftCountry',{teamName:myTeam,countryId:selectedDraft}); myCountryId=selectedDraft;
+  document.getElementById('confirm-draft-btn').style.display='none'; document.getElementById('draft-waiting').style.display='block';
   toast('Nation confirmée !');
 }
 
@@ -664,70 +697,73 @@ function updateTeamUI(){
   document.getElementById('t-treasury').textContent=c.treasury.toLocaleString();
   document.getElementById('t-round').textContent=state.currentPeriod||'—';
   document.getElementById('team-country-header').textContent=c.flag+' '+c.name;
-  // Defense badge
-  document.getElementById('defense-badge').style.display=c.defense?'inline-flex':'none';
+  document.getElementById('defense-badge').style.display=c.defense?'flex':'none';
   document.getElementById('bunker-btn').disabled=c.defense;
+  // Food warning
+  const foodNeeded=Math.max(2,Math.round(c.population/8));
+  document.getElementById('food-warning').style.display=c.food<foodNeeded*1.5?'block':'none';
   // Phase badge
   const pb=document.getElementById('team-phase-badge');
   const pmap={prosperity:'ph-p',war:'ph-w',draft:'ph-d',setup:'ph-s'};
   const plbl={prosperity:'Prospérité',war:'Guerre ⚔️',draft:'Draft',setup:'En attente'};
   pb.className='phase-badge '+(pmap[state.phase]||'ph-s'); pb.textContent=plbl[state.phase]||'En attente';
   document.getElementById('elim-banner').style.display=c.eliminated?'block':'none';
-  // Action indicator
-  const actionsUsed=(state.teamActionsThisPeriod&&state.teamActionsThisPeriod[myTeam])||0;
+  // Actions
+  const used=(state.teamActionsThisPeriod&&state.teamActionsThisPeriod[myTeam])||0;
   const isWar=state.phase==='war';
-  const actionText=isWar?'⚔️ Phase de guerre — aucun achat possible':actionsUsed>=1?'✗ Action déjà utilisée cette période':'✓ 1 action disponible cette période';
-  const actionClass=isWar||actionsUsed>=1?'action-indicator '+(isWar?'war':'used'):'action-indicator free';
-  ['action-indicator','action-indicator-army'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.className=actionClass; el.textContent=actionText; }});
-  document.getElementById('action-left-text').textContent=isWar?'⚔️ Guerre en cours':actionsUsed>=1?'✗ Action utilisée':'✓ 1 action disponible';
-  document.getElementById('action-left-text').style.color=isWar||actionsUsed>=1?'#f87171':'#4ade80';
-  // Attack form
+  const remaining=Math.max(0,2-used);
+  const actionText=isWar?'⚔️ Guerre — aucun achat possible':remaining===2?'✓ 2 actions disponibles':remaining===1?'⚠️ 1 action restante':'✗ Actions épuisées cette période';
+  const actionClass=isWar?'action-bar war':remaining===2?'action-bar free':remaining===1?'action-bar one-left':'action-bar used';
+  ['action-bar-market','action-bar-army'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.className=actionClass; el.textContent=actionText; }});
+  document.getElementById('action-summary').textContent=isWar?'⚔️ Guerre':remaining===2?'✓ 2 actions dispo':remaining===1?'⚠️ 1 restante':'✗ Épuisé';
+  document.getElementById('action-summary').style.color=isWar||remaining===0?'#f87171':remaining===1?'#fbbf24':'#4ade80';
+  // Attack
   document.getElementById('attack-warning').style.display=isWar?'none':'block';
   document.getElementById('attack-form').style.display=isWar?'block':'none';
-  // Attack button — only enabled on my turn
-  const attackBtn=document.getElementById('attack-btn');
-  if(attackBtn) attackBtn.disabled=currentWarTurn!==myTeam;
-  // War turn boxes
-  if(state.phase==='war'){
-    if(currentWarTurn===myTeam){ document.getElementById('my-turn-box').style.display='block'; document.getElementById('other-turn-box').style.display='none'; }
-    else if(currentWarTurn){ document.getElementById('my-turn-box').style.display='none'; document.getElementById('other-turn-box').style.display='block'; document.getElementById('other-turn-name').textContent=currentWarTurn; }
-  } else { document.getElementById('my-turn-box').style.display='none'; document.getElementById('other-turn-box').style.display='none'; }
+  const ab=document.getElementById('attack-btn'); if(ab) ab.disabled=currentWarTurn!==myTeam;
   // Coalition
   const coal=state.coalition; const isMG=myCountryId==='morocco'||myCountryId==='guinea';
-  const coalBox=document.getElementById('coal-box');
+  const cb=document.getElementById('coal-box');
   if(coal&&coal.proposed&&isMG&&!coal.active){
-    coalBox.style.display='block';
+    cb.style.display='block';
     const myAcc=(myCountryId==='morocco'&&coal.moroccoAccepted)||(myCountryId==='guinea'&&coal.guineaAccepted);
-    document.getElementById('coal-status').textContent=myAcc?"✅ Accepté — en attente de l'autre équipe...":'';
+    document.getElementById('coal-status').textContent=myAcc?"✅ Accepté — en attente de l'autre...":'';
     document.getElementById('coal-btns').style.display=myAcc?'none':'flex';
-  } else if(coal&&coal.active&&isMG){
-    coalBox.style.display='block';
-    coalBox.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--gold);font-family:Cinzel,serif">🤝 Coalition Maroc-Guinée Active</div><div style="font-size:11px;color:var(--gold);margin-top:4px">Ressources fusionnées — combattez ensemble</div>';
-  } else coalBox.style.display='none';
+  } else if(coal&&coal.active&&isMG){ cb.style.display='block'; cb.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--gold);font-family:Cinzel,serif">🤝 Coalition Maroc-Guinée Active</div><div style="font-size:11px;color:var(--gold);margin-top:3px">Ressources fusionnées</div>'; }
+  else cb.style.display='none';
   // Period
-  if(state.currentEvent){ document.getElementById('team-period').style.display='block'; document.getElementById('tp-num').textContent=`Période ${state.currentEvent.periodNumber||''} · ${state.currentEvent.periodSubtitle||''}`; document.getElementById('tp-name').textContent=state.currentEvent.periodName||''; document.getElementById('tp-sub').textContent=''; document.getElementById('tp-desc').textContent=state.currentEvent.periodDesc||''; document.getElementById('tp-event').textContent='⚡ '+state.currentEvent.title+' — '+state.currentEvent.effect; }
-  else document.getElementById('team-period').style.display='none';
+  if(state.currentEvent){
+    document.getElementById('team-period').style.display='block';
+    const ev=state.currentEvent;
+    const typeLabels={market:'MARCHÉ',choice:'CHOIX',targeted:'CIBLÉ'};
+    document.getElementById('tp-num').textContent=`Période ${ev.periodNumber||''} · ${ev.periodSubtitle||''} · ${typeLabels[ev.type]||''}`;
+    document.getElementById('tp-name').textContent=ev.periodName||'';
+    document.getElementById('tp-sub').textContent='';
+    document.getElementById('tp-desc').textContent=ev.periodDesc||'';
+    document.getElementById('tp-event').textContent='⚡ '+ev.title+' — '+ev.effect;
+  } else document.getElementById('team-period').style.display='none';
   renderMarket(); renderAttackTargets(); renderNews();
 }
 
-function respondCoalition(accept){ if(accept) socket.emit('team:acceptCoalition',{teamName:myTeam}); else socket.emit('team:refuseCoalition',{teamName:myTeam}); }
+function respondCoalition(a){ if(a) socket.emit('team:acceptCoalition',{teamName:myTeam}); else socket.emit('team:refuseCoalition',{teamName:myTeam}); }
 
 function renderMarket(){
   const div=document.getElementById('market-rows');
   const isWar=state.phase==='war';
-  const actionsUsed=(state.teamActionsThisPeriod&&state.teamActionsThisPeriod[myTeam])||0;
+  const used=(state.teamActionsThisPeriod&&state.teamActionsThisPeriod[myTeam])||0;
   const c=state.countries&&state.countries[myCountryId];
-  const res=[{id:'oil',name:'Pétrole (baril)',base:80,hint:'Génère 0.70 or/unité à chaque fin de période'},{id:'food',name:'Nourriture (tonne)',base:40,hint:'Consommée par votre population chaque période'}];
+  const actionsLeft=Math.max(0,2-used);
+  const res=[{id:'oil',name:'Pétrole (baril)',base:80,hint:'Revenus: ×0.35/unité/période'},{id:'food',name:'Nourriture (tonne)',base:40,hint:'Consommée selon population'}];
   div.innerHTML='';
   res.forEach(r=>{
     const price=Math.round(state.prices?(state.prices[r.id]||r.base):r.base);
-    const oilBlocked=r.id==='oil'&&state.eventMod?.blockOilBelowPower>0&&c&&c.power<state.eventMod.blockOilBelowPower;
-    const blocked=isWar||actionsUsed>=1||oilBlocked;
+    const oilBlocked=r.id==='oil'&&(state.eventMod?.blockOilBelowPower||0)>0&&c&&c.power<state.eventMod.blockOilBelowPower;
+    const buyBlocked=isWar||actionsLeft<=0||oilBlocked;
     const row=document.createElement('div'); row.className='mrow'+(oilBlocked?' blocked':'');
-    row.innerHTML=`<div><div class="mn">${r.name}</div><div class="mp">Prix: ${price} or · ${r.hint}</div>${oilBlocked?`<div class="blocked-tag">🚫 Bloqué (boom pétrolier actif)</div>`:''}</div>
+    row.innerHTML=`<div><div class="mn">${r.name}</div><div class="mp">Prix: ${price} or · ${r.hint}${oilBlocked?' · 🚫 Boom actif (réservé aux grandes puissances)':''}</div></div>
       <div class="mcontrols">
-        <input type="number" class="qty-input" id="${r.id}-qty-inp" value="1" min="1" max="999" ${oilBlocked?'disabled':''}>
-        <button class="buybtn" ${blocked?'disabled':''} onclick="socket.emit('team:buyResource',{teamName:myTeam,resource:'${r.id}',qty:parseInt(document.getElementById('${r.id}-qty-inp').value)||1})">Acheter</button>
+        <input type="number" class="qty-input" id="${r.id}-qty-inp" value="1" min="1" max="9999" ${oilBlocked?'disabled':''}>
+        <button class="buybtn" ${buyBlocked?'disabled':''} onclick="socket.emit('team:buyResource',{teamName:myTeam,resource:'${r.id}',qty:parseInt(document.getElementById('${r.id}-qty-inp').value)||1})">Acheter</button>
         <button class="sellbtn" ${isWar?'disabled':''} onclick="socket.emit('team:sellResource',{teamName:myTeam,resource:'${r.id}',qty:parseInt(document.getElementById('${r.id}-qty-inp').value)||1})">Vendre</button>
       </div>`;
     div.appendChild(row);
@@ -746,19 +782,16 @@ function renderNews(){
   if(!myTeam||!state.teams||!state.teams[myTeam]) return;
   const news=[...(state.teams[myTeam].news||[])].reverse();
   const div=document.getElementById('news-log');
-  div.innerHTML=news.length?news.map(n=>`<div class="ne n${(n.type||'n')[0]}"><div class="nt">${n.time||''}</div><div class="nm">${n.text}</div></div>`).join(''):'<div style="font-size:12px;color:var(--text3);padding:8px">Aucune actualité.</div>';
+  div.innerHTML=news.length?news.map(n=>`<div class="ne n${(n.type||'n')[0]}"><div class="nt">${n.time||''}</div><div class="nm">${n.text}</div></div>`).join(''):'<div style="font-size:11px;color:var(--text3);padding:8px">Aucune actualité.</div>';
 }
 
-function recruitArmy(type){
-  const qty=parseInt(document.getElementById(type==='tech'?'tech-qty-inp':'army-qty-inp').value)||1;
-  socket.emit('team:recruitArmy',{teamName:myTeam,qty,type});
-}
+function recruitArmy(type){ const qty=parseInt(document.getElementById(type==='tech'?'tech-qty-inp':'army-qty-inp').value)||1; socket.emit('team:recruitArmy',{teamName:myTeam,qty,type}); }
 
 function declareAttack(){
   if(currentWarTurn!==myTeam){ toast("Ce n'est pas votre tour !"); return; }
   const targetId=document.getElementById('attack-target').value;
   if(!targetId){ toast('Choisissez une cible !'); return; }
-  socket.emit('team:declareAttack',{teamName:myTeam,targetId});
+  socket.emit('team:declareAttack',{teamName:myTeam,targetId,payWith:selectedPayment});
   toast('⚔️ Attaque en cours...');
 }
 
@@ -778,13 +811,37 @@ function renderMJ(){
   const plbl={setup:'Configuration',draft:'Draft',prosperity:'Prospérité',war:'Guerre ⚔️'};
   pb.className='phase-badge '+(pmap[state.phase]||'ph-s'); pb.textContent=plbl[state.phase]||'Configuration';
   const pbtns=document.getElementById('phase-btns'),pdesc=document.getElementById('phase-desc');
-  if(state.phase==='setup'){ pbtns.innerHTML='<button class="btn-sm bg" onclick="socket.emit(\'mj:startDraft\')">Lancer le Draft →</button>'; pdesc.textContent='Attendez que les équipes rejoignent.'; document.getElementById('period-card').style.display='none'; document.getElementById('war-turn-mj').style.display='none'; }
-  else if(state.phase==='draft'){ pbtns.innerHTML='<button class="btn-sm bg" onclick="socket.emit(\'mj:startProsperity\')">Lancer la Prospérité →</button>'; pdesc.textContent='Les équipes choisissent leur nation.'; document.getElementById('period-card').style.display='none'; document.getElementById('war-turn-mj').style.display='none'; }
-  else if(state.phase==='prosperity'){ pbtns.innerHTML=(state.currentPeriod<6?'<button class="btn-sm bo" onclick="socket.emit(\'mj:nextPeriod\')">Période suivante →</button>':'')+'<button class="btn-sm br" onclick="socket.emit(\'mj:startWar\')">Démarrer la Guerre ⚔️</button>'; pdesc.textContent=`Période ${state.currentPeriod}/6 — chaque équipe a droit à 1 achat.`; document.getElementById('period-card').style.display='block'; document.getElementById('war-turn-mj').style.display='none'; }
-  else if(state.phase==='war'){ pbtns.innerHTML=''; pdesc.textContent='Guerre en cours — tours automatiques de 30 sec.'; document.getElementById('period-card').style.display='none'; document.getElementById('war-turn-mj').style.display='block'; }
-  if(state.currentEvent){ const ev=state.currentEvent; document.getElementById('pc-num').textContent=`Période ${ev.periodNumber||''} · ${ev.periodSubtitle||''}`; document.getElementById('pc-name').textContent=ev.periodName||''; document.getElementById('pc-sub').textContent=''; document.getElementById('pc-desc').textContent=ev.periodDesc||''; document.getElementById('pc-event').textContent='⚡ '+ev.title+' — '+ev.effect; }
-  document.getElementById('mj-lb').innerHTML=sorted.map((c,i)=>`<div class="lbr ${i===0?'first':''}"><div class="lbr-rank">${i+1}</div><div style="font-size:18px">${c.flag}</div><div class="lbr-name">${c.name} <span style="font-size:10px;color:var(--text3)">· ${c.team}</span></div><div class="lbr-pts">${c.power.toLocaleString()} pts</div></div>`).join('');
-  document.getElementById('mj-grid').innerHTML=teams.map(c=>{ const pct=Math.min(100,Math.round(c.power/maxP*100)); const cls=pct<30?'pl':pct<60?'pm':'ph'; return `<div class="cc ${c.eliminated?'eliminated':''} ${c.defense&&!c.eliminated?'has-defense':''}">${c.defense&&!c.eliminated?'<div class="cc-defense-badge">🛡️ BUNKER</div>':''}<div class="cc-flag">${c.flag}</div><div class="cc-name">${c.name}</div><div class="cc-stats">Trésor:${c.treasury} · Pétr:${c.oil}<br>Nourr:${c.food} · Arm:${c.army}${c.eliminated?' · ☠️':''}</div><div class="pbar"><div class="pfill ${cls}" style="width:${pct}%"></div></div><div style="font-size:10px;color:var(--text3);margin-top:3px">${c.power.toLocaleString()} pts</div></div>`; }).join('');
+  const wtm=document.getElementById('war-turn-mj'),pc=document.getElementById('period-card');
+  if(state.phase==='setup'){ pbtns.innerHTML='<button class="btn-sm bg" onclick="socket.emit(\'mj:startDraft\')">Lancer le Draft →</button>'; pdesc.textContent='Attendez que les équipes rejoignent.'; pc.style.display='none'; wtm.style.display='none'; }
+  else if(state.phase==='draft'){ pbtns.innerHTML='<button class="btn-sm bg" onclick="socket.emit(\'mj:startProsperity\')">Lancer la Prospérité →</button>'; pdesc.textContent='Les équipes choisissent leur nation.'; pc.style.display='none'; wtm.style.display='none'; }
+  else if(state.phase==='prosperity'){ pbtns.innerHTML=(state.currentPeriod<6?'<button class="btn-sm bo" onclick="socket.emit(\'mj:nextPeriod\')">Période suivante →</button>':'')+'<button class="btn-sm br" onclick="socket.emit(\'mj:startWar\')">Démarrer la Guerre ⚔️</button>'; pdesc.textContent=`Période ${state.currentPeriod}/6 — 2 actions par équipe.`; pc.style.display='block'; wtm.style.display='none'; }
+  else if(state.phase==='war'){ pbtns.innerHTML=''; pdesc.textContent='Guerre — tours 30 sec automatiques.'; pc.style.display='none'; wtm.style.display='block'; }
+  if(state.currentEvent){
+    const ev=state.currentEvent;
+    const typeLabels={market:'MARCHÉ',choice:'CHOIX — DÉCISION REQUISE',targeted:'CIBLÉ'};
+    const typeClass={market:'ev-type-market',choice:'ev-type-choice',targeted:'ev-type-targeted'};
+    document.getElementById('pc-num').innerHTML=`Période ${ev.periodNumber||''} · ${ev.periodSubtitle||''} <span class="ev-type-tag ${typeClass[ev.type]||''}">${typeLabels[ev.type]||''}</span>`;
+    document.getElementById('pc-name').textContent=ev.periodName||'';
+    document.getElementById('pc-sub').textContent='';
+    document.getElementById('pc-desc').textContent=ev.periodDesc||'';
+    document.getElementById('pc-event').textContent='⚡ '+ev.title+' — '+ev.effect;
+  }
+  document.getElementById('mj-lb').innerHTML=sorted.map((c,i)=>`<div class="lbr ${i===0?'first':''}"><div class="lbr-rank">${i+1}</div><div style="font-size:16px">${c.flag}</div><div class="lbr-name">${c.name} <span style="font-size:9px;color:var(--text3)">· ${c.team}</span></div><div class="lbr-pts">${c.power.toLocaleString()}</div></div>`).join('');
+  document.getElementById('mj-grid').innerHTML=teams.map(c=>{
+    const pct=Math.min(100,Math.round(c.power/maxP*100));
+    const cls=pct<30?'pl':pct<60?'pm':'ph';
+    const foodNeeded=Math.max(2,Math.round(c.population/8));
+    const alertTreasury=c.treasury<200&&!c.eliminated;
+    const alertFood=c.food<foodNeeded*1.5&&!c.eliminated;
+    return `<div class="cc ${c.eliminated?'eliminated':''} ${c.defense&&!c.eliminated?'has-defense':''} ${alertTreasury?'alert-treasury':alertFood?'alert-food':''}">
+      <div class="cc-alerts">${c.defense&&!c.eliminated?'🛡️':''} ${alertTreasury?'🚨':''} ${alertFood?'🍞':''}</div>
+      <div class="cc-flag">${c.flag}</div>
+      <div class="cc-name">${c.name}</div>
+      <div class="cc-stats">Tr:${c.treasury} · Pét:${c.oil}<br>Nourr:${c.food} · Arm:${c.army}${c.eliminated?' ☠️':''}</div>
+      <div class="pbar"><div class="pfill ${cls}" style="width:${pct}%"></div></div>
+      <div style="font-size:9px;color:var(--text3);margin-top:2px">${c.power.toLocaleString()} pts</div>
+    </div>`;
+  }).join('');
   ['elim-sel','bonus-sel'].forEach(sid=>{ const sel=document.getElementById(sid); if(!sel) return; const cur=sel.value; sel.innerHTML='<option value="">—</option>'; Object.values(countries).filter(c=>!c.eliminated&&c.team).forEach(c=>{ const o=document.createElement('option'); o.value=c.id; o.textContent=c.flag+' '+c.name; sel.appendChild(o); }); if(cur) sel.value=cur; });
   document.getElementById('mj-log').innerHTML=(state.log||[]).map(l=>`<div class="log-e l${l.type==='attack'?'a':l.type==='event'?'e':l.type==='eliminated'?'el':'ec'}">${l.time?'<span style="opacity:.5">'+l.time+'</span> ':''}${l.text}</div>`).join('');
 }
