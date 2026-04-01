@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Geopolitica</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f5f4f0;color:#1a1a18;min-height:100vh}
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+#screen-landing{align-items:center;justify-content:center;gap:1.5rem;padding:2rem;text-align:center}
+.logo{font-size:52px;font-weight:700;letter-spacing:-2px;color:#1a1a18}
+.logo span{color:#c84b1f}
+.tagline{font-size:15px;color:#888;max-width:340px}
+.btn-group{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.btn-primary{background:#1a1a18;color:#fff;border:none;border-radius:10px;padding:13px 30px;font-size:15px;font-weight:600;cursor:pointer}
+.btn-primary:hover{opacity:.85}
+.btn-secondary{background:transparent;color:#1a1a18;border:1.5px solid #d0cec6;border-radius:10px;padding:13px 30px;font-size:15px;cursor:pointer}
+.btn-secondary:hover{background:#ece9e2}
+.game-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#fff;border-bottom:1px solid #ece9e2;flex-shrink:0}
+.logo-sm{font-size:20px;font-weight:700;letter-spacing:-1px}
+.logo-sm span{color:#c84b1f}
+.phase-badge{font-size:12px;padding:4px 12px;border-radius:20px;font-weight:600}
+.phase-setup{background:#f0ede6;color:#888}
+.phase-draft{background:#dbeafe;color:#1e40af}
+.phase-prosper{background:#dcfce7;color:#166534}
+.phase-war{background:#fee2e2;color:#991b1b}
+.card{background:#fff;border:1px solid #ece9e2;border-radius:14px;padding:16px}
+.card-title{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+#screen-mj{flex-direction:column}
+.mj-body{display:grid;grid-template-columns:1fr 300px;flex:1;overflow:hidden;height:calc(100vh - 57px)}
+.mj-main{padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.mj-sidebar{padding:14px;background:#faf9f6;border-left:1px solid #ece9e2;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.countries-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.country-card{border:1px solid #ece9e2;border-radius:12px;padding:10px 12px;background:#fff}
+.country-card.eliminated{opacity:.4}
+.country-flag{font-size:22px;margin-bottom:4px}
+.country-name{font-size:13px;font-weight:600;margin-bottom:3px}
+.country-stats{font-size:11px;color:#888}
+.power-bar{height:4px;background:#f0ede6;border-radius:2px;margin-top:6px}
+.power-fill{height:100%;border-radius:2px;transition:width .4s}
+.fill-high{background:#16a34a}
+.fill-mid{background:#ca8a04}
+.fill-low{background:#dc2626}
+.lb-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:#f5f4f0;margin-bottom:5px}
+.lb-row.first{background:#fef3c7}
+.lb-rank{font-size:13px;font-weight:600;min-width:22px;color:#888}
+.lb-row.first .lb-rank{color:#92400e}
+.lb-flag{font-size:18px}
+.lb-name{flex:1;font-size:13px;font-weight:600}
+.lb-power{font-size:13px;color:#888}
+.event-box{padding:14px;background:#f0f4ff;border-radius:12px;border-left:3px solid #3b82f6}
+.event-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.event-desc{font-size:13px;color:#555;line-height:1.5}
+.event-effect{font-size:12px;margin-top:6px;color:#3b82f6;font-weight:500}
+.timer-big{font-size:42px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+.timer-big.urgent{color:#dc2626}
+.ctrl-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-sm{font-size:13px;padding:7px 14px;border-radius:8px;border:1px solid #d0cec6;background:transparent;color:#1a1a18;cursor:pointer;white-space:nowrap;font-weight:500}
+.btn-sm:hover{background:#f0ede6}
+.btn-green{border-color:#16a34a;color:#16a34a}
+.btn-green:hover{background:#dcfce7}
+.btn-red{border-color:#dc2626;color:#dc2626}
+.btn-red:hover{background:#fee2e2}
+.btn-amber{border-color:#ca8a04;color:#ca8a04}
+.btn-amber:hover{background:#fef9c3}
+.sel{font-size:13px;padding:7px 10px;border-radius:8px;border:1px solid #d0cec6;background:#fff;color:#1a1a18;width:100%}
+.log-entry{font-size:12px;padding:6px 10px;border-radius:8px;margin-bottom:4px;line-height:1.4}
+.log-attack{background:#fee2e2;color:#991b1b}
+.log-economy{background:#dcfce7;color:#166534}
+.log-event{background:#dbeafe;color:#1e40af}
+.log-eliminated{background:#fee2e2;color:#7f1d1d;font-weight:600}
+#screen-lobby{align-items:center;justify-content:center;padding:2rem}
+.lobby-card{background:#fff;border:1px solid #ece9e2;border-radius:16px;padding:28px 32px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:14px}
+.lobby-title{font-size:20px;font-weight:700}
+.input{width:100%;font-size:14px;padding:11px 13px;border:1px solid #d0cec6;border-radius:10px;background:#fff;color:#1a1a18;outline:none}
+.input:focus{border-color:#1a1a18}
+.error{color:#dc2626;font-size:13px;min-height:18px}
+#screen-draft{flex-direction:column}
+.draft-body{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+.draft-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.draft-card{border:1.5px solid #ece9e2;border-radius:14px;padding:14px;background:#fff;cursor:pointer;text-align:center;transition:border-color .15s,transform .1s}
+.draft-card:hover:not(.taken){border-color:#3b82f6;transform:translateY(-2px)}
+.draft-card.taken{opacity:.45;cursor:not-allowed}
+.draft-card.selected{border-color:#16a34a;border-width:2px}
+.draft-flag{font-size:34px;margin-bottom:6px}
+.draft-cname{font-size:14px;font-weight:700;margin-bottom:5px}
+.tier-badge{font-size:11px;padding:3px 10px;border-radius:20px;display:inline-block;font-weight:600}
+.tier-S{background:#fef3c7;color:#92400e}
+.tier-A{background:#dbeafe;color:#1e40af}
+.tier-B{background:#dcfce7;color:#166534}
+.draft-stats{font-size:11px;color:#888;margin-top:6px;line-height:1.6}
+.draft-taken{font-size:11px;color:#888;margin-top:4px;font-style:italic}
+#screen-team{flex-direction:column}
+.team-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat-card{background:#f5f4f0;border-radius:12px;padding:12px;text-align:center}
+.stat-label{font-size:11px;color:#888;margin-bottom:3px;font-weight:500}
+.stat-val{font-size:22px;font-weight:700}
+.gold-c{color:#b45309}
+.oil-c{color:#374151}
+.food-c{color:#166534}
+.army-c{color:#991b1b}
+.tabs{display:flex;border:1px solid #ece9e2;border-radius:10px;overflow:hidden}
+.tab{flex:1;padding:9px;font-size:13px;font-weight:600;text-align:center;cursor:pointer;background:#fff;color:#888;border-right:1px solid #ece9e2}
+.tab:last-child{border-right:none}
+.tab.active{background:#1a1a18;color:#fff}
+.panel{display:none}
+.panel.active{display:block}
+.market-row{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border:1px solid #ece9e2;border-radius:12px;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+.market-name{font-size:14px;font-weight:600;margin-bottom:2px}
+.market-price{font-size:12px;color:#888}
+.qty-ctrl{display:flex;align-items:center;gap:8px}
+.qty-btn{width:28px;height:28px;border-radius:50%;border:1px solid #d0cec6;background:transparent;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#1a1a18;line-height:1}
+.qty-btn:hover{background:#f0ede6}
+.qty-val{font-size:14px;font-weight:700;min-width:22px;text-align:center}
+.buy-btn{font-size:12px;padding:5px 12px;border-radius:8px;border:1px solid #16a34a;background:transparent;color:#16a34a;cursor:pointer;font-weight:600}
+.buy-btn:hover{background:#dcfce7}
+.sell-btn{font-size:12px;padding:5px 12px;border-radius:8px;border:1px solid #dc2626;background:transparent;color:#dc2626;cursor:pointer;font-weight:600}
+.sell-btn:hover{background:#fee2e2}
+.news-entry{padding:10px 12px;border-left:3px solid #d0cec6;margin-bottom:8px;border-radius:0 8px 8px 0}
+.news-good{border-color:#16a34a;background:#f0fdf4}
+.news-bad{border-color:#dc2626;background:#fff5f5}
+.news-neutral{border-color:#3b82f6;background:#eff6ff}
+.news-time{font-size:11px;color:#888;margin-bottom:2px}
+.news-text{font-size:13px;line-height:1.5}
+.attack-warning{background:#fef9c3;color:#713f12;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.5;border:1px solid #fde68a}
+.elim-banner{background:#fee2e2;color:#991b1b;text-align:center;padding:20px;border-radius:14px;margin-bottom:8px}
+.elim-banner h2{font-size:20px;font-weight:700;margin-bottom:6px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a18;color:#fff;padding:10px 22px;border-radius:10px;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap}
+#toast.show{opacity:1}
+@media(max-width:640px){.mj-body{grid-template-columns:1fr}.mj-sidebar{display:none}.stat-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div id="screen-landing" class="screen active">
+  <div class="logo">Geo<span>politica</span></div>
+  <div class="tagline">Business Game de conquête économique · 10 équipes · 1 seul vainqueur</div>
+  <div class="btn-group">
+    <button class="btn-primary" onclick="showScreen('screen-mj')">Maître du Jeu</button>
+    <button class="btn-secondary" onclick="showScreen('screen-lobby')">Rejoindre (équipe)</button>
+  </div>
+  <div style="font-size:12px;color:#aaa;margin-top:6px">Partagez cette URL à chaque équipe — ils cliquent "Rejoindre"</div>
+</div>
+
+<div id="screen-lobby" class="screen">
+  <div style="padding:14px"><button class="btn-sm" onclick="showScreen('screen-landing')">← Retour</button></div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:1rem">
+    <div class="lobby-card">
+      <div class="logo-sm">Geo<span>politica</span></div>
+      <div class="lobby-title">Rejoindre la partie</div>
+      <input class="input" id="team-input" placeholder="Nom de votre équipe (ex: Équipe 3)" maxlength="20"/>
+      <div class="error" id="lobby-error"></div>
+      <button class="btn-primary" onclick="joinGame()" style="width:100%">Rejoindre →</button>
+    </div>
+  </div>
+</div>
+
+<div id="screen-draft" class="screen">
+  <div class="game-header">
+    <div class="logo-sm">Geo<span>politica</span></div>
+    <span class="phase-badge phase-draft">Phase de Draft</span>
+    <span id="draft-team-name" style="font-size:13px;font-weight:600"></span>
+  </div>
+  <div class="draft-body">
+    <div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:6px">Choisissez votre pays</div>
+      <div style="font-size:13px;color:#888">Tier S = Superpuissance · Tier A = Puissance majeure · Tier B = Pays émergent. Chaque pays ne peut être pris qu'une seule fois.</div>
+    </div>
+    <div class="draft-grid" id="draft-grid"></div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="btn-primary" id="confirm-draft-btn" onclick="confirmDraft()" disabled>Confirmer ce pays →</button>
+      <div id="draft-waiting" style="display:none;font-size:13px;color:#888">En attente du début de la partie...</div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-mj" class="screen">
+  <div class="game-header">
+    <div class="logo-sm">Geo<span>politica</span></div>
+    <span class="phase-badge phase-setup" id="mj-phase-badge">Configuration</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span style="font-size:12px;color:#888">Maître du Jeu</span>
+      <button class="btn-sm btn-red" onclick="if(confirm('Réinitialiser ?'))socket.emit('mj:reset')">Reset</button>
+    </div>
+  </div>
+  <div class="mj-body">
+    <div class="mj-main">
+      <div class="card">
+        <div class="card-title">Contrôle de partie</div>
+        <div class="ctrl-row" id="phase-btns">
+          <button class="btn-sm btn-green" onclick="socket.emit('mj:startDraft')">Lancer le Draft →</button>
+        </div>
+        <div style="margin-top:8px;font-size:13px;color:#888" id="phase-desc">Attendez que toutes les équipes aient rejoint, puis lancez le draft.</div>
+      </div>
+      <div class="card" id="event-card" style="display:none">
+        <div class="card-title">Événement mondial</div>
+        <div class="event-box" id="event-display">
+          <div class="event-title">Aucun événement actif</div>
+          <div class="event-desc">Tirez un événement pour démarrer la manche.</div>
+        </div>
+        <div class="ctrl-row" style="margin-top:12px">
+          <button class="btn-sm btn-amber" onclick="socket.emit('mj:drawEvent')">Tirer un événement</button>
+          <button class="btn-sm" onclick="socket.emit('mj:nextRound')">Manche suivante →</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Classement — <span id="alive-count">0</span> nations actives</div>
+        <div id="mj-leaderboard"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Vue détaillée</div>
+        <div class="countries-grid" id="mj-countries-grid"></div>
+      </div>
+    </div>
+    <div class="mj-sidebar">
+      <div class="card-title">Timer</div>
+      <div class="timer-big" id="mj-timer">03:00</div>
+      <div class="ctrl-row">
+        <button class="btn-sm btn-green" onclick="startTimer()">Start</button>
+        <button class="btn-sm" onclick="pauseTimer()">Pause</button>
+        <button class="btn-sm" onclick="resetTimer()">Reset</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+        <label style="font-size:12px;color:#888">Minutes</label>
+        <input type="number" id="timer-min" value="3" min="1" max="30" class="input" style="width:60px;padding:5px 8px" onchange="resetTimer()"/>
+      </div>
+      <div style="height:1px;background:#ece9e2;margin:4px 0"></div>
+      <div class="card-title">Résoudre une attaque</div>
+      <select class="sel" id="att-sel"><option value="">Attaquant</option></select>
+      <select class="sel" id="def-sel" style="margin-top:6px"><option value="">Défenseur</option></select>
+      <div class="ctrl-row" style="margin-top:6px">
+        <button class="btn-sm btn-green" onclick="socket.emit('mj:resolveAttack',{attackerId:document.getElementById('att-sel').value,defenderId:document.getElementById('def-sel').value,success:true})">Victoire</button>
+        <button class="btn-sm btn-red" onclick="socket.emit('mj:resolveAttack',{attackerId:document.getElementById('att-sel').value,defenderId:document.getElementById('def-sel').value,success:false})">Échec</button>
+      </div>
+      <div class="card-title" style="margin-top:4px">Éliminer</div>
+      <div style="display:flex;gap:6px">
+        <select class="sel" id="elim-sel"><option value="">Pays</option></select>
+        <button class="btn-sm btn-red" onclick="socket.emit('mj:eliminate',{countryId:document.getElementById('elim-sel').value})">Élim.</button>
+      </div>
+      <div class="card-title" style="margin-top:4px">Bonus / Malus</div>
+      <select class="sel" id="bonus-sel"><option value="">Pays</option></select>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <input type="number" id="bonus-amt" value="100" class="input" style="flex:1;padding:6px 8px"/>
+        <button class="btn-sm btn-green" onclick="socket.emit('mj:bonus',{countryId:document.getElementById('bonus-sel').value,amount:parseInt(document.getElementById('bonus-amt').value)||100})">+</button>
+        <button class="btn-sm btn-red" onclick="socket.emit('mj:bonus',{countryId:document.getElementById('bonus-sel').value,amount:-(parseInt(document.getElementById('bonus-amt').value)||100)})">−</button>
+      </div>
+      <div style="height:1px;background:#ece9e2;margin:4px 0"></div>
+      <div class="card-title">Journal</div>
+      <div id="mj-log" style="max-height:280px;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-team" class="screen">
+  <div class="game-header">
+    <div class="logo-sm">Geo<span>politica</span></div>
+    <span class="phase-badge phase-setup" id="team-phase-badge">En attente</span>
+    <span id="team-country-header" style="font-size:15px;font-weight:700"></span>
+  </div>
+  <div class="team-body">
+    <div id="elim-banner" style="display:none" class="elim-banner">
+      <h2>Votre nation a été conquise</h2>
+      <p>Vous pouvez continuer à observer la partie.</p>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Or</div><div class="stat-val gold-c" id="t-gold">0</div></div>
+      <div class="stat-card"><div class="stat-label">Pétrole</div><div class="stat-val oil-c" id="t-oil">0</div></div>
+      <div class="stat-card"><div class="stat-label">Nourriture</div><div class="stat-val food-c" id="t-food">0</div></div>
+      <div class="stat-card"><div class="stat-label">Armée</div><div class="stat-val army-c" id="t-army">0</div></div>
+    </div>
+    <div class="card" style="padding:12px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:11px;color:#888;font-weight:500">Puissance</div><div style="font-size:22px;font-weight:700" id="t-power">0</div></div>
+        <div><div style="font-size:11px;color:#888;font-weight:500">Trésor (or dispo)</div><div style="font-size:22px;font-weight:700" id="t-treasury">0</div></div>
+        <div><div style="font-size:11px;color:#888;font-weight:500">Manche</div><div style="font-size:22px;font-weight:700" id="t-round">—</div></div>
+      </div>
+    </div>
+    <div class="event-box" id="team-event" style="display:none">
+      <div class="event-title" id="team-event-title"></div>
+      <div class="event-desc" id="team-event-desc"></div>
+      <div class="event-effect" id="team-event-effect"></div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('market')">Marché</div>
+      <div class="tab" onclick="switchTab('army')">Armée</div>
+      <div class="tab" onclick="switchTab('attack')">Attaquer</div>
+      <div class="tab" onclick="switchTab('news')">Actualités</div>
+    </div>
+    <div id="panel-market" class="panel active">
+      <div id="market-rows"></div>
+      <div style="font-size:12px;color:#888;padding:8px 4px">Achetez bas, vendez haut. Les prix bougent à chaque événement.</div>
+    </div>
+    <div id="panel-army" class="panel">
+      <div class="card" style="margin-bottom:8px">
+        <div class="card-title">Recruter</div>
+        <div class="market-row">
+          <div><div class="market-name">Bataillon</div><div class="market-price">150 or · +20 puissance</div></div>
+          <div class="qty-ctrl">
+            <button class="qty-btn" onclick="changeQty('army',-1)">−</button>
+            <div class="qty-val" id="army-qty">1</div>
+            <button class="qty-btn" onclick="changeQty('army',1)">+</button>
+            <button class="buy-btn" onclick="recruitArmy('bataillon')">Recruter</button>
+          </div>
+        </div>
+        <div class="market-row">
+          <div><div class="market-name">Technologie militaire</div><div class="market-price">300 or · +50 puissance</div></div>
+          <div class="qty-ctrl">
+            <button class="qty-btn" onclick="changeQty('tech',-1)">−</button>
+            <div class="qty-val" id="tech-qty">1</div>
+            <button class="qty-btn" onclick="changeQty('tech',1)">+</button>
+            <button class="buy-btn" onclick="recruitArmy('tech')">Acheter</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Défense</div>
+        <div class="market-row">
+          <div><div class="market-name">Bunker défensif</div><div class="market-price">200 or · dommages reçus −30% (1 manche)</div></div>
+          <button class="buy-btn" onclick="socket.emit('team:buyDefense',{teamName:myTeam})">Activer</button>
+        </div>
+      </div>
+    </div>
+    <div id="panel-attack" class="panel">
+      <div class="attack-warning" id="attack-warning">Les attaques sont disponibles uniquement en Phase de Guerre.</div>
+      <div id="attack-form" style="display:none">
+        <div class="card">
+          <div class="card-title">Déclarer une attaque</div>
+          <div style="font-size:13px;color:#888;margin-bottom:12px;line-height:1.6">Coût : 200 or. Victoire → vous pillez 40% des ressources ennemies. Défaite → vous perdez 30% de votre trésor.</div>
+          <select class="sel" id="attack-target" style="margin-bottom:10px"><option value="">Choisir la cible...</option></select>
+          <button class="btn-primary" onclick="declareAttack()" style="width:100%">Déclarer l'attaque →</button>
+        </div>
+      </div>
+    </div>
+    <div id="panel-news" class="panel">
+      <div id="news-log"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const socket = io();
+let state = {};
+let myTeam = null;
+let myCountryId = null;
+let selectedDraft = null;
+let qtys = { oil:1, food:1, army:1, tech:1 };
+let timerSec = 180, timerInterval = null;
+
+const ALL_COUNTRIES = [
+  {id:'usa',flag:'🇺🇸',name:'États-Unis',tier:'S',gold:800,oil:300,food:400,army:500},
+  {id:'china',flag:'🇨🇳',name:'Chine',tier:'S',gold:750,oil:350,food:500,army:450},
+  {id:'russia',flag:'🇷🇺',name:'Russie',tier:'A',gold:500,oil:500,food:200,army:400},
+  {id:'germany',flag:'🇩🇪',name:'Allemagne',tier:'A',gold:600,oil:150,food:300,army:300},
+  {id:'qatar',flag:'🇶🇦',name:'Qatar',tier:'A',gold:680,oil:550,food:80,army:200},
+  {id:'france',flag:'🇫🇷',name:'France',tier:'A',gold:550,oil:100,food:350,army:280},
+  {id:'brazil',flag:'🇧🇷',name:'Brésil',tier:'B',gold:400,oil:200,food:600,army:150},
+  {id:'india',flag:'🇮🇳',name:'Inde',tier:'B',gold:400,oil:150,food:450,army:200},
+  {id:'morocco',flag:'🇲🇦',name:'Maroc',tier:'B',gold:320,oil:80,food:380,army:160},
+  {id:'guinea',flag:'🇬🇳',name:'Guinée',tier:'B',gold:200,oil:60,food:300,army:90},
+];
+
+socket.on('state', s => { state = s; onStateUpdate(); });
+socket.on('error', msg => toast(msg));
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function joinGame() {
+  const name = document.getElementById('team-input').value.trim();
+  if (!name) { document.getElementById('lobby-error').textContent = 'Entrez un nom.'; return; }
+  myTeam = name;
+  socket.emit('team:join', { teamName: name });
+  if (state.teams && state.teams[name] && state.teams[name].country) {
+    myCountryId = state.teams[name].country;
+    enterGame();
+  } else {
+    document.getElementById('draft-team-name').textContent = name;
+    renderDraftGrid();
+    showScreen('screen-draft');
+  }
+}
+
+function renderDraftGrid() {
+  const grid = document.getElementById('draft-grid');
+  grid.innerHTML = '';
+  ALL_COUNTRIES.forEach(c => {
+    const taken = state.takenCountries && state.takenCountries[c.id];
+    const isSel = selectedDraft === c.id;
+    const div = document.createElement('div');
+    div.className = 'draft-card' + (taken ? ' taken' : '') + (isSel ? ' selected' : '');
+    div.innerHTML = `<div class="draft-flag">${c.flag}</div>
+      <div class="draft-cname">${c.name}</div>
+      <span class="tier-badge tier-${c.tier}">${c.tier}</span>
+      <div class="draft-stats">Or: ${c.gold} · Pétrole: ${c.oil}<br>Nourr: ${c.food} · Armée: ${c.army}</div>
+      ${taken ? `<div class="draft-taken">Pris par ${taken}</div>` : ''}`;
+    if (!taken) div.onclick = () => {
+      selectedDraft = c.id;
+      document.getElementById('confirm-draft-btn').disabled = false;
+      renderDraftGrid();
+    };
+    grid.appendChild(div);
+  });
+}
+
+function confirmDraft() {
+  if (!selectedDraft) return;
+  socket.emit('team:draftCountry', { teamName: myTeam, countryId: selectedDraft });
+  myCountryId = selectedDraft;
+  document.getElementById('confirm-draft-btn').style.display = 'none';
+  document.getElementById('draft-waiting').style.display = 'block';
+  toast('Pays confirmé ! En attente du MJ...');
+}
+
+function enterGame() {
+  updateTeamUI();
+  showScreen('screen-team');
+}
+
+function onStateUpdate() {
+  if (document.getElementById('screen-mj').classList.contains('active')) renderMJ();
+  if (document.getElementById('screen-draft').classList.contains('active')) renderDraftGrid();
+  if (document.getElementById('screen-team').classList.contains('active')) updateTeamUI();
+  if (myTeam && state.teams && state.teams[myTeam]) {
+    const t = state.teams[myTeam];
+    if (t.country && !document.getElementById('screen-team').classList.contains('active') &&
+        !document.getElementById('screen-mj').classList.contains('active')) {
+      myCountryId = t.country;
+      if (state.phase === 'prosperity' || state.phase === 'war') enterGame();
+    }
+  }
+}
+
+function updateTeamUI() {
+  if (!myCountryId || !state.countries) return;
+  const c = state.countries[myCountryId];
+  if (!c) return;
+  document.getElementById('t-gold').textContent = c.gold;
+  document.getElementById('t-oil').textContent = c.oil;
+  document.getElementById('t-food').textContent = c.food;
+  document.getElementById('t-army').textContent = c.army;
+  document.getElementById('t-power').textContent = c.power;
+  document.getElementById('t-treasury').textContent = c.treasury;
+  document.getElementById('t-round').textContent = state.round || '—';
+  document.getElementById('team-country-header').textContent = c.flag + ' ' + c.name;
+  const pb = document.getElementById('team-phase-badge');
+  pb.className = 'phase-badge ' + (state.phase === 'war' ? 'phase-war' : state.phase === 'prosperity' ? 'phase-prosper' : 'phase-draft');
+  pb.textContent = state.phase === 'prosperity' ? 'Prospérité' : state.phase === 'war' ? 'Guerre ⚔️' : 'Draft';
+  document.getElementById('elim-banner').style.display = c.eliminated ? 'block' : 'none';
+  const isWar = state.phase === 'war';
+  document.getElementById('attack-warning').style.display = isWar ? 'none' : 'block';
+  document.getElementById('attack-form').style.display = isWar ? 'block' : 'none';
+  if (state.currentEvent) {
+    document.getElementById('team-event').style.display = 'block';
+    document.getElementById('team-event-title').textContent = state.currentEvent.title;
+    document.getElementById('team-event-desc').textContent = state.currentEvent.desc;
+    document.getElementById('team-event-effect').textContent = '→ ' + state.currentEvent.effect;
+  } else {
+    document.getElementById('team-event').style.display = 'none';
+  }
+  renderMarket();
+  renderAttackTargets();
+  renderNews();
+}
+
+function renderMarket() {
+  const div = document.getElementById('market-rows');
+  const resources = [
+    { id:'oil', name:'Pétrole (baril)', base:80 },
+    { id:'food', name:'Nourriture (tonne)', base:40 },
+  ];
+  div.innerHTML = '';
+  resources.forEach(r => {
+    const price = Math.round(state.prices ? (state.prices[r.id] || r.base) : r.base);
+    const row = document.createElement('div');
+    row.className = 'market-row';
+    row.innerHTML = `<div><div class="market-name">${r.name}</div><div class="market-price">Prix actuel : ${price} or</div></div>
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="changeQty('${r.id}',-1)">−</button>
+        <div class="qty-val" id="${r.id}-qty">${qtys[r.id]||1}</div>
+        <button class="qty-btn" onclick="changeQty('${r.id}',1)">+</button>
+        <button class="buy-btn" onclick="socket.emit('team:buyResource',{teamName:myTeam,resource:'${r.id}',qty:qtys['${r.id}']||1})">Acheter</button>
+        <button class="sell-btn" onclick="socket.emit('team:sellResource',{teamName:myTeam,resource:'${r.id}',qty:qtys['${r.id}']||1})">Vendre</button>
+      </div>`;
+    div.appendChild(row);
+  });
+}
+
+function renderAttackTargets() {
+  const sel = document.getElementById('attack-target');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Choisir la cible...</option>';
+  if (!state.countries) return;
+  Object.values(state.countries).forEach(c => {
+    if (c.id !== myCountryId && !c.eliminated) {
+      const o = document.createElement('option');
+      o.value = c.id;
+      o.textContent = c.flag + ' ' + c.name + ' — ' + c.power + ' pts';
+      sel.appendChild(o);
+    }
+  });
+  if (cur) sel.value = cur;
+}
+
+function renderNews() {
+  if (!myTeam || !state.teams || !state.teams[myTeam]) return;
+  const news = [...(state.teams[myTeam].news || [])].reverse();
+  const div = document.getElementById('news-log');
+  div.innerHTML = news.length ? news.map(n =>
+    `<div class="news-entry news-${n.type||'neutral'}"><div class="news-time">${n.time||''}</div><div class="news-text">${n.text}</div></div>`
+  ).join('') : '<div style="font-size:13px;color:#888;padding:8px">Aucune actualité pour le moment.</div>';
+}
+
+function changeQty(key, delta) {
+  qtys[key] = Math.max(1, (qtys[key]||1) + delta);
+  const el = document.getElementById(key+'-qty');
+  if (el) el.textContent = qtys[key];
+}
+
+function recruitArmy(type) {
+  socket.emit('team:recruitArmy', { teamName: myTeam, qty: qtys[type === 'tech' ? 'tech' : 'army'] || 1, type });
+}
+
+function declareAttack() {
+  const targetId = document.getElementById('attack-target').value;
+  if (!targetId) { toast('Choisissez une cible !'); return; }
+  socket.emit('team:declareAttack', { teamName: myTeam, targetId });
+  toast('Attaque déclarée ! En attente du MJ...');
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const tabs = ['market','army','attack','news'];
+    t.classList.toggle('active', tabs[i] === tab);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+
+function renderMJ() {
+  const countries = state.countries || {};
+  const teams = Object.values(countries).filter(c => c.team);
+  const alive = teams.filter(c => !c.eliminated);
+  const sorted = [...alive].sort((a,b) => b.power - a.power);
+  const maxP = sorted[0]?.power || 1;
+  document.getElementById('alive-count').textContent = alive.length;
+  const pb = document.getElementById('mj-phase-badge');
+  const phaseLabels = { setup:'Configuration', draft:'Draft', prosperity:'Prospérité', war:'Guerre ⚔️' };
+  const phaseClasses = { setup:'phase-setup', draft:'phase-draft', prosperity:'phase-prosper', war:'phase-war' };
+  pb.className = 'phase-badge ' + (phaseClasses[state.phase] || 'phase-setup');
+  pb.textContent = phaseLabels[state.phase] || 'Configuration';
+  if (state.phase === 'draft') {
+    document.getElementById('phase-btns').innerHTML = '<button class="btn-sm btn-green" onclick="socket.emit(\'mj:startProsperity\')">Lancer la Prospérité →</button>';
+    document.getElementById('phase-desc').textContent = 'Les équipes choisissent leur pays. Lancez quand tout le monde a choisi.';
+    document.getElementById('event-card').style.display = 'none';
+  } else if (state.phase === 'prosperity') {
+    document.getElementById('phase-btns').innerHTML = '<button class="btn-sm btn-red" onclick="socket.emit(\'mj:startWar\')">Démarrer la Guerre →</button>';
+    document.getElementById('phase-desc').textContent = 'Phase économique · Manche ' + (state.round || 1);
+    document.getElementById('event-card').style.display = 'block';
+  } else if (state.phase === 'war') {
+    document.getElementById('phase-btns').innerHTML = '';
+    document.getElementById('phase-desc').textContent = 'Phase de conquête — résolvez les attaques et éliminez les nations.';
+    document.getElementById('event-card').style.display = 'block';
+  }
+  if (state.currentEvent) {
+    document.getElementById('event-display').innerHTML =
+      `<div class="event-title">${state.currentEvent.title}</div>
+       <div class="event-desc">${state.currentEvent.desc}</div>
+       <div class="event-effect">→ ${state.currentEvent.effect}</div>`;
+  }
+  document.getElementById('mj-leaderboard').innerHTML = sorted.map((c, i) =>
+    `<div class="lb-row ${i===0?'first':''}">
+      <div class="lb-rank">${i+1}</div>
+      <div class="lb-flag">${c.flag}</div>
+      <div class="lb-name">${c.name} <span style="font-size:11px;font-weight:400;color:#888">· ${c.team}</span></div>
+      <div class="lb-power">${c.power} pts</div>
+    </div>`
+  ).join('');
+  const allWithTeam = [...teams, ...Object.values(countries).filter(c => c.eliminated && c.team)];
+  document.getElementById('mj-countries-grid').innerHTML = allWithTeam.map(c => {
+    const pct = Math.min(100, Math.round(c.power / maxP * 100));
+    const cls = pct < 30 ? 'fill-low' : pct < 60 ? 'fill-mid' : 'fill-high';
+    return `<div class="country-card ${c.eliminated?'eliminated':''}">
+      <div class="country-flag">${c.flag}</div>
+      <div class="country-name">${c.name}</div>
+      <div class="country-stats">Or:${c.treasury} · Arm:${c.army}${c.defense?' · 🛡️':''}${c.eliminated?' · ÉLIMINÉ':''}</div>
+      <div class="power-bar"><div class="power-fill ${cls}" style="width:${pct}%"></div></div>
+      <div style="font-size:10px;color:#aaa;margin-top:2px">${c.power} pts</div>
+    </div>`;
+  }).join('');
+  ['att-sel','def-sel','elim-sel','bonus-sel'].forEach(sid => {
+    const sel = document.getElementById(sid);
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">—</option>';
+    Object.values(countries).filter(c => !c.eliminated && c.team).forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.id; o.textContent = c.flag + ' ' + c.name;
+      sel.appendChild(o);
+    });
+    if (cur) sel.value = cur;
+  });
+  document.getElementById('mj-log').innerHTML = (state.log || []).map(l =>
+    `<div class="log-entry log-${l.type}">${l.time ? '<span style="opacity:.6">'+l.time+'</span> ' : ''}${l.text}</div>`
+  ).join('');
+}
+
+function startTimer() {
+  if (timerInterval) return;
+  timerInterval = setInterval(() => {
+    timerSec--;
+    updateTimerDisplay();
+    if (timerSec <= 0) { clearInterval(timerInterval); timerInterval = null; toast('⏰ Temps écoulé !'); }
+  }, 1000);
+}
+function pauseTimer() { clearInterval(timerInterval); timerInterval = null; }
+function resetTimer() {
+  clearInterval(timerInterval); timerInterval = null;
+  timerSec = (parseInt(document.getElementById('timer-min').value) || 3) * 60;
+  updateTimerDisplay();
+}
+function updateTimerDisplay() {
+  const m = Math.floor(timerSec / 60), s = timerSec % 60;
+  const d = document.getElementById('mj-timer');
+  d.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  d.className = 'timer-big' + (timerSec < 60 ? ' urgent' : '');
+}
+</script>
+</body>
+</html>
