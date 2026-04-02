@@ -1,3 +1,4 @@
+
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -12,488 +13,550 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.ht
 app.get('/screen', (req, res) => res.sendFile(path.join(__dirname, 'public', 'screen.html')));
 
 const COUNTRIES = [
-  { id:'usa',     flag:'🇺🇸', name:'États-Unis',  tier:'S', gold:800, oil:200, food:400, tourism:150, agriculture:100, army:320, population:330 },
-  { id:'china',   flag:'🇨🇳', name:'Chine',        tier:'S', gold:750, oil:250, food:500, tourism:100, agriculture:150, army:300, population:1400 },
-  { id:'russia',  flag:'🇷🇺', name:'Russie',       tier:'A', gold:500, oil:500, food:200, tourism:50,  agriculture:80,  army:260, population:145 },
-  { id:'germany', flag:'🇩🇪', name:'Allemagne',    tier:'A', gold:600, oil:100, food:300, tourism:200, agriculture:120, army:230, population:83 },
-  { id:'qatar',   flag:'🇶🇦', name:'Qatar',        tier:'A', gold:680, oil:400, food:80,  tourism:220, agriculture:20,  army:180, population:3 },
-  { id:'france',  flag:'🇫🇷', name:'France',       tier:'A', gold:550, oil:80,  food:350, tourism:250, agriculture:150, army:220, population:68 },
-  { id:'brazil',  flag:'🇧🇷', name:'Brésil',       tier:'B', gold:400, oil:150, food:600, tourism:80,  agriculture:250, army:160, population:215 },
-  { id:'india',   flag:'🇮🇳', name:'Inde',         tier:'B', gold:380, oil:100, food:550, tourism:120, agriculture:200, army:180, population:1400 },
-  { id:'morocco', flag:'🇲🇦', name:'Maroc',        tier:'B', gold:320, oil:60,  food:400, tourism:150, agriculture:180, army:150, population:37 },
-  { id:'guinea',  flag:'🇬🇳', name:'Guinée',       tier:'B', gold:220, oil:40,  food:380, tourism:40,  agriculture:200, army:130, population:13 },
+  // TIER S
+  { id:'usa',     flag:'🇺🇸', name:'États-Unis',  tier:'S', gold:900, oil:200, food:400, tourism:200, agriculture:120, army:350, population:330 },
+  { id:'china',   flag:'🇨🇳', name:'Chine',        tier:'S', gold:850, oil:250, food:550, tourism:120, agriculture:180, army:320, population:1400 },
+  // TIER A
+  { id:'russia',  flag:'🇷🇺', name:'Russie',       tier:'A', gold:550, oil:520, food:220, tourism:60,  agriculture:90,  army:280, population:145 },
+  { id:'germany', flag:'🇩🇪', name:'Allemagne',    tier:'A', gold:650, oil:100, food:300, tourism:220, agriculture:130, army:240, population:83 },
+  { id:'qatar',   flag:'🇶🇦', name:'Qatar',        tier:'A', gold:720, oil:400, food:80,  tourism:250, agriculture:20,  army:180, population:3 },
+  { id:'france',  flag:'🇫🇷', name:'France',       tier:'A', gold:600, oil:80,  food:360, tourism:280, agriculture:160, army:230, population:68 },
+  { id:'japan',   flag:'🇯🇵', name:'Japon',        tier:'A', gold:700, oil:60,  food:280, tourism:300, agriculture:100, army:200, population:125 },
+  { id:'turkey',  flag:'🇹🇷', name:'Turquie',      tier:'A', gold:480, oil:120, food:300, tourism:200, agriculture:150, army:260, population:85 },
+  { id:'australia',flag:'🇦🇺',name:'Australie',    tier:'A', gold:550, oil:200, food:350, tourism:180, agriculture:200, army:190, population:26 },
+  { id:'saudi',   flag:'🇸🇦', name:'Arabie S.',    tier:'A', gold:700, oil:600, food:60,  tourism:120, agriculture:20,  army:200, population:35 },
+  // TIER B
+  { id:'brazil',  flag:'🇧🇷', name:'Brésil',       tier:'B', gold:420, oil:160, food:620, tourism:90,  agriculture:260, army:170, population:215 },
+  { id:'india',   flag:'🇮🇳', name:'Inde',         tier:'B', gold:400, oil:100, food:580, tourism:130, agriculture:210, army:190, population:1400 },
+  { id:'mexico',  flag:'🇲🇽', name:'Mexique',      tier:'B', gold:360, oil:180, food:420, tourism:160, agriculture:180, army:160, population:130 },
+  { id:'morocco', flag:'🇲🇦', name:'Maroc',        tier:'B', gold:300, oil:60,  food:380, tourism:170, agriculture:190, army:140, population:37 },
+  { id:'southafrica',flag:'🇿🇦',name:'Afrique S.', tier:'B', gold:320, oil:80,  food:350, tourism:140, agriculture:170, army:150, population:60 },
 ];
 
 function getFoodConsumption(c) { return Math.max(2, Math.round(c.population / 8)); }
 
-function getPassiveIncome(c, mod) {
-  const oilIncome  = Math.round((c.oil||0)         * 0.5  * (mod.oilMultiplier     || 1));
-  const tourIncome = Math.round((c.tourism||0)      * 0.6  * (mod.tourismMultiplier || 1));
-  const agriIncome = Math.round((c.agriculture||0)  * 0.45 * (mod.agriMultiplier   || 1));
-  const baseIncome = Math.round((80 + Math.random() * 60 + c.population * 0.05) * (mod.baseMultiplier || 1));
-  return { oilIncome, tourIncome, agriIncome, baseIncome, total: oilIncome + tourIncome + agriIncome + baseIncome };
+// Base prices — vary each period
+const BASE_PRICES = { oil:80, food:40, tourism:120, agriculture:60 };
+
+function generatePeriodPrices(eventMod) {
+  const variance = () => 0.85 + Math.random() * 0.30; // ±15% random variance
+  return {
+    oil:         Math.round(BASE_PRICES.oil         * variance() * (eventMod?.priceOil    || 1)),
+    food:        Math.round(BASE_PRICES.food        * variance() * (eventMod?.priceFood   || 1)),
+    tourism:     Math.round(BASE_PRICES.tourism     * variance() * (eventMod?.priceTourism|| 1)),
+    agriculture: Math.round(BASE_PRICES.agriculture * variance() * (eventMod?.priceAgri  || 1)),
+  };
 }
 
-// Each event has: hint (shown N-1), title+effect (applied N)
+function getPassiveIncome(c, mod) {
+  const oilInc  = Math.round((c.oil||0)         * 25 * (mod.oilMultiplier     || 1));
+  const tourInc = Math.round((c.tourism||0)      * 25 * (mod.tourismMultiplier || 1));
+  const agriInc = Math.round((c.agriculture||0)  * 20 * (mod.agriMultiplier   || 1));
+  const baseInc = Math.round((80 + Math.random()*60 + c.population*0.04) * (mod.baseMultiplier || 1));
+  return { oilInc, tourInc, agriInc, baseInc, total: oilInc+tourInc+agriInc+baseInc };
+}
+
+// EVENTS — each with clear but subtle hint, strong effects
 const EVENTS = [
   // MARKET
-  { id:'oil_boom',    type:'market', hint:'🛢️ Des satellites détectent une activité intense sur les champs pétroliers du Golfe. Les analystes prévoient une surproduction record...', title:'Boom pétrolier historique', desc:'Les cours du pétrole atteignent des records absolus.', effect:'Revenus pétrole ×5 · Prix pétrole ×4 · Achat pétrole bloqué < 5000 pts', oilMultiplier:5, priceChanges:{oil:4.0}, blockOilBelowPower:5000, w:1 },
-  { id:'tourism_boom',type:'market', hint:'✈️ Les agences de voyage signalent une explosion des réservations mondiales. Les frontières s\'ouvrent partout. Le tourisme reprend à toute vitesse...', title:'Explosion du tourisme mondial', desc:'Les voyageurs affluent, les économies touristiques explosent.', effect:'Revenus tourisme ×6 · Prix tourisme −50%', tourismMultiplier:6, priceChanges:{tourism:0.5}, w:1 },
-  { id:'agri_boom',   type:'market', hint:'🌾 Des chercheurs annoncent une percée agricole majeure. De nouvelles semences résistantes promettent des rendements exceptionnels cette saison...', title:'Révolution agricole mondiale', desc:'De nouvelles techniques quadruplent les rendements.', effect:'Revenus agriculture ×5 · Nourriture +20% à tous', agriMultiplier:5, special:'agriBoost', w:1 },
-  { id:'oil_crash',   type:'market', hint:'⚡ Les énergies renouvelables gagnent du terrain à une vitesse inattendue. Les investisseurs commencent à fuir les actifs pétroliers massivement...', title:'Effondrement pétrolier mondial', desc:'Le pétrole perd toute valeur du jour au lendemain.', effect:'Pays pétrole > 200: −800 or · Revenus pétrole ×0', special:'oilCrash', oilMultiplier:0, w:1 },
-  { id:'trade_open',  type:'market', hint:'🌐 Les négociateurs de l\'OMC s\'apprêtent à signer un accord commercial historique. Des rumeurs de réduction massive des tarifs douaniers circulent...', title:'Traité de libre-échange mondial', desc:'Un accord historique ouvre toutes les frontières commerciales.', effect:'Prix ressources −50% · Revenus de base ×2', priceChanges:{oil:0.5,food:0.5,tourism:0.5,agriculture:0.5}, baseMultiplier:2, w:1 },
-  { id:'sanctions_sa',type:'market', hint:'🏛️ Le G20 tient une réunion d\'urgence à Genève. Des sources diplomatiques évoquent des "mesures punitives sans précédent" contre les économies dominantes...', title:'Sanctions économiques massives', desc:'Le G20 frappe fort les économies dominantes.', effect:'Tier S et A: −1000 or · 3 plus faibles: +400 or', special:'sanctionsSA', w:1 },
-  { id:'food_crisis', type:'market', hint:'🌡️ La NASA publie des images alarmantes: sécheresses record sur tous les continents. Les prix alimentaires commencent à grimper sur les marchés à terme...', title:'Famine mondiale dévastatrice', desc:'Les récoltes s\'effondrent, la famine menace des milliards.', effect:'Prix nourriture ×5 · Pays < 200 nourr.: −30% puissance · Agri ×4', priceChanges:{food:5.0}, agriMultiplier:4, special:'foodCrisisPenalty', w:1 },
-  { id:'goldRush',    type:'market', hint:'⛏️ Des prospecteurs signalent la découverte de gisements géants d\'or en Sibérie, en Amazonie et en Afrique sub-saharienne. Les marchés s\'emballent...', title:'Ruée vers l\'or', desc:'De nouveaux gisements géants sont découverts partout.', effect:'Revenus de base ×3 cette période', baseMultiplier:3, w:1 },
-  // CHOICE
-  { id:'embargo',     type:'choice', hint:'🚢 Le Conseil de Sécurité débat d\'un embargo général. Chaque nation devra choisir son camp dans les prochains mois. Préparez vos arguments...', title:'Embargo international', desc:'Le Conseil de Sécurité impose un embargo total.', effect:'CHOIX: Sacrifier 300 pétrole (neutralité) OU payer 800 or', choiceA:{label:'Sacrifier 300 pétrole (neutralité)',cost:{oil:300}}, choiceB:{label:'Payer 800 or de sanctions',cost:{treasury:800}}, w:1 },
-  { id:'arms',        type:'choice', hint:'🔬 Les laboratoires militaires annoncent des avancées technologiques majeures. Les États réévaluent leurs stratégies de défense nationale...', title:'Course aux armements', desc:'Les nations doivent choisir leur stratégie militaire.', effect:'CHOIX: 500 or → +120 armée OU 400 nourr → +80 armée +20% combat', choiceA:{label:'Investissement militaire (500 or → +120 armée)',cost:{treasury:500},gain:{army:120}}, choiceB:{label:'Mobilisation populaire (400 nourr → +80 armée +20% combat)',cost:{food:400},gain:{army:80,combatBonus:0.20}}, w:1 },
-  { id:'tech',        type:'choice', hint:'🤫 Une superpuissance anonyme propose discrètement un partenariat technologique militaire. Les diplomates évoquent une offre "très avantageuse mais à saisir rapidement"...', title:'Accord technologique secret', desc:'Un pacte technologique militaire est proposé.', effect:'CHOIX: 400 or → +80 armée +300 pts OU Refuser', choiceA:{label:'Signer (400 or → +80 armée +300 pts)',cost:{treasury:400},gain:{army:80,power:300}}, choiceB:{label:'Refuser (aucun effet)',cost:{},gain:{}}, w:1 },
-  { id:'warprep',     type:'choice', hint:'🔭 Les services de renseignement alertent sur des mouvements de troupes aux frontières. "La guerre est probable dans 6 mois" affirment les analystes...', title:'Préparation de guerre imminente', desc:'Les renseignements confirment une guerre imminente.', effect:'CHOIX: Bunker +200 pts défense (gratuit) OU 700 or → +200 armée', choiceA:{label:'Défense renforcée (gratuit → bunker +200 pts)',cost:{},gain:{defense:true,power:200}}, choiceB:{label:'Frappe préventive (700 or → +200 armée)',cost:{treasury:700},gain:{army:200}}, w:1 },
+  { id:'oil_boom',    type:'market', w:1,
+    hint:'🛢️ L\'OPEP annonce une réduction de 40% de sa production. Les tankers se vident. Les analystes parlent du "choc pétrolier du siècle" — le pétrole va devenir une ressource rare et précieuse.',
+    title:'Boom pétrolier historique', desc:'L\'OPEP réduit la production. Le baril s\'envole.', effect:'Revenus pétrole ×5 · Prix pétrole ×4 · Achat pétrole bloqué < 6000 pts', oilMultiplier:5, priceOil:4.0, blockOilBelowPower:6000 },
+  { id:'tourism_boom',type:'market', w:1,
+    hint:'✈️ L\'OMS déclare la fin de toutes les restrictions de voyage mondiales. Les agences de voyage enregistrent des réservations records. La saison touristique sera exceptionnelle — investissez dans le tourisme maintenant.',
+    title:'Explosion du tourisme mondial', desc:'Fin des restrictions, boom des voyages mondiaux.', effect:'Revenus tourisme ×5 · Prix tourisme −40%', tourismMultiplier:5, priceTourism:0.6 },
+  { id:'agri_boom',   type:'market', w:1,
+    hint:'🌾 Des images satellitaires révèlent des récoltes exceptionnelles dans l\'hémisphère nord et sud simultanément. La FAO parle de "super-saison agricole". L\'agriculture va rapporter gros cette période.',
+    title:'Révolution agricole mondiale', desc:'Super-saison agricole dans tous les hémisphères.', effect:'Revenus agriculture ×5 · Nourriture +25% à tous', agriMultiplier:5, special:'agriBoost' },
+  { id:'oil_crash',   type:'market', w:1,
+    hint:'⚡ Tesla, BYD et Toyota annoncent simultanément des voitures électriques à 8 000€. Les gouvernements subventionnent massivement la transition. Le pétrole perd de son attrait — les pays qui en ont trop vont souffrir.',
+    title:'Effondrement pétrolier', desc:'La transition énergétique pulvérise la valeur du pétrole.', effect:'Pays pétrole > 200: −900 or · Revenus pétrole ×0', oilMultiplier:0, special:'oilCrash' },
+  { id:'sanctions',   type:'market', w:1,
+    hint:'🏛️ Une coalition de 40 pays prépare un plan de sanctions "sans précédent" contre les économies dominantes. Les ambassadeurs quittent les capitales. Les plus puissants vont payer très cher.',
+    title:'Sanctions économiques massives', desc:'Le G20 punit les économies dominantes.', effect:'Tier S et A: −1200 or · 4 plus faibles: +400 or', special:'sanctionsSA' },
+  { id:'food_crisis', type:'market', w:1,
+    hint:'🌡️ La NASA confirme: 6 mois de sécheresse record sur 3 continents. Les prix alimentaires ont déjà doublé sur les marchés à terme. Les pays sans réserves alimentaires vont être frappés de plein fouet.',
+    title:'Famine mondiale', desc:'Sécheresses record, réserves mondiales à sec.', effect:'Prix nourriture ×5 · Pays < 200 nourr.: −35% puissance · Agri ×4', priceFood:5.0, agriMultiplier:4, special:'foodCrisisPenalty' },
+  { id:'goldRush',    type:'market', w:1,
+    hint:'⛏️ Des prospecteurs confirment la découverte de gisements d\'or géants en Sibérie, en Amazonie et au Sahara. Les banques centrales s\'apprêtent à injecter massivement des liquidités. Les revenus de base vont exploser.',
+    title:'Ruée vers l\'or', desc:'Gisements géants, injection massive de liquidités.', effect:'Revenus de base ×3', baseMultiplier:3 },
+  { id:'tech_boom',   type:'market', w:1,
+    hint:'💻 Un consortium tech mondial annonce une IA capable de doubler la productivité industrielle. Les nations qui adoptent vite vont voir leur économie s\'emballer. Les revenus généraux vont augmenter partout.',
+    title:'Révolution technologique', desc:'L\'IA double la productivité mondiale.', effect:'Revenus de base ×2 · Prix toutes ressources −30%', baseMultiplier:2, priceOil:0.7, priceFood:0.7, priceTourism:0.7, priceAgri:0.7 },
+  // CHOICE — hard dilemmas
+  { id:'embargo',     type:'choice', w:1,
+    hint:'🚢 Le détroit d\'Ormuz est bloqué par des tensions militaires. Les Nations Unies débattent d\'un embargo. Les pays devront choisir: sacrifier leurs ressources ou payer des pénalités massives. Préparez-vous.',
+    title:'Embargo international', desc:'Le détroit d\'Ormuz fermé, l\'ONU impose un embargo.', effect:'CHOIX difficile: 400 pétrole (neutralité protège) OU 1000 or de sanctions (risque supplémentaire: 50% de perdre 500 pts)',
+    choiceA:{label:'Sacrifier 400 pétrole (neutralité garantie)',cost:{oil:400},gain:{}},
+    choiceB:{label:'Payer 1000 or + risque 50% de −500 pts',cost:{treasury:1000},gain:{gamble:true,powerLoss:500}} },
+  { id:'arms',        type:'choice', w:1,
+    hint:'🔬 Des images satellites montrent des mouvements de troupes massifs aux frontières. Les généraux recommandent une mobilisation immédiate. Vous devrez choisir entre force brute ou stratégie populaire — avec des conséquences réelles.',
+    title:'Mobilisation militaire', desc:'Les frontières s\'embrasent, mobilisation générale.', effect:'CHOIX: 600 or → +150 armée (mais −200 pts popularité) OU 500 nourr → +100 armée +25% combat (mais risque famine)',
+    choiceA:{label:'Investissement militaire (600 or → +150 armée, −200 pts)',cost:{treasury:600},gain:{army:150,powerLoss:200}},
+    choiceB:{label:'Mobilisation populaire (500 nourr → +100 armée +25% combat)',cost:{food:500},gain:{army:100,combatBonus:0.25}} },
+  { id:'corruption',  type:'choice', w:1,
+    hint:'🤫 Des sources anonymes révèlent un scandale de corruption massif impliquant plusieurs gouvernements. Chaque pays doit choisir: avouer (coût limité) ou nier avec risque d\'être découvert et perdre beaucoup.',
+    title:'Scandale de corruption', desc:'Le scandale éclate — avouer ou nier ?', effect:'CHOIX risqué: Avouer (−300 or, −100 pts) OU Nier (50% OK / 50% −1200 or −400 pts)',
+    choiceA:{label:'Avouer (−300 or, −100 pts, coût certain)',cost:{treasury:300},gain:{powerLoss:100}},
+    choiceB:{label:'Nier (50%: rien / 50%: −1200 or −400 pts)',cost:{},gain:{gamble:true,powerLoss:400,goldLoss:1200}} },
+  { id:'warprep',     type:'choice', w:1,
+    hint:'🔭 La CIA, le SVR et le MI6 publient simultanément des alertes de guerre imminente. Chaque nation doit arbitrer entre protection défensive ou frappe préventive. C\'est maintenant ou jamais — les deux options ont un vrai coût.',
+    title:'Préparation de guerre', desc:'Guerre confirmée dans 6 mois — stratégie ?', effect:'CHOIX: Bunker +150 pts défense (coût 300 or) OU Frappe préventive +250 armée (800 or, −25% or restant)',
+    choiceA:{label:'Défense renforcée (300 or → bunker +150 pts)',cost:{treasury:300},gain:{defense:true,power:150}},
+    choiceB:{label:'Frappe préventive (800 or → +250 armée, −25% or restant)',cost:{treasury:800},gain:{army:250,goldPenalty:0.25}} },
+  { id:'refugee',     type:'choice', w:1,
+    hint:'🌊 Une crise humanitaire massive frappe les côtes: millions de réfugiés. Accepter rapporte politiquement mais coûte des ressources. Refuser préserve les stocks mais coûte en réputation. Les deux ont des conséquences concrètes.',
+    title:'Crise des réfugiés', desc:'Des millions de réfugiés frappent à vos portes.', effect:'CHOIX: Accueillir (−400 nourr +400 pts armée goodwill) OU Refuser (−300 pts puissance diplomatique)',
+    choiceA:{label:'Accueillir (−400 nourr, +400 pts, +60 armée)',cost:{food:400},gain:{power:400,army:60}},
+    choiceB:{label:'Refuser (−300 pts puissance)',cost:{},gain:{powerLoss:300}} },
   // TARGETED
-  { id:'earthquake',  type:'targeted', hint:'🌋 Les sismologues enregistrent une activité tectonique anormale dans plusieurs zones à risque. Des experts évacuent certaines populations côtières...', title:'Séisme catastrophique', desc:'Un méga-séisme frappe sans prévenir.', effect:'1 pays aléatoire: −50% nourriture −400 pts', targetCount:1, effects:{foodLoss:0.50,powerLoss:400}, w:2 },
-  { id:'typhoon',     type:'targeted', hint:'🌀 Météo-France et la NOAA signalent la formation de plusieurs super-typhons dans le Pacifique et l\'Atlantique. Trajectoires imprévisibles...', title:'Super typhon dévastateur', desc:'Des typhons d\'une violence inouïe ravagent plusieurs côtes.', effect:'2 pays aléatoires: −60% nourriture −200 pts', targetCount:2, effects:{foodLoss:0.60,powerLoss:200}, w:2 },
-  { id:'revolution',  type:'targeted', hint:'✊ Des mouvements sociaux d\'ampleur inédite secouent les capitales mondiales. Les peuples opprimés réclament leur part du gâteau économique...', title:'Révolution des ressources', desc:'Les nations émergentes brisent les chaînes de l\'ordre mondial.', effect:'Pays < 4000 pts: +350 or · Pays > 9000 pts: −400 or', special:'revolution', w:2 },
-  { id:'fmi',         type:'targeted', hint:'🏦 Le FMI prépare un plan de sauvetage massif pour les économies les plus fragiles. Des milliards seraient déployés dans les prochains mois...', title:'Intervention FMI d\'urgence', desc:'Le FMI déploie des ressources massives pour stabiliser les économies fragiles.', effect:'3 nations les plus faibles: +300 or +60 armée', special:'aidFMI', w:2 },
-  { id:'uprising',    type:'targeted', hint:'📢 Des syndicats et mouvements populaires organisent des grèves générales dans plusieurs pays. Les gouvernements redoutent des soulèvements armés...', title:'Soulèvement populaire mondial', desc:'Les populations opprimées renversent les élites.', effect:'Tier B: +80 armée · Tier S: −150 armée (désertion)', special:'uprising', w:2 },
-  { id:'tourism_c',   type:'targeted', hint:'🔒 Plusieurs attentats dans des lieux touristiques majeurs. Les gouvernements émettent des avis de voyage négatifs. L\'industrie touristique s\'inquiète...', title:'Crise du tourisme mondial', desc:'Les attentats ferment les frontières touristiques.', effect:'Pays tourisme > 150: −400 or · Pays tourisme < 60: +200 or', special:'tourismCrisis', w:1 },
+  { id:'earthquake',  type:'targeted', w:2,
+    hint:'🌋 Les sismologues enregistrent des micro-séismes anormaux dans plusieurs zones tectoniques. Un "big one" est jugé probable à 70% dans les 6 prochains mois. Certains pays vont être durement frappés — aléatoirement.',
+    title:'Séisme catastrophique', desc:'Le "big one" frappe sans prévenir.', effect:'1 pays aléatoire: −55% nourriture −500 pts', targetCount:1, effects:{foodLoss:0.55,powerLoss:500} },
+  { id:'typhoon',     type:'targeted', w:2,
+    hint:'🌀 La NOAA et Météo-France alertent: formation de super-typhons d\'une violence inédite dans l\'Atlantique et le Pacifique. Les trajectoires restent imprévisibles. 2 pays pourraient être frappés simultanément.',
+    title:'Super typhon', desc:'Deux super-typhons simultanés ravagent les côtes.', effect:'2 pays aléatoires: −60% nourriture −300 pts', targetCount:2, effects:{foodLoss:0.60,powerLoss:300} },
+  { id:'revolution',  type:'targeted', w:2,
+    hint:'✊ Des mouvements révolutionnaires coordonnés secouent les capitales mondiales. Les marchés financiers s\'effondrent pour les puissants. Les émergents en profitent. Les riches vont perdre, les pauvres vont gagner.',
+    title:'Révolution mondiale', desc:'Les peuples renversent l\'ordre établi.', effect:'Pays < 4500 pts: +400 or · Pays > 10000 pts: −500 or', special:'revolution' },
+  { id:'fmi',         type:'targeted', w:2,
+    hint:'🏦 Le FMI convoque une réunion d\'urgence. Des milliards vont être injectés dans les économies les plus fragiles. Si vous êtes parmi les 4 plus faibles, vous allez recevoir une aide massive — une chance de rattraper.',
+    title:'Intervention FMI', desc:'Plan de sauvetage massif pour les économies fragiles.', effect:'4 nations les plus faibles: +350 or +70 armée', special:'aidFMI' },
+  { id:'uprising',    type:'targeted', w:2,
+    hint:'📢 Des syndicats et mouvements populaires organisent des grèves générales coordonnées. Les émergents en profitent pour s\'armer. Les superpuissances voient leur armée déserter massivement. Tier B: préparez-vous à en profiter.',
+    title:'Soulèvement populaire', desc:'Les émergents s\'arment, les superpuissances désertent.', effect:'Tier B: +90 armée · Tier S: −180 armée', special:'uprising' },
+  { id:'tourismCrisis',type:'targeted', w:1,
+    hint:'🔒 Plusieurs attentats dans des lieux touristiques majeurs secouent le monde. Les gouvernements émettent des avis de voyage négatifs. Les pays très touristiques vont perdre massivement — les autres en bénéficieront.',
+    title:'Crise du tourisme', desc:'Attentats, fermeture des frontières touristiques.', effect:'Pays tourisme > 200: −500 or · Pays tourisme < 70: +250 or', special:'tourismCrisis' },
 ];
 
 function weightedRandom(pool) {
-  const weighted = [];
-  pool.forEach(ev => { for(let i=0;i<(ev.w||1);i++) weighted.push(ev); });
-  return weighted[Math.floor(Math.random() * weighted.length)];
+  const w=[];pool.forEach(e=>{for(let i=0;i<(e.w||1);i++)w.push(e);});
+  return w[Math.floor(Math.random()*w.length)];
 }
 
-// Pre-generate all 6 period events + their hints shown N-1
-function generatePeriodSequence() {
-  const sequence = [];
-  for(let i=0;i<6;i++) sequence.push(weightedRandom(EVENTS));
-  return sequence;
+function generateSequence() {
+  const seq=[];for(let i=0;i<6;i++)seq.push(weightedRandom(EVENTS));
+  return seq;
 }
 
-const TUTORIAL_PERIOD = {
-  number:0,
-  name:"Manche Test — Découverte",
-  subtitle:"Tutorial · Ressources remises à zéro après",
-  desc:"Bienvenue dans Geopolitica ! Cette manche de test ne compte pas — vos ressources seront remises à zéro après. Explorez l'interface : achetez des ressources, consultez les onglets, regardez comment évolue votre puissance. Vous avez 2 actions. Aucune conséquence, que de la découverte !",
-  hint:"ℹ️ Cette manche est une démonstration. Les ressources seront remises à zéro. Apprenez à jouer sans pression !",
-};
+const TUTORIAL_EV = { id:'tutorial', type:'market', title:'Manche Test', desc:'Explorez librement — ressources remises à zéro après. Aucune conséquence !', effect:'Actions illimitées, tout est gratuit à essayer' };
 
 const PERIODS = [
-  { number:1, name:"L'Ère de Croissance",          subtitle:"Janvier — Juin · An 1",   desc:"Les marchés s'ouvrent. Regardez l'indice de la prochaine période — il vous guide sur ce qu'il faut acheter. Achetez pétrole (×0.5/u), tourisme (×0.6/u) ou agriculture (×0.45/u) pour générer des revenus passifs. ⚔️ RAPPEL GUERRE: gardez au moins 450 or pour la phase de combat (3 attaques à 150 or). 2 actions." },
-  { number:2, name:"Premières Tensions",            subtitle:"Juillet — Déc · An 1",    desc:"Les intérêts divergent. Lisez attentivement l'indice en bas — il préfigure l'événement de la prochaine manche. Si l'indice parle de pétrole, achetez-en. Si ça parle de famine, stockez de la nourriture. ⚔️ Gardez 450 or minimum pour la guerre. 2 actions." },
-  { number:3, name:"Crise Mondiale",                subtitle:"Janvier — Juin · An 2",   desc:"Catastrophe mondiale. Si un événement CHOIX arrive, vous avez 60 secondes. La puissance se calcule avec toutes vos ressources — diversifiez. Plus que 3 périodes avant la guerre. ⚔️ Commencez à vous préparer militairement. 2 actions." },
-  { number:4, name:"Course aux Armements",          subtitle:"Juillet — Déc · An 2",    desc:"La guerre approche. Renforcez votre armée. Bunker (200 or) = −30% dommages reçus. Lisez l'indice de la prochaine manche — les deux dernières périodes sont cruciales pour votre position de départ en guerre. ⚔️ Minimum 450 or en réserve ! 2 actions." },
-  { number:5, name:"Ultimatums",                    subtitle:"Janvier — Juin · An 3",   desc:"AVANT-DERNIÈRE PÉRIODE. Regardez l'indice de la prochaine manche — c'est votre dernière chance d'optimiser. Après la période 6, la GUERRE commence. Convertissez vos ressources en puissance. ⚔️ Gardez 600 or (4 attaques). 2 actions." },
-  { number:6, name:"Le Monde Retient son Souffle",  subtitle:"Juillet — Déc · An 3",    desc:"DERNIÈRE PÉRIODE DE PAIX. Plus aucun achat en guerre. ⚔️ UNE ATTAQUE COÛTE 150 OR — gardez au moins 450 or. Achetez de l'armée ou un bunker si vous ne l'avez pas. Vos décisions maintenant déterminent votre survie en guerre. Dernière chance absolue. 2 actions." },
+  { number:1, name:"L'Ère de Croissance",          subtitle:"Janvier — Juin · An 1" },
+  { number:2, name:"Premières Tensions",            subtitle:"Juillet — Déc · An 1" },
+  { number:3, name:"Crise Mondiale",                subtitle:"Janvier — Juin · An 2" },
+  { number:4, name:"Course aux Armements",          subtitle:"Juillet — Déc · An 2" },
+  { number:5, name:"Ultimatums",                    subtitle:"Janvier — Juin · An 3" },
+  { number:6, name:"Le Monde Retient son Souffle",  subtitle:"Juillet — Déc · An 3" },
+];
+
+const PERIOD_DESCS = [
+  "Les marchés s'ouvrent. Regardez l'indice ci-dessous — il préfigure l'événement de la prochaine période. Achetez pétrole, tourisme ou agriculture pour générer des revenus passifs (~25 or/unité). ⚔️ Gardez 500 or pour la guerre ! 2 actions.",
+  "Les intérêts divergent. Analysez l'indice attentivement — si ça parle de pétrole, achetez-en. Si ça parle de famine, stockez de la nourriture. ⚔️ Minimum 500 or en réserve. 2 actions.",
+  "Catastrophe mondiale. Si un événement CHOIX arrive: vraiment dur — les deux options ont un coût réel, choisissez le moindre mal. ⚔️ Commencez à investir en armée. 2 actions.",
+  "La guerre approche. Renforcez votre armée. Bunker (200 or) = −15% dommages reçus. ⚔️ Minimum 600 or en réserve (4 attaques). 2 actions.",
+  "AVANT-DERNIÈRE PÉRIODE. C'est votre dernière vraie chance d'investir. Après la période 6, la GUERRE commence. ⚔️ Gardez 600 or. 2 actions.",
+  "DERNIÈRE PÉRIODE DE PAIX. Plus aucun achat en guerre. ⚔️ UNE ATTAQUE COÛTE 150 OR — gardez au moins 600 or. Convertissez tout en armée ou bunker. Dernière chance absolue. 2 actions.",
 ];
 
 let gameState = {
   phase:'setup', currentPeriod:0, currentEvent:null, nextHint:null,
-  periodSequence:[], // pre-generated events
-  countries:{}, takenCountries:{}, teams:{},
+  periodSequence:[], countries:{}, takenCountries:{}, teams:{},
   prices:{ oil:80, food:40, tourism:120, agriculture:60 },
-  eventMod:{ oilMultiplier:1, tourismMultiplier:1, agriMultiplier:1, baseMultiplier:1, blockOilBelowPower:0, peace:false },
-  coalition:{ proposed:false, moroccoAccepted:false, guineaAccepted:false, active:false },
+  eventMod:{ oilMultiplier:1, tourismMultiplier:1, agriMultiplier:1, baseMultiplier:1, blockOilBelowPower:0 },
+  coalition:{proposed:false,moroccoAccepted:false,guineaAccepted:false,active:false},
   alliances:{}, pendingAllianceProposals:{},
   log:[], timerSeconds:600, timerRunning:false,
   warTurnOrder:[], warCurrentTurn:0, warTurnSeconds:30,
-  teamActionsThisPeriod:{},
-  pendingChoiceEvent:null,
-  winner:null,
-  isTutorial:false,
-  tutorialResources:{}, // snapshot before tutorial
+  teamActionsThisPeriod:{}, lastActionByTeam:{},
+  pendingChoiceEvent:null, winner:null, winners:[], // support double winner
+  isTutorial:false, tutorialSnapshot:{}, gameOver:false,
 };
 
 let timerInterval=null, warTurnInterval=null;
 
 function initCountries() {
-  gameState.countries = {};
-  COUNTRIES.forEach(c => {
-    gameState.countries[c.id] = { ...c, treasury:c.gold, power:calcPower({...c,treasury:c.gold}), eliminated:false, defense:false, team:null, combatBonus:0 };
+  gameState.countries={};
+  COUNTRIES.forEach(c=>{
+    gameState.countries[c.id]={...c,treasury:c.gold,power:calcPower({...c,treasury:c.gold}),eliminated:false,defense:false,team:null,combatBonus:0};
   });
 }
 
 function calcPower(c) {
-  const tierBonus = c.tier==='B' ? 1.15 : 1.0;
-  return Math.max(0, Math.round((c.army*10 + (c.treasury||0)*0.25 + (c.oil||0)*0.8 + (c.tourism||0)*0.6 + (c.agriculture||0)*0.5 + (c.food||0)*1.2) * tierBonus));
+  const t=c.tier==='B'?1.15:c.tier==='S'?1.0:1.0;
+  return Math.max(0,Math.round((c.army*10+(c.treasury||0)*0.25+(c.oil||0)*0.8+(c.tourism||0)*0.6+(c.agriculture||0)*0.5+(c.food||0)*1.2)*t));
 }
 
-function resolveCombat(att, def) {
+function resolveCombat(att,def) {
   const tA=att.tier==='B'?1.15:1.0, tD=def.tier==='B'?1.15:1.0;
   const cA=1+(att.combatBonus||0);
   const rA=1+Math.random()*0.20+Math.random()*0.20;
   const rD=1+Math.random()*0.20+Math.random()*0.20;
-  const sA=att.power*rA*tA*cA+att.food*0.07;
-  const sD=def.power*rD*tD*1.15+def.food*0.07+(def.defense?def.power*0.30:0);
-  return { attackerWins:sA>sD, scoreAtt:Math.round(sA), scoreDef:Math.round(sD) };
+  const sA=att.power*rA*tA*cA+(att.food||0)*0.07;
+  const sD=def.power*rD*tD*1.15+(def.food||0)*0.07+(def.defense?def.power*0.15:0); // bunker reduced to 0.15
+  return {attackerWins:sA>sD,scoreAtt:Math.round(sA),scoreDef:Math.round(sD)};
 }
 
-function addLog(text, type) {
-  gameState.log.unshift({ text, type, time:new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) });
-  if(gameState.log.length>100) gameState.log=gameState.log.slice(0,100);
-}
-function addTeamNews(teamName, text, type) {
-  if(!gameState.teams[teamName]) return;
-  gameState.teams[teamName].news=gameState.teams[teamName].news||[];
-  gameState.teams[teamName].news.push({ text, type, time:new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) });
-}
-function broadcast() { io.emit('state', gameState); }
+function addLog(text,type){gameState.log.unshift({text,type,time:new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})});if(gameState.log.length>120)gameState.log=gameState.log.slice(0,120);}
+function addTeamNews(teamName,text,type){if(!gameState.teams[teamName])return;gameState.teams[teamName].news=gameState.teams[teamName].news||[];gameState.teams[teamName].news.push({text,type,time:new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})});}
+function broadcast(){io.emit('state',gameState);}
 
 function applyEvent(ev) {
-  gameState.prices = { oil:80, food:40, tourism:120, agriculture:60 };
-  gameState.eventMod = { oilMultiplier:1, tourismMultiplier:1, agriMultiplier:1, baseMultiplier:1, blockOilBelowPower:0, peace:false };
-  if(ev.priceChanges) {
-    if(ev.priceChanges.oil)         gameState.prices.oil         = Math.round(80  * ev.priceChanges.oil);
-    if(ev.priceChanges.food)        gameState.prices.food        = Math.round(40  * ev.priceChanges.food);
-    if(ev.priceChanges.tourism)     gameState.prices.tourism     = Math.round(120 * ev.priceChanges.tourism);
-    if(ev.priceChanges.agriculture) gameState.prices.agriculture = Math.round(60  * ev.priceChanges.agriculture);
-  }
-  if(ev.oilMultiplier     !== undefined) gameState.eventMod.oilMultiplier     = ev.oilMultiplier;
-  if(ev.tourismMultiplier !== undefined) gameState.eventMod.tourismMultiplier = ev.tourismMultiplier;
-  if(ev.agriMultiplier    !== undefined) gameState.eventMod.agriMultiplier    = ev.agriMultiplier;
-  if(ev.baseMultiplier    !== undefined) gameState.eventMod.baseMultiplier    = ev.baseMultiplier;
-  if(ev.blockOilBelowPower)             gameState.eventMod.blockOilBelowPower = ev.blockOilBelowPower;
-  if(ev.special==='oilCrash')     Object.values(gameState.countries).forEach(c=>{ if(!c.eliminated&&c.oil>200){ c.treasury=Math.max(0,c.treasury-800); c.power=calcPower(c); addTeamNews(c.team,'💥 Effondrement pétrolier: −800 or !','bad'); }});
-  if(ev.special==='agriBoost')    Object.values(gameState.countries).forEach(c=>{ if(!c.eliminated){ c.food=Math.round(c.food*1.20); c.power=calcPower(c); addTeamNews(c.team,'🌾 Révolution agricole: +20% nourriture !','good'); }});
-  if(ev.special==='foodCrisisPenalty') Object.values(gameState.countries).forEach(c=>{ if(!c.eliminated&&c.food<200){ const l=Math.round(c.power*0.30); c.power=Math.max(0,c.power-l); addTeamNews(c.team,`🚨 Famine: stocks faibles — −${l} pts !`,'bad'); }});
-  if(ev.special==='sanctionsSA')  { Object.values(gameState.countries).forEach(c=>{ if(!c.eliminated&&(c.tier==='S'||c.tier==='A')){ c.treasury=Math.max(0,c.treasury-1000); c.power=calcPower(c); addTeamNews(c.team,'⚠️ Sanctions G20: −1000 or !','bad'); }}); const alive=Object.values(gameState.countries).filter(c=>!c.eliminated).sort((a,b)=>a.power-b.power).slice(0,3); alive.forEach(c=>{ c.treasury+=400; c.power=calcPower(c); addTeamNews(c.team,'💰 Compensation sanctions: +400 or !','good'); }); }
-  if(ev.special==='revolution')   Object.values(gameState.countries).forEach(c=>{ if(!c.eliminated){ if(c.power<4000){ c.treasury+=350; c.power=calcPower(c); addTeamNews(c.team,'✊ Révolution: +350 or !','good'); } if(c.power>9000){ c.treasury=Math.max(0,c.treasury-400); c.power=calcPower(c); addTeamNews(c.team,'✊ Révolution: −400 or !','bad'); } }});
-  if(ev.special==='aidFMI')       { const alive=Object.values(gameState.countries).filter(c=>!c.eliminated).sort((a,b)=>a.power-b.power).slice(0,3); alive.forEach(c=>{ c.treasury+=300; c.army+=60; c.power=calcPower(c); addTeamNews(c.team,'🏦 FMI: +300 or +60 armée !','good'); }); }
-  if(ev.special==='uprising')     Object.values(gameState.countries).forEach(c=>{ if(!c.eliminated){ if(c.tier==='B'){ c.army+=80; c.power=calcPower(c); addTeamNews(c.team,'✊ Soulèvement: +80 armée !','good'); } if(c.tier==='S'){ c.army=Math.max(0,c.army-150); c.power=calcPower(c); addTeamNews(c.team,'✊ Désertion: −150 armée !','bad'); } }});
-  if(ev.special==='tourismCrisis') Object.values(gameState.countries).forEach(c=>{ if(!c.eliminated){ if(c.tourism>150){ c.treasury=Math.max(0,c.treasury-400); c.power=calcPower(c); addTeamNews(c.team,'✈️ Crise tourisme: −400 or !','bad'); } else if(c.tourism<60){ c.treasury+=200; c.power=calcPower(c); addTeamNews(c.team,'✈️ Report touristes: +200 or !','good'); } }});
-  if(ev.effects) {
-    const alive=Object.values(gameState.countries).filter(c=>!c.eliminated);
-    alive.sort(()=>Math.random()-0.5).slice(0,ev.targetCount||1).forEach(c=>{ if(ev.effects.foodLoss){ const l=Math.round(c.food*ev.effects.foodLoss); c.food=Math.max(0,c.food-l); c.power=calcPower(c); addTeamNews(c.team,`🌋 ${ev.title}: −${l} nourriture !`,'bad'); addLog(`${ev.title}: ${c.flag} −${l} nourr`,'event'); } if(ev.effects.powerLoss){ c.power=Math.max(0,c.power-ev.effects.powerLoss); addTeamNews(c.team,`🌋 ${ev.title}: −${ev.effects.powerLoss} pts !`,'bad'); }});
-  }
+  gameState.eventMod={oilMultiplier:1,tourismMultiplier:1,agriMultiplier:1,baseMultiplier:1,blockOilBelowPower:0};
+  const priceEv={priceOil:ev.priceOil||1,priceFood:ev.priceFood||1,priceTourism:ev.priceTourism||1,priceAgri:ev.priceAgri||1};
+  if(ev.oilMultiplier!==undefined)     gameState.eventMod.oilMultiplier=ev.oilMultiplier;
+  if(ev.tourismMultiplier!==undefined) gameState.eventMod.tourismMultiplier=ev.tourismMultiplier;
+  if(ev.agriMultiplier!==undefined)    gameState.eventMod.agriMultiplier=ev.agriMultiplier;
+  if(ev.baseMultiplier!==undefined)    gameState.eventMod.baseMultiplier=ev.baseMultiplier;
+  if(ev.blockOilBelowPower)            gameState.eventMod.blockOilBelowPower=ev.blockOilBelowPower;
+  gameState.prices=generatePeriodPrices(priceEv);
+  if(ev.special==='oilCrash')       Object.values(gameState.countries).forEach(c=>{if(!c.eliminated&&c.oil>200){c.treasury=Math.max(0,c.treasury-900);c.power=calcPower(c);addTeamNews(c.team,'💥 Effondrement pétrolier: −900 or !','bad');}});
+  if(ev.special==='agriBoost')      Object.values(gameState.countries).forEach(c=>{if(!c.eliminated){c.food=Math.round(c.food*1.25);c.power=calcPower(c);addTeamNews(c.team,'🌾 Super-saison: +25% nourriture !','good');}});
+  if(ev.special==='foodCrisisPenalty') Object.values(gameState.countries).forEach(c=>{if(!c.eliminated&&c.food<200){const l=Math.round(c.power*0.35);c.power=Math.max(0,c.power-l);addTeamNews(c.team,`🚨 Famine: stocks trop faibles — −${l} pts !`,'bad');}});
+  if(ev.special==='sanctionsSA')    {Object.values(gameState.countries).forEach(c=>{if(!c.eliminated&&(c.tier==='S'||c.tier==='A')){c.treasury=Math.max(0,c.treasury-1200);c.power=calcPower(c);addTeamNews(c.team,'⚠️ Sanctions G20: −1200 or !','bad');}});const alive=Object.values(gameState.countries).filter(c=>!c.eliminated).sort((a,b)=>a.power-b.power).slice(0,4);alive.forEach(c=>{c.treasury+=400;c.power=calcPower(c);addTeamNews(c.team,'💰 Aide compensatoire: +400 or !','good');});}
+  if(ev.special==='revolution')     Object.values(gameState.countries).forEach(c=>{if(!c.eliminated){if(c.power<4500){c.treasury+=400;c.power=calcPower(c);addTeamNews(c.team,'✊ Révolution: +400 or !','good');}if(c.power>10000){c.treasury=Math.max(0,c.treasury-500);c.power=calcPower(c);addTeamNews(c.team,'✊ Révolution: −500 or !','bad');}}});
+  if(ev.special==='aidFMI')         {const alive=Object.values(gameState.countries).filter(c=>!c.eliminated).sort((a,b)=>a.power-b.power).slice(0,4);alive.forEach(c=>{c.treasury+=350;c.army+=70;c.power=calcPower(c);addTeamNews(c.team,'🏦 FMI: +350 or +70 armée !','good');});}
+  if(ev.special==='uprising')       Object.values(gameState.countries).forEach(c=>{if(!c.eliminated){if(c.tier==='B'){c.army+=90;c.power=calcPower(c);addTeamNews(c.team,'✊ Soulèvement: +90 armée !','good');}if(c.tier==='S'){c.army=Math.max(0,c.army-180);c.power=calcPower(c);addTeamNews(c.team,'✊ Désertion: −180 armée !','bad');}}});
+  if(ev.special==='tourismCrisis')  Object.values(gameState.countries).forEach(c=>{if(!c.eliminated){if(c.tourism>200){c.treasury=Math.max(0,c.treasury-500);c.power=calcPower(c);addTeamNews(c.team,'✈️ Crise tourisme: −500 or !','bad');}else if(c.tourism<70){c.treasury+=250;c.power=calcPower(c);addTeamNews(c.team,'✈️ Report touristes: +250 or !','good');}}});
+  if(ev.effects){const alive=Object.values(gameState.countries).filter(c=>!c.eliminated);alive.sort(()=>Math.random()-0.5).slice(0,ev.targetCount||1).forEach(c=>{if(ev.effects.foodLoss){const l=Math.round(c.food*ev.effects.foodLoss);c.food=Math.max(0,c.food-l);c.power=calcPower(c);addTeamNews(c.team,`🌋 ${ev.title}: −${l} nourriture !`,'bad');addLog(`${ev.title}: ${c.flag} −${l} nourr`,'event');}if(ev.effects.powerLoss){c.power=Math.max(0,c.power-ev.effects.powerLoss);addTeamNews(c.team,`🌋 ${ev.title}: −${ev.effects.powerLoss} pts !`,'bad');}});}
 }
 
 function applyPeriodTransition() {
-  gameState.eventMod = { oilMultiplier:1, tourismMultiplier:1, agriMultiplier:1, baseMultiplier:1, blockOilBelowPower:0, peace:false };
-  gameState.prices = { oil:80, food:40, tourism:120, agriculture:60 };
-  Object.values(gameState.countries).forEach(c => {
-    if(c.eliminated) return;
-    const foodNeeded=getFoodConsumption(c);
-    if(c.food>=foodNeeded){ c.food-=foodNeeded; addTeamNews(c.team,`🍞 Consommation: −${foodNeeded} nourriture (pop. ${c.population}M)`,'neutral'); }
-    else { const deficit=foodNeeded-c.food; c.food=0; const loss=Math.round(deficit*(c.population/10)*2); c.power=Math.max(0,c.power-loss); addTeamNews(c.team,`⚠️ FAMINE ! Manque ${deficit} nourr. pour ${c.population}M hab — −${loss} pts !`,'bad'); addLog(`Famine: ${c.flag} −${loss} pts`,'event'); }
-    const inc=getPassiveIncome(c, gameState.eventMod);
+  gameState.eventMod={oilMultiplier:1,tourismMultiplier:1,agriMultiplier:1,baseMultiplier:1,blockOilBelowPower:0};
+  Object.values(gameState.countries).forEach(c=>{
+    if(c.eliminated)return;
+    // Food consumption
+    const need=getFoodConsumption(c);
+    if(c.food>=need){c.food-=need;addTeamNews(c.team,`🍞 Consommation: −${need} nourriture (pop. ${c.population}M)`,'neutral');}
+    else{const def=need-c.food;c.food=0;const loss=Math.round(def*(c.population/10)*2);c.power=Math.max(0,c.power-loss);addTeamNews(c.team,`⚠️ FAMINE ! −${def} nourriture → −${loss} pts !`,'bad');addLog(`Famine: ${c.flag} −${loss} pts`,'event');}
+    // Passive income
+    const inc=getPassiveIncome(c,gameState.eventMod);
     c.treasury+=inc.total;
-    addTeamNews(c.team,`💰 Revenus: +${inc.oilIncome} pétrole | +${inc.tourIncome} tourisme | +${inc.agriIncome} agri | +${inc.baseIncome} base = +${inc.total} or`,'good');
-    c.defense=false; c.combatBonus=0; c.power=calcPower(c);
+    addTeamNews(c.team,`💰 Revenus: Pétrole +${inc.oilInc} | Tourisme +${inc.tourInc} | Agriculture +${inc.agriInc} | Base +${inc.baseInc} = +${inc.total} or`,'good');
+    // Inactivity penalty
+    const used=(gameState.teamActionsThisPeriod[c.team]||0);
+    if(used===0&&c.team&&!gameState.isTutorial){c.power=Math.max(0,c.power-100);addTeamNews(c.team,'😴 Inactivité: aucune action cette période — −100 pts de puissance !','bad');}
+    c.defense=false;c.combatBonus=0;c.power=calcPower(c);
   });
+  // New prices with variance
+  gameState.prices=generatePeriodPrices({});
   gameState.teamActionsThisPeriod={};
+  gameState.lastActionByTeam={};
   gameState.alliances={};
 }
 
-function startServerTimer(s){ if(timerInterval)clearInterval(timerInterval); gameState.timerSeconds=s; gameState.timerRunning=true; timerInterval=setInterval(()=>{ if(gameState.timerSeconds>0){ gameState.timerSeconds--; io.emit('timer',{seconds:gameState.timerSeconds,running:true}); } else { clearInterval(timerInterval);timerInterval=null;gameState.timerRunning=false;io.emit('timer',{seconds:0,running:false,ended:true}); }},1000); }
-function pauseServerTimer(){ if(timerInterval){clearInterval(timerInterval);timerInterval=null;} gameState.timerRunning=false; io.emit('timer',{seconds:gameState.timerSeconds,running:false}); }
-function resetServerTimer(s){ pauseServerTimer(); gameState.timerSeconds=s||600; io.emit('timer',{seconds:gameState.timerSeconds,running:false}); }
+function startServerTimer(s){if(timerInterval)clearInterval(timerInterval);if(gameState.gameOver)return;gameState.timerSeconds=s;gameState.timerRunning=true;timerInterval=setInterval(()=>{if(gameState.gameOver){clearInterval(timerInterval);timerInterval=null;gameState.timerRunning=false;return;}if(gameState.timerSeconds>0){gameState.timerSeconds--;io.emit('timer',{seconds:gameState.timerSeconds,running:true});}else{clearInterval(timerInterval);timerInterval=null;gameState.timerRunning=false;io.emit('timer',{seconds:0,running:false,ended:true});}},1000);}
+function pauseServerTimer(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;}gameState.timerRunning=false;io.emit('timer',{seconds:gameState.timerSeconds,running:false});}
+function resetServerTimer(s){pauseServerTimer();gameState.timerSeconds=s||600;io.emit('timer',{seconds:gameState.timerSeconds,running:false});}
 
-function checkWinner() {
+function checkWinner(){
+  if(gameState.gameOver)return;
   const alive=Object.values(gameState.countries).filter(c=>c.team&&!c.eliminated);
-  if(alive.length===1&&gameState.phase==='war'){ gameState.winner=alive[0]; io.emit('winner',alive[0]); addLog(`🏆 ${alive[0].flag} ${alive[0].name} remporte Geopolitica !`,'event'); broadcast(); }
+  if(alive.length===0)return;
+  if(alive.length===1){
+    gameState.gameOver=true;gameState.winners=[alive[0]];
+    if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+    if(warTurnInterval){clearInterval(warTurnInterval);warTurnInterval=null;}
+    io.emit('winner',{winners:gameState.winners,type:'solo'});
+    addLog(`🏆 ${alive[0].flag} ${alive[0].name} remporte Geopolitica !`,'event');broadcast();
+  } else if(alive.length===2){
+    // Check if both have a non-aggression pact
+    const t1=alive[0].team,t2=alive[1].team;
+    const a1=gameState.alliances[t1],a2=gameState.alliances[t2];
+    if(a1&&a1.type==='peace'&&a1.with===t2&&a2&&a2.type==='peace'&&a2.with===t1){
+      gameState.gameOver=true;gameState.winners=alive;
+      if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+      if(warTurnInterval){clearInterval(warTurnInterval);warTurnInterval=null;}
+      io.emit('winner',{winners:gameState.winners,type:'alliance'});
+      addLog(`🤝 ${alive[0].flag} ${alive[1].flag} — Double victoire par alliance de non-agression !`,'event');broadcast();
+    }
+  }
 }
 
-function startWarTurn() {
-  const alive=Object.values(gameState.countries).filter(c=>c.team&&!c.eliminated);
-  gameState.warTurnOrder=alive.map(c=>c.team); gameState.warCurrentTurn=0; advanceWarTurn();
-}
-function advanceWarTurn() {
+function startWarTurn(){const alive=Object.values(gameState.countries).filter(c=>c.team&&!c.eliminated);gameState.warTurnOrder=alive.map(c=>c.team);gameState.warCurrentTurn=0;advanceWarTurn();}
+function advanceWarTurn(){
   if(warTurnInterval)clearInterval(warTurnInterval);
+  if(gameState.gameOver)return;
   gameState.warTurnOrder=Object.values(gameState.countries).filter(c=>c.team&&!c.eliminated).map(c=>c.team);
-  if(gameState.warCurrentTurn>=gameState.warTurnOrder.length) gameState.warCurrentTurn=0;
-  if(gameState.warTurnOrder.length===0) return;
+  if(gameState.warCurrentTurn>=gameState.warTurnOrder.length)gameState.warCurrentTurn=0;
+  if(gameState.warTurnOrder.length===0)return;
   const team=gameState.warTurnOrder[gameState.warCurrentTurn];
   gameState.warTurnSeconds=30;
   io.emit('warTurn',{team,seconds:30,turnIndex:gameState.warCurrentTurn,total:gameState.warTurnOrder.length});
-  addLog(`Tour de ${team}`,'event'); broadcast();
-  warTurnInterval=setInterval(()=>{ gameState.warTurnSeconds--; io.emit('warTurnTimer',{seconds:gameState.warTurnSeconds,team}); if(gameState.warTurnSeconds<=0){ clearInterval(warTurnInterval); addTeamNews(team,'⏰ Tour passé !','bad'); gameState.warCurrentTurn++; advanceWarTurn(); }},1000);
+  addLog(`Tour de ${team}`,'event');broadcast();
+  warTurnInterval=setInterval(()=>{if(gameState.gameOver){clearInterval(warTurnInterval);return;}gameState.warTurnSeconds--;io.emit('warTurnTimer',{seconds:gameState.warTurnSeconds,team});if(gameState.warTurnSeconds<=0){clearInterval(warTurnInterval);addTeamNews(team,'⏰ Tour passé !','bad');gameState.warCurrentTurn++;advanceWarTurn();}},1000);
 }
-function nextWarTurn(){ if(warTurnInterval){clearInterval(warTurnInterval);warTurnInterval=null;} gameState.warCurrentTurn++; advanceWarTurn(); }
+function nextWarTurn(){if(warTurnInterval){clearInterval(warTurnInterval);warTurnInterval=null;}gameState.warCurrentTurn++;advanceWarTurn();}
 
-io.on('connection', (socket) => {
-  socket.emit('state', gameState);
+io.on('connection',(socket)=>{
+  socket.emit('state',gameState);
   socket.emit('timer',{seconds:gameState.timerSeconds,running:gameState.timerRunning});
-  if(gameState.winner) socket.emit('winner',gameState.winner);
-  // Send pending alliance proposals for reconnecting clients
-  Object.entries(gameState.pendingAllianceProposals).forEach(([to, proposal]) => {
-    if(proposal) socket.emit('allianceProposal', proposal);
-  });
+  if(gameState.winners&&gameState.winners.length>0)socket.emit('winner',{winners:gameState.winners,type:gameState.winners.length>1?'alliance':'solo'});
+  Object.entries(gameState.pendingAllianceProposals).forEach(([to,p])=>{if(p)socket.emit('allianceProposal',p);});
 
-  socket.on('mj:startDraft', ()=>{
-    initCountries(); gameState.phase='draft'; gameState.currentPeriod=0;
-    gameState.coalition={proposed:false,moroccoAccepted:false,guineaAccepted:false,active:false};
-    gameState.teamActionsThisPeriod={}; gameState.alliances={}; gameState.pendingAllianceProposals={};
-    gameState.winner=null; gameState.isTutorial=false; gameState.nextHint=null;
-    gameState.periodSequence=generatePeriodSequence();
-    resetServerTimer(600); addLog('Draft démarré','event'); broadcast();
-  });
+  socket.on('mj:startDraft',()=>{initCountries();gameState.phase='draft';gameState.currentPeriod=0;gameState.coalition={proposed:false,moroccoAccepted:false,guineaAccepted:false,active:false};gameState.teamActionsThisPeriod={};gameState.lastActionByTeam={};gameState.alliances={};gameState.pendingAllianceProposals={};gameState.winner=null;gameState.winners=[];gameState.isTutorial=false;gameState.gameOver=false;gameState.nextHint=null;gameState.periodSequence=generateSequence();gameState.prices=generatePeriodPrices({});resetServerTimer(600);addLog('Draft démarré','event');broadcast();});
 
-  socket.on('mj:startTutorial', ()=>{
-    gameState.phase='prosperity'; gameState.currentPeriod=0; gameState.isTutorial=true;
-    gameState.teamActionsThisPeriod={};
-    // Save snapshot to restore after tutorial
-    gameState.tutorialResources={};
-    Object.values(gameState.countries).forEach(c=>{ if(c.team) gameState.tutorialResources[c.id]={...c}; });
-    const tutEv={ id:'tutorial', type:'market', title:'Manche Test', desc:TUTORIAL_PERIOD.desc, effect:'Explorez librement — ressources remises à zéro après', oilMultiplier:1, tourismMultiplier:1, agriMultiplier:1, baseMultiplier:1 };
-    gameState.currentEvent={ ...tutEv, periodName:TUTORIAL_PERIOD.name, periodSubtitle:TUTORIAL_PERIOD.subtitle, periodDesc:TUTORIAL_PERIOD.desc, periodNumber:0 };
-    gameState.nextHint=gameState.periodSequence[0]?.hint||null;
-    resetServerTimer(300); // 5 min tutorial
+  socket.on('mj:startTutorial',()=>{
+    gameState.phase='prosperity';gameState.currentPeriod=0;gameState.isTutorial=true;gameState.teamActionsThisPeriod={};gameState.tutorialSnapshot={};
+    Object.values(gameState.countries).forEach(c=>{if(c.team)gameState.tutorialSnapshot[c.id]={...c};});
+    const hint=gameState.periodSequence[0]?.hint||'Regardez bien les indices — ils vous donnent un avantage stratégique énorme !';
+    gameState.currentEvent={...TUTORIAL_EV,periodName:'Manche Test — Découverte',periodSubtitle:'Tutorial · Ressources remises à zéro après',periodDesc:'Bienvenue ! Cette manche ne compte pas. Explorez librement: achetez, vendez, essayez le bunker. Les ressources seront remises à zéro. 2 actions normales lors des vraies périodes.',periodNumber:0};
+    gameState.nextHint=hint;gameState.prices=generatePeriodPrices({});resetServerTimer(300);
     addLog('Manche Test démarrée (5 min)','event');
-    Object.values(gameState.countries).forEach(c=>{ if(c.team) addTeamNews(c.team,`🎮 MANCHE TEST — Explorez l'interface !\n${TUTORIAL_PERIOD.desc}\n\n🔮 Indice de la vraie période 1:\n${gameState.nextHint||''}`, 'neutral'); });
+    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`🎮 MANCHE TEST\nExplorez librement — tout sera remis à zéro !\n\n🔮 Indice de la vraie Période 1:\n${hint}`,'neutral');});
     broadcast();
   });
 
-  socket.on('mj:endTutorial', ()=>{
-    // Restore resources to initial values
-    Object.values(gameState.countries).forEach(c=>{
-      if(gameState.tutorialResources[c.id]){
-        const snap=gameState.tutorialResources[c.id];
-        c.oil=snap.oil; c.food=snap.food; c.tourism=snap.tourism; c.agriculture=snap.agriculture;
-        c.army=snap.army; c.treasury=snap.treasury; c.defense=false; c.combatBonus=0; c.power=calcPower(c);
-      }
-    });
-    gameState.isTutorial=false; gameState.teamActionsThisPeriod={};
+  socket.on('mj:endTutorial',()=>{
+    Object.values(gameState.countries).forEach(c=>{if(gameState.tutorialSnapshot[c.id]){const s=gameState.tutorialSnapshot[c.id];c.oil=s.oil;c.food=s.food;c.tourism=s.tourism;c.agriculture=s.agriculture;c.army=s.army;c.treasury=s.treasury;c.defense=false;c.combatBonus=0;c.power=calcPower(c);}});
+    gameState.isTutorial=false;gameState.teamActionsThisPeriod={};
     addLog('Manche Test terminée — ressources remises à zéro','event');
-    Object.values(gameState.countries).forEach(c=>{ if(c.team) addTeamNews(c.team,'✅ Manche test terminée ! Vos ressources ont été remises à zéro. La vraie partie commence !','neutral'); });
-    broadcast();
+    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,'✅ Tutorial terminé ! Ressources remises à zéro. La vraie partie commence !','neutral');});broadcast();
   });
 
-  socket.on('mj:startProsperity', ()=>{
-    gameState.phase='prosperity'; gameState.currentPeriod=1; gameState.currentEvent=null;
-    gameState.teamActionsThisPeriod={}; gameState.isTutorial=false;
-    const period=PERIODS[0];
-    const ev=gameState.periodSequence[0]||weightedRandom(EVENTS);
-    gameState.currentEvent={...ev,periodName:period.name,periodSubtitle:period.subtitle,periodDesc:period.desc,periodNumber:period.number};
-    if(ev.type==='market'||ev.type==='targeted') applyEvent(ev);
-    else if(ev.type==='choice'){ gameState.pendingChoiceEvent=ev; io.emit('choiceEvent',ev); }
-    // Next hint (period 2's event hint)
-    const nextEv=gameState.periodSequence[1];
-    gameState.nextHint=nextEv?.hint||null;
-    resetServerTimer(600);
-    addLog(`Période 1 — ${period.name} [${ev.type.toUpperCase()}]`,'event');
-    Object.values(gameState.countries).forEach(c=>{ if(c.team) addTeamNews(c.team,`📅 Période 1 — ${period.name}\n${period.desc}\n\n⚡ ${ev.title} [${ev.type==='choice'?'CHOIX — 60s !':ev.type}]: ${ev.effect}\n\n🔮 Indice période 2:\n${gameState.nextHint||'(aucun indice)'}`,'neutral'); });
-    broadcast();
-  });
-
-  socket.on('mj:nextPeriod', ()=>{
-    if(gameState.currentPeriod>=6) return;
-    applyPeriodTransition();
-    gameState.currentPeriod++;
-    const period=PERIODS[gameState.currentPeriod-1];
-    const ev=gameState.periodSequence[gameState.currentPeriod-1]||weightedRandom(EVENTS);
-    gameState.currentEvent={...ev,periodName:period.name,periodSubtitle:period.subtitle,periodDesc:period.desc,periodNumber:period.number};
+  socket.on('mj:startProsperity',()=>{
+    gameState.phase='prosperity';gameState.currentPeriod=1;gameState.isTutorial=false;gameState.teamActionsThisPeriod={};gameState.lastActionByTeam={};
+    const p=PERIODS[0];const ev=gameState.periodSequence[0]||weightedRandom(EVENTS);
+    gameState.currentEvent={...ev,periodName:p.name,periodSubtitle:p.subtitle,periodDesc:PERIOD_DESCS[0],periodNumber:1};
     gameState.pendingChoiceEvent=null;
-    if(ev.type==='market'||ev.type==='targeted') applyEvent(ev);
-    else if(ev.type==='choice'){ gameState.pendingChoiceEvent=ev; io.emit('choiceEvent',ev); }
-    const nextEv=gameState.periodSequence[gameState.currentPeriod]; // hint for N+1
-    gameState.nextHint=gameState.currentPeriod<6?(nextEv?.hint||null):'⚔️ La prochaine étape est la GUERRE. Gardez au moins 450 or pour attaquer (150 or/attaque).';
-    resetServerTimer(600);
-    addLog(`Période ${gameState.currentPeriod} — ${period.name} [${ev.type.toUpperCase()}]`,'event');
-    Object.values(gameState.countries).forEach(c=>{ if(c.team) addTeamNews(c.team,`📅 Période ${gameState.currentPeriod} — ${period.name}\n${period.desc}\n\n⚡ ${ev.title} [${ev.type==='choice'?'CHOIX — 60s !':ev.type}]: ${ev.effect}\n\n🔮 Indice ${gameState.currentPeriod<6?`période ${gameState.currentPeriod+1}`:'GUERRE'}:\n${gameState.nextHint||'(aucun indice)'}`,'neutral'); });
+    if(ev.type==='market'||ev.type==='targeted')applyEvent(ev);
+    else if(ev.type==='choice'){gameState.pendingChoiceEvent=ev;io.emit('choiceEvent',ev);}
+    const nev=gameState.periodSequence[1];gameState.nextHint=nev?.hint||null;
+    resetServerTimer(600);addLog(`Période 1 — ${p.name} [${ev.type.toUpperCase()}]`,'event');
+    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période 1 — ${p.name}\n${PERIOD_DESCS[0]}\n\n⚡ ${ev.title} [${ev.type==='choice'?'CHOIX — 60s !':ev.type}]: ${ev.effect}\n\n🔮 Indice Période 2:\n${gameState.nextHint||'(aucun indice)'}`, 'neutral');});
     broadcast();
   });
 
-  socket.on('mj:startWar', ()=>{
-    gameState.phase='war'; gameState.currentEvent=null; gameState.pendingChoiceEvent=null;
-    gameState.teamActionsThisPeriod={}; gameState.alliances={}; gameState.pendingAllianceProposals={};
+  socket.on('mj:nextPeriod',()=>{
+    if(gameState.currentPeriod>=6)return;
+    applyPeriodTransition();gameState.currentPeriod++;
+    const p=PERIODS[gameState.currentPeriod-1];const ev=gameState.periodSequence[gameState.currentPeriod-1]||weightedRandom(EVENTS);
+    gameState.currentEvent={...ev,periodName:p.name,periodSubtitle:p.subtitle,periodDesc:PERIOD_DESCS[gameState.currentPeriod-1],periodNumber:gameState.currentPeriod};
+    gameState.pendingChoiceEvent=null;
+    if(ev.type==='market'||ev.type==='targeted')applyEvent(ev);
+    else if(ev.type==='choice'){gameState.pendingChoiceEvent=ev;io.emit('choiceEvent',ev);}
+    const nev=gameState.periodSequence[gameState.currentPeriod];
+    gameState.nextHint=gameState.currentPeriod<6?(nev?.hint||null):'⚔️ La GUERRE commence après cette période. Gardez au moins 600 or pour attaquer (150 or/attaque). Bunker = −15% dégâts reçus (200 or).';
+    resetServerTimer(600);addLog(`Période ${gameState.currentPeriod} — ${p.name} [${ev.type.toUpperCase()}]`,'event');
+    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période ${gameState.currentPeriod} — ${p.name}\n${PERIOD_DESCS[gameState.currentPeriod-1]}\n\n⚡ ${ev.title} [${ev.type==='choice'?'CHOIX — 60s !':ev.type}]: ${ev.effect}\n\n🔮 Indice ${gameState.currentPeriod<6?`Période ${gameState.currentPeriod+1}`:'GUERRE'}:\n${gameState.nextHint||'(aucun indice)'}`,'neutral');});
+    broadcast();
+  });
+
+  socket.on('mj:startWar',()=>{
+    gameState.phase='war';gameState.currentEvent=null;gameState.pendingChoiceEvent=null;gameState.teamActionsThisPeriod={};gameState.lastActionByTeam={};gameState.alliances={};gameState.pendingAllianceProposals={};
     gameState.coalition={proposed:true,moroccoAccepted:false,guineaAccepted:false,active:false};
-    resetServerTimer(600);
-    addLog('⚔️ GUERRE MONDIALE DÉMARRÉE','attack');
-    if(gameState.countries.morocco?.team) addTeamNews(gameState.countries.morocco.team,'🤝 Coalition proposée avec la Guinée !','neutral');
-    if(gameState.countries.guinea?.team)  addTeamNews(gameState.countries.guinea.team,'🤝 Coalition proposée avec le Maroc !','neutral');
-    Object.values(gameState.countries).forEach(c=>{ if(c.team&&c.id!=='morocco'&&c.id!=='guinea') addTeamNews(c.team,'⚔️ GUERRE ! Aucun achat. Attendez votre tour. Attaque = 150 or (ou 200 pétrole/300 nourr).','bad'); });
-    broadcast();
-    setTimeout(()=>startWarTurn(),3000);
+    resetServerTimer(600);addLog('⚔️ GUERRE MONDIALE DÉMARRÉE','attack');
+    if(gameState.countries.morocco?.team)addTeamNews(gameState.countries.morocco.team,'🤝 Coalition proposée avec le Maroc/Guinée !','neutral');
+    if(gameState.countries.southafrica?.team)addTeamNews(gameState.countries.southafrica.team,'🤝 Coalition possible avec les pays africains !','neutral');
+    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,'⚔️ GUERRE ! Aucun achat. Attendez votre tour. Attaque = 150 or / 200 pétrole / 300 nourriture.','bad');});
+    broadcast();setTimeout(()=>startWarTurn(),3000);
   });
 
-  socket.on('mj:timerStart', ({seconds})=>startServerTimer(seconds||gameState.timerSeconds));
-  socket.on('mj:timerPause', ()=>pauseServerTimer());
-  socket.on('mj:timerReset', ({seconds})=>resetServerTimer(seconds));
-  socket.on('mj:nextWarTurn', ()=>nextWarTurn());
-  socket.on('mj:startWarTurns', ()=>startWarTurn());
+  socket.on('mj:timerStart',({seconds})=>startServerTimer(seconds||gameState.timerSeconds));
+  socket.on('mj:timerPause',()=>pauseServerTimer());
+  socket.on('mj:timerReset',({seconds})=>resetServerTimer(seconds));
+  socket.on('mj:nextWarTurn',()=>nextWarTurn());
+  socket.on('mj:startWarTurns',()=>startWarTurn());
 
-  socket.on('team:choiceResponse', ({teamName, choice})=>{
-    const ev=gameState.pendingChoiceEvent; if(!ev) return;
-    const team=gameState.teams[teamName]; if(!team||!team.country) return;
+  socket.on('team:choiceResponse',({teamName,choice})=>{
+    const ev=gameState.pendingChoiceEvent;if(!ev)return;
+    const team=gameState.teams[teamName];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
     const chosen=choice==='A'?ev.choiceA:ev.choiceB;
     if(chosen.cost){
-      if(chosen.cost.treasury&&c.treasury<chosen.cost.treasury){ socket.emit('error',`Pas assez d'or ! (${chosen.cost.treasury} requis)`); return; }
-      if(chosen.cost.oil&&c.oil<chosen.cost.oil){ socket.emit('error',`Pas assez de pétrole ! (${chosen.cost.oil} requis)`); return; }
-      if(chosen.cost.food&&c.food<chosen.cost.food){ socket.emit('error',`Pas assez de nourriture ! (${chosen.cost.food} requis)`); return; }
-      if(chosen.cost.treasury) c.treasury-=chosen.cost.treasury;
-      if(chosen.cost.oil)      c.oil     -=chosen.cost.oil;
-      if(chosen.cost.food)     c.food    -=chosen.cost.food;
+      if(chosen.cost.treasury&&c.treasury<chosen.cost.treasury){socket.emit('error',`Pas assez d'or ! (${chosen.cost.treasury} requis)`);return;}
+      if(chosen.cost.oil&&c.oil<chosen.cost.oil){socket.emit('error',`Pas assez de pétrole ! (${chosen.cost.oil} requis)`);return;}
+      if(chosen.cost.food&&c.food<chosen.cost.food){socket.emit('error',`Pas assez de nourriture ! (${chosen.cost.food} requis)`);return;}
+      if(chosen.cost.treasury)c.treasury-=chosen.cost.treasury;
+      if(chosen.cost.oil)c.oil-=chosen.cost.oil;
+      if(chosen.cost.food)c.food-=chosen.cost.food;
     }
     let msg='';
     if(chosen.gain){
-      if(chosen.gain.army){ c.army+=chosen.gain.army; msg+=`+${chosen.gain.army} armée `; }
-      if(chosen.gain.power){ c.power+=chosen.gain.power; msg+=`+${chosen.gain.power} pts `; }
-      if(chosen.gain.powerLoss){ c.power=Math.max(0,c.power-chosen.gain.powerLoss); msg+=`−${chosen.gain.powerLoss} pts `; }
-      if(chosen.gain.defense){ c.defense=true; msg+=`+bunker `; }
-      if(chosen.gain.combatBonus){ c.combatBonus=(c.combatBonus||0)+chosen.gain.combatBonus; msg+=`+${Math.round(chosen.gain.combatBonus*100)}% combat `; }
-      if(chosen.gain.gamble){ if(Math.random()<0.5){ c.power=Math.max(0,c.power-chosen.gain.powerLoss); msg+=`−${chosen.gain.powerLoss} pts (découvert !) `; } else msg+=`Non découvert `; }
+      if(chosen.gain.army){c.army+=chosen.gain.army;msg+=`+${chosen.gain.army} armée `;}
+      if(chosen.gain.power){c.power+=chosen.gain.power;msg+=`+${chosen.gain.power} pts `;}
+      if(chosen.gain.powerLoss){c.power=Math.max(0,c.power-chosen.gain.powerLoss);msg+=`−${chosen.gain.powerLoss} pts `;}
+      if(chosen.gain.defense){c.defense=true;msg+=`+bunker `;}
+      if(chosen.gain.combatBonus){c.combatBonus=(c.combatBonus||0)+chosen.gain.combatBonus;msg+=`+${Math.round(chosen.gain.combatBonus*100)}% combat `;}
+      if(chosen.gain.goldPenalty){const penalty=Math.round(c.treasury*chosen.gain.goldPenalty);c.treasury=Math.max(0,c.treasury-penalty);msg+=`−${penalty} or (pénalité) `;}
+      if(chosen.gain.gamble){
+        if(chosen.gain.goldLoss){if(Math.random()<0.5){const gL=chosen.gain.goldLoss;c.treasury=Math.max(0,c.treasury-gL);c.power=Math.max(0,c.power-(chosen.gain.powerLoss||0));msg+=`DÉCOUVERT: −${gL} or −${chosen.gain.powerLoss||0} pts `;}else{msg+=`Non découvert (chance !) `;}}
+        else{if(Math.random()<0.5){c.power=Math.max(0,c.power-(chosen.gain.powerLoss||0));msg+=`DÉCOUVERT: −${chosen.gain.powerLoss||0} pts `;}else{msg+=`Non découvert (chance !) `;}}
+      }
     }
     c.power=calcPower(c);
     addTeamNews(teamName,`✅ Choix "${chosen.label}": ${msg}`,'good');
-    addLog(`${c.flag} choisit: ${chosen.label}`,'event'); broadcast();
+    addLog(`${c.flag} choisit: ${chosen.label}`,'event');broadcast();
   });
 
-  // ALLIANCES — persistent proposal system
-  socket.on('team:proposeAlliance', ({fromTeam, toTeam, allianceType})=>{
-    if(gameState.phase!=='war'){ socket.emit('error','Alliances disponibles en guerre seulement !'); return; }
-    const cost=allianceType==='offensive'?100:0;
-    const team=gameState.teams[fromTeam]; if(!team||!team.country) return;
+  // UNDO last action
+  socket.on('team:undoAction',({teamName})=>{
+    if(gameState.phase==='war'){socket.emit('error','Impossible d\'annuler en phase de guerre !');return;}
+    const last=gameState.lastActionByTeam[teamName];if(!last){socket.emit('error','Aucune action à annuler !');return;}
+    const team=gameState.teams[teamName];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
-    if(cost>0&&c.treasury<cost){ socket.emit('error','Pas assez d\'or pour cette alliance !'); return; }
-    const proposal={from:fromTeam,to:toTeam,type:allianceType,cost,expires:Date.now()+30000};
+    // Reverse the action
+    c.treasury=last.treasury;c.oil=last.oil;c.food=last.food;c.tourism=last.tourism;c.agriculture=last.agriculture;c.army=last.army;c.power=calcPower(c);
+    const actions=gameState.teamActionsThisPeriod[teamName]||0;
+    if(actions>0)gameState.teamActionsThisPeriod[teamName]=actions-1;
+    gameState.lastActionByTeam[teamName]=null;
+    addTeamNews(teamName,'↩️ Dernière action annulée (Ctrl+Z)','neutral');
+    socket.emit('actionUndone');broadcast();
+  });
+
+  socket.on('team:proposeAlliance',({fromTeam,toTeam,allianceType})=>{
+    if(gameState.phase!=='war'){socket.emit('error','Alliances disponibles en guerre seulement !');return;}
+    const cost=allianceType==='offensive'?100:0;
+    const team=gameState.teams[fromTeam];if(!team||!team.country)return;
+    const c=gameState.countries[team.country];
+    const fromCountry=Object.values(gameState.countries).find(cc=>cc.team===fromTeam);
+    if(cost>0&&c.treasury<cost){socket.emit('error','Pas assez d\'or !');return;}
+    const proposal={from:fromTeam,fromCountry:fromCountry?{flag:fromCountry.flag,name:fromCountry.name}:null,to:toTeam,type:allianceType,cost,expires:Date.now()+30000};
     gameState.pendingAllianceProposals[toTeam]=proposal;
     io.emit('allianceProposal',proposal);
-    addTeamNews(toTeam,`🤝 Alliance proposée par ${fromTeam} (${allianceType==='offensive'?'offensive — +15% combat, 100 or':'non-agression — gratuite'}). Répondez dans votre onglet Attaquer !`,'neutral');
-    // Auto-expire after 30s
-    setTimeout(()=>{
-      if(gameState.pendingAllianceProposals[toTeam]===proposal){
-        delete gameState.pendingAllianceProposals[toTeam];
-        io.emit('allianceExpired',{to:toTeam});
-        addTeamNews(fromTeam,`❌ Alliance avec ${toTeam} — pas de réponse (expirée)`,'bad');
-      }
-    },30000);
+    const toCountry=Object.values(gameState.countries).find(cc=>cc.team===toTeam);
+    addTeamNews(toTeam,`🤝 ${fromCountry?.flag||''} ${fromCountry?.name||fromTeam} propose une alliance ${allianceType==='offensive'?'offensive (+15% combat, 100 or)':'de non-agression (gratuite)'}. Répondez rapidement !`,'neutral');
+    setTimeout(()=>{if(gameState.pendingAllianceProposals[toTeam]===proposal){delete gameState.pendingAllianceProposals[toTeam];io.emit('allianceExpired',{to:toTeam});addTeamNews(fromTeam,`❌ Alliance avec ${toCountry?.name||toTeam} — pas de réponse (expirée)`,'bad');}},30000);
   });
 
-  socket.on('team:respondAlliance', ({fromTeam, toTeam, accepted, allianceType})=>{
+  socket.on('team:respondAlliance',({fromTeam,toTeam,accepted,allianceType})=>{
     delete gameState.pendingAllianceProposals[toTeam];
-    if(!accepted){ addTeamNews(fromTeam,`❌ Alliance refusée par ${toTeam}`,'bad'); io.emit('allianceExpired',{to:toTeam}); broadcast(); return; }
+    const fromCountry=Object.values(gameState.countries).find(c=>c.team===fromTeam);
+    const toCountry=Object.values(gameState.countries).find(c=>c.team===toTeam);
+    if(!accepted){addTeamNews(fromTeam,`❌ Alliance refusée par ${toCountry?.flag||''} ${toCountry?.name||toTeam}`,'bad');io.emit('allianceExpired',{to:toTeam});broadcast();return;}
     const cost=allianceType==='offensive'?100:0;
-    const propTeam=gameState.teams[fromTeam];
-    if(propTeam&&propTeam.country){ const pc=gameState.countries[propTeam.country]; if(cost>0) pc.treasury=Math.max(0,pc.treasury-cost); }
-    const turnIndex=gameState.warCurrentTurn;
-    gameState.alliances[fromTeam]={type:allianceType,with:toTeam,expires:turnIndex+gameState.warTurnOrder.length};
-    gameState.alliances[toTeam]  ={type:allianceType,with:fromTeam,expires:turnIndex+gameState.warTurnOrder.length};
-    addTeamNews(fromTeam,`✅ Alliance ${allianceType} avec ${toTeam} — 1 tour !`,'good');
-    addTeamNews(toTeam,`✅ Alliance ${allianceType} avec ${fromTeam} — 1 tour !`,'good');
-    addLog(`🤝 Alliance ${allianceType}: ${fromTeam} & ${toTeam}`,'event'); broadcast();
+    const propTeam=gameState.teams[fromTeam];if(propTeam&&propTeam.country){const pc=gameState.countries[propTeam.country];if(cost>0)pc.treasury=Math.max(0,pc.treasury-cost);}
+    const turnIdx=gameState.warCurrentTurn;
+    gameState.alliances[fromTeam]={type:allianceType,with:toTeam,withCountryName:toCountry?.name||toTeam,withCountryFlag:toCountry?.flag||'',expires:turnIdx+gameState.warTurnOrder.length};
+    gameState.alliances[toTeam]={type:allianceType,with:fromTeam,withCountryName:fromCountry?.name||fromTeam,withCountryFlag:fromCountry?.flag||'',expires:turnIdx+gameState.warTurnOrder.length};
+    addTeamNews(fromTeam,`✅ Alliance ${allianceType} avec ${toCountry?.flag||''} ${toCountry?.name||toTeam} — 1 tour !`,'good');
+    addTeamNews(toTeam,`✅ Alliance ${allianceType} avec ${fromCountry?.flag||''} ${fromCountry?.name||fromTeam} — 1 tour !`,'good');
+    addLog(`🤝 Alliance ${allianceType}: ${fromCountry?.flag||''} ${fromCountry?.name||fromTeam} & ${toCountry?.flag||''} ${toCountry?.name||toTeam}`,'event');
+    broadcast();checkWinner();
   });
 
-  socket.on('team:acceptCoalition', ({teamName})=>{
-    const c=Object.values(gameState.countries).find(c=>c.team===teamName); if(!c) return;
-    if(c.id==='morocco') gameState.coalition.moroccoAccepted=true;
-    if(c.id==='guinea')  gameState.coalition.guineaAccepted=true;
+  socket.on('team:acceptCoalition',({teamName})=>{
+    const c=Object.values(gameState.countries).find(c=>c.team===teamName);if(!c)return;
+    if(c.id==='morocco')gameState.coalition.moroccoAccepted=true;
+    if(c.id==='southafrica')gameState.coalition.guineaAccepted=true;
     if(gameState.coalition.moroccoAccepted&&gameState.coalition.guineaAccepted){
       gameState.coalition.active=true;
-      const morocco=gameState.countries.morocco, guinea=gameState.countries.guinea;
-      const bG=Math.round(guinea.treasury*0.25),bO=Math.round(guinea.oil*0.25),bF=Math.round(guinea.food*0.25),bA=Math.round(guinea.army*0.25);
-      morocco.treasury+=bG; morocco.oil+=bO; morocco.food+=bF; morocco.army+=bA; morocco.power=calcPower(morocco); guinea.power=calcPower(guinea);
-      addLog('🤝 Coalition Maroc-Guinée: +25% ressources !','event');
-      addTeamNews(morocco.team,`✅ Coalition ! Bonus: +${bG} or, +${bO} pétrole, +${bF} nourr, +${bA} armée`,'good');
-      addTeamNews(guinea.team,'✅ Coalition active ! Combattez avec le Maroc.','good');
-    } else addTeamNews(teamName,"✅ Accepté — en attente...",'neutral');
+      const m=gameState.countries.morocco,s=gameState.countries.southafrica;
+      if(m&&s){const bG=Math.round(s.treasury*0.25),bO=Math.round(s.oil*0.25),bF=Math.round(s.food*0.25),bA=Math.round(s.army*0.25);m.treasury+=bG;m.oil+=bO;m.food+=bF;m.army+=bA;m.power=calcPower(m);s.power=calcPower(s);addLog('🤝 Coalition Maroc-Afrique du Sud: +25% ressources !','event');}
+    }else addTeamNews(teamName,"✅ Accepté — en attente...",'neutral');
     broadcast();
   });
-  socket.on('team:refuseCoalition', ({teamName})=>{ gameState.coalition.proposed=false; addTeamNews(gameState.countries.morocco?.team,'❌ Coalition refusée.','bad'); addTeamNews(gameState.countries.guinea?.team,'❌ Coalition refusée.','bad'); broadcast(); });
+  socket.on('team:refuseCoalition',({teamName})=>{gameState.coalition.proposed=false;broadcast();});
 
-  socket.on('team:declareAttack', ({teamName, targetId, payWith})=>{
-    if(gameState.phase!=='war'){ socket.emit('error',"La guerre n'a pas commencé !"); return; }
-    if(gameState.warTurnOrder[gameState.warCurrentTurn]!==teamName){ socket.emit('error',"Ce n'est pas votre tour !"); return; }
-    const team=gameState.teams[teamName]; if(!team||!team.country) return;
-    const att=gameState.countries[team.country]; const def=gameState.countries[targetId];
-    if(!att||!def||att.eliminated||def.eliminated) return;
+  socket.on('team:declareAttack',({teamName,targetId,payWith})=>{
+    if(gameState.phase!=='war'){socket.emit('error',"Pas encore en guerre !");return;}
+    if(gameState.gameOver){socket.emit('error','La partie est terminée !');return;}
+    if(gameState.warTurnOrder[gameState.warCurrentTurn]!==teamName){socket.emit('error',"Ce n'est pas votre tour !");return;}
+    const team=gameState.teams[teamName];if(!team||!team.country)return;
+    const att=gameState.countries[team.country];const def=gameState.countries[targetId];
+    if(!att||!def||att.eliminated||def.eliminated)return;
     const myAlliance=gameState.alliances[teamName];
-    if(myAlliance&&myAlliance.type==='peace'&&myAlliance.with===def.team){ socket.emit('error','Pacte de non-agression actif — attaque impossible !'); return; }
-    const costs={gold:150,oil:200,food:300}; const pr=payWith||'gold';
-    const cost=costs[pr]||150; const rk=pr==='gold'?'treasury':pr;
-    if(att[rk]<cost){ socket.emit('error',`Pas assez de ${pr==='gold'?'or':pr} ! (${cost} requis)`); return; }
-    att[rk]-=cost; att.power=calcPower(att);
-    if(myAlliance&&myAlliance.type==='offensive') att.combatBonus=(att.combatBonus||0)+0.15;
+    if(myAlliance&&myAlliance.type==='peace'&&myAlliance.with===def.team){socket.emit('error','Pacte de non-agression actif — attaque impossible !');return;}
+    const costs={gold:150,oil:200,food:300};const pr=payWith||'gold';
+    const cost=costs[pr]||150;const rk=pr==='gold'?'treasury':pr;
+    if(att[rk]<cost){socket.emit('error',`Pas assez de ${pr==='gold'?'or':pr} ! (${cost} requis)`);return;}
+    att[rk]-=cost;att.power=calcPower(att);
+    if(myAlliance&&myAlliance.type==='offensive')att.combatBonus=(att.combatBonus||0)+0.15;
     const result=resolveCombat(att,def);
     const lA=Math.round(att.army*(result.attackerWins?0.12:0.28));
     const lD=Math.round(def.army*(result.attackerWins?0.35:0.10));
     if(result.attackerWins){
-      att.treasury+=def.treasury; att.oil+=def.oil; att.food+=def.food; att.army+=def.army;
-      att.tourism+=Math.round(def.tourism*0.5); att.agriculture+=Math.round(def.agriculture*0.5);
-      att.army=Math.max(0,att.army-lA); def.treasury=0; def.oil=0; def.food=0; def.army=0; def.tourism=0; def.agriculture=0;
-      att.power=calcPower(att); def.power=calcPower(def);
+      att.treasury+=def.treasury;att.oil+=def.oil;att.food+=def.food;att.army+=def.army;
+      att.tourism+=Math.round(def.tourism*0.5);att.agriculture+=Math.round(def.agriculture*0.5);
+      att.army=Math.max(0,att.army-lA);
+      def.treasury=0;def.oil=0;def.food=0;def.army=0;def.tourism=0;def.agriculture=0;
+      att.power=calcPower(att);def.power=calcPower(def);
       addLog(`💥 ${att.flag} écrase ${def.flag} ! (${result.scoreAtt} vs ${result.scoreDef})`,'attack');
-      addTeamNews(att.team,`🏆 VICTOIRE vs ${def.flag} ! Toutes ressources pillées. −${lA} armée`,'good');
-      addTeamNews(def.team,`💀 DÉFAITE vs ${att.flag} — tout pillé. −${lD} armée`,'bad');
+      addTeamNews(att.team,`🏆 VICTOIRE vs ${def.flag} ${def.name} ! Toutes ressources pillées. −${lA} armée`,'good');
+      addTeamNews(def.team,`💀 DÉFAITE vs ${att.flag} ${att.name} — tout pillé. −${lD} armée`,'bad');
       io.emit('attackAnimation',{attackerId:att.id,defenderId:def.id,success:true,scoreAtt:result.scoreAtt,scoreDef:result.scoreDef});
-      if(def.army<=0&&def.treasury<=0){ def.eliminated=true; addLog(`☠️ ${def.flag} éliminé !`,'eliminated'); addTeamNews(def.team,'☠️ Nation anéantie.','bad'); if(gameState.coalition.active&&(def.id==='morocco'||def.id==='guinea')){ gameState.countries.morocco.eliminated=true; gameState.countries.guinea.eliminated=true; } }
-    } else {
-      const gL=Math.round(att.treasury*0.35); att.treasury=Math.max(0,att.treasury-gL);
-      att.army=Math.max(0,att.army-lA); def.army=Math.max(0,def.army-lD);
-      att.power=calcPower(att); def.power=calcPower(def);
+      if(def.army<=0&&def.treasury<=0){def.eliminated=true;addLog(`☠️ ${def.flag} ${def.name} éliminé !`,'eliminated');addTeamNews(def.team,'☠️ Nation anéantie.','bad');}
+    }else{
+      const gL=Math.round(att.treasury*0.35);att.treasury=Math.max(0,att.treasury-gL);
+      att.army=Math.max(0,att.army-lA);def.army=Math.max(0,def.army-lD);
+      att.power=calcPower(att);def.power=calcPower(def);
       addLog(`🛡️ ${def.flag} repousse ${att.flag} ! (${result.scoreAtt} vs ${result.scoreDef})`,'attack');
-      addTeamNews(att.team,`❌ Échec vs ${def.flag} — −${gL} or, −${lA} armée`,'bad');
-      addTeamNews(def.team,`🛡️ Repoussé ${att.flag} ! −${lD} armée pertes défensives`,'good');
+      addTeamNews(att.team,`❌ Échec vs ${def.flag} ${def.name} — −${gL} or, −${lA} armée`,'bad');
+      addTeamNews(def.team,`🛡️ Repoussé ${att.flag} ! −${lD} armée défensives`,'good');
       io.emit('attackAnimation',{attackerId:att.id,defenderId:def.id,success:false,scoreAtt:result.scoreAtt,scoreDef:result.scoreDef});
     }
     delete gameState.alliances[teamName];
-    broadcast(); checkWinner();
-    setTimeout(()=>nextWarTurn(),2000);
+    broadcast();checkWinner();
+    if(!gameState.gameOver)setTimeout(()=>nextWarTurn(),2000);
   });
 
-  socket.on('team:skipTurn', ({teamName})=>{ if(gameState.warTurnOrder[gameState.warCurrentTurn]!==teamName) return; addTeamNews(teamName,'Tour passé.','neutral'); nextWarTurn(); broadcast(); });
+  socket.on('team:skipTurn',({teamName})=>{if(gameState.warTurnOrder[gameState.warCurrentTurn]!==teamName)return;addTeamNews(teamName,'Tour passé.','neutral');nextWarTurn();broadcast();});
 
-  socket.on('team:buyResource', ({teamName, resource, qty})=>{
-    if(gameState.phase==='war'){ socket.emit('error','Aucun achat en guerre !'); return; }
-    const team=gameState.teams[teamName]; if(!team||!team.country) return;
+  socket.on('team:buyResource',({teamName,resource,qty})=>{
+    if(gameState.phase==='war'){socket.emit('error','Aucun achat en guerre !');return;}
+    const team=gameState.teams[teamName];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
-    if(!gameState.isTutorial){
-      const actions=gameState.teamActionsThisPeriod[teamName]||0;
-      if(actions>=2){ socket.emit('error','2 actions déjà utilisées cette période !'); return; }
-      if(resource==='oil'&&(gameState.eventMod.blockOilBelowPower||0)>0&&c.power<gameState.eventMod.blockOilBelowPower){ socket.emit('error',`Achat pétrole bloqué (boom actif) !`); return; }
-    }
-    const price=gameState.prices[resource]||80; const total=price*qty;
-    if(c.treasury<total){ socket.emit('error',"Pas assez d'or !"); return; }
-    c.treasury-=total; c[resource]+=qty; c.power=calcPower(c);
-    if(!gameState.isTutorial) gameState.teamActionsThisPeriod[teamName]=(gameState.teamActionsThisPeriod[teamName]||0)+1;
+    if(!gameState.isTutorial){const actions=gameState.teamActionsThisPeriod[teamName]||0;if(actions>=2){socket.emit('error','2 actions déjà utilisées !');return;}}
+    if(resource==='oil'&&!gameState.isTutorial&&(gameState.eventMod.blockOilBelowPower||0)>0&&c.power<gameState.eventMod.blockOilBelowPower){socket.emit('error',`Achat pétrole bloqué (boom actif) !`);return;}
+    const price=gameState.prices[resource]||80;const total=price*qty;
+    if(c.treasury<total){socket.emit('error',"Pas assez d'or !");return;}
+    // Save snapshot for undo
+    gameState.lastActionByTeam[teamName]={treasury:c.treasury,oil:c.oil,food:c.food,tourism:c.tourism,agriculture:c.agriculture,army:c.army};
+    c.treasury-=total;c[resource]+=qty;c.power=calcPower(c);
+    if(!gameState.isTutorial)gameState.teamActionsThisPeriod[teamName]=(gameState.teamActionsThisPeriod[teamName]||0)+1;
     addTeamNews(teamName,`✅ Achat: +${qty} ${resource} pour ${total} or${gameState.isTutorial?' (tutorial)':''}`,'good');
-    broadcast();
+    socket.emit('actionFeedback',{type:'buy',resource,qty,total});broadcast();
   });
 
-  socket.on('team:sellResource', ({teamName, resource, qty})=>{
-    if(gameState.phase==='war'){ socket.emit('error','Aucune vente en guerre !'); return; }
-    const team=gameState.teams[teamName]; if(!team||!team.country) return;
+  socket.on('team:sellResource',({teamName,resource,qty})=>{
+    if(gameState.phase==='war'){socket.emit('error','Aucune vente en guerre !');return;}
+    const team=gameState.teams[teamName];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
-    if(c[resource]<qty){ socket.emit('error','Stock insuffisant !'); return; }
-    const price=gameState.prices[resource]||80; const total=price*qty;
-    c[resource]-=qty; c.treasury+=total; c.power=calcPower(c);
-    addTeamNews(teamName,`💰 Vente: −${qty} ${resource} → +${total} or`,'good'); broadcast();
+    if(c[resource]<qty){socket.emit('error','Stock insuffisant !');return;}
+    const price=gameState.prices[resource]||80;const total=price*qty;
+    gameState.lastActionByTeam[teamName]={treasury:c.treasury,oil:c.oil,food:c.food,tourism:c.tourism,agriculture:c.agriculture,army:c.army};
+    c[resource]-=qty;c.treasury+=total;c.power=calcPower(c);
+    addTeamNews(teamName,`💰 Vente: −${qty} ${resource} → +${total} or`,'good');
+    socket.emit('actionFeedback',{type:'sell',resource,qty,total});broadcast();
   });
 
-  socket.on('team:recruitArmy', ({teamName, qty, type})=>{
-    if(gameState.phase==='war'){ socket.emit('error','Aucun recrutement en guerre !'); return; }
-    const team=gameState.teams[teamName]; if(!team||!team.country) return;
+  socket.on('team:recruitArmy',({teamName,qty,type})=>{
+    if(gameState.phase==='war'){socket.emit('error','Aucun recrutement en guerre !');return;}
+    const team=gameState.teams[teamName];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
-    if(!gameState.isTutorial){
-      const actions=gameState.teamActionsThisPeriod[teamName]||0;
-      if(actions>=2){ socket.emit('error','2 actions déjà utilisées !'); return; }
-    }
-    const costPer=type==='tech'?300:150; const powerPer=type==='tech'?50:20;
-    const cost=Math.round(costPer*qty); if(c.treasury<cost){ socket.emit('error',"Pas assez d'or !"); return; }
-    c.treasury-=cost; if(type!=='tech') c.army+=qty; c.power+=qty*powerPer;
-    if(!gameState.isTutorial) gameState.teamActionsThisPeriod[teamName]=(gameState.teamActionsThisPeriod[teamName]||0)+1;
-    addTeamNews(teamName,`✅ Recrutement: +${qty*powerPer} pts pour ${cost} or${gameState.isTutorial?' (tutorial)':''}`,'good'); broadcast();
+    if(!gameState.isTutorial){const actions=gameState.teamActionsThisPeriod[teamName]||0;if(actions>=2){socket.emit('error','2 actions déjà utilisées !');return;}}
+    const costPer=type==='tech'?300:150;const powerPer=type==='tech'?50:20;const armyPer=type==='tech'?0:1;
+    const cost=Math.round(costPer*qty);if(c.treasury<cost){socket.emit('error',"Pas assez d'or !");return;}
+    gameState.lastActionByTeam[teamName]={treasury:c.treasury,oil:c.oil,food:c.food,tourism:c.tourism,agriculture:c.agriculture,army:c.army};
+    c.treasury-=cost;c.army+=qty*armyPer;c.power=calcPower(c);
+    // Also boost power directly for tech
+    if(type==='tech')c.power+=qty*powerPer;
+    if(!gameState.isTutorial)gameState.teamActionsThisPeriod[teamName]=(gameState.teamActionsThisPeriod[teamName]||0)+1;
+    addTeamNews(teamName,`✅ Recrutement: +${qty*armyPer} armée / +${qty*powerPer} pts pour ${cost} or${gameState.isTutorial?' (tutorial)':''}`,'good');
+    socket.emit('actionFeedback',{type:'army',qty:qty*armyPer,power:qty*powerPer,total:cost});broadcast();
   });
 
-  socket.on('team:buyDefense', ({teamName})=>{
-    if(gameState.phase==='war'){ socket.emit('error','Aucun achat en guerre !'); return; }
-    const team=gameState.teams[teamName]; if(!team||!team.country) return;
+  socket.on('team:buyDefense',({teamName})=>{
+    if(gameState.phase==='war'){socket.emit('error','Aucun achat en guerre !');return;}
+    const team=gameState.teams[teamName];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
-    if(!gameState.isTutorial){ const actions=gameState.teamActionsThisPeriod[teamName]||0; if(actions>=2){ socket.emit('error','2 actions déjà utilisées !'); return; } }
-    if(c.treasury<200){ socket.emit('error',"Pas assez d'or !"); return; }
-    c.treasury-=200; c.defense=true;
-    if(!gameState.isTutorial) gameState.teamActionsThisPeriod[teamName]=(gameState.teamActionsThisPeriod[teamName]||0)+1;
-    addTeamNews(teamName,'🛡️ Bunker activé !','good'); io.emit('defenseActivated',{countryId:c.id,teamName}); broadcast();
+    if(!gameState.isTutorial){const actions=gameState.teamActionsThisPeriod[teamName]||0;if(actions>=2){socket.emit('error','2 actions déjà utilisées !');return;}}
+    if(c.treasury<200){socket.emit('error',"Pas assez d'or !");return;}
+    gameState.lastActionByTeam[teamName]={treasury:c.treasury,oil:c.oil,food:c.food,tourism:c.tourism,agriculture:c.agriculture,army:c.army};
+    c.treasury-=200;c.defense=true;c.power=calcPower(c);
+    if(!gameState.isTutorial)gameState.teamActionsThisPeriod[teamName]=(gameState.teamActionsThisPeriod[teamName]||0)+1;
+    addTeamNews(teamName,'🛡️ Bunker activé ! (−15% dégâts reçus)','good');
+    io.emit('defenseActivated',{countryId:c.id,teamName});
+    socket.emit('actionFeedback',{type:'defense',total:200});broadcast();
   });
 
-  socket.on('mj:eliminate', ({countryId})=>{ const c=gameState.countries[countryId]; if(!c) return; c.eliminated=true; if(gameState.coalition.active&&(countryId==='morocco'||countryId==='guinea')){ gameState.countries.morocco.eliminated=true; gameState.countries.guinea.eliminated=true; } addLog(`☠️ ${c.flag} éliminé !`,'eliminated'); addTeamNews(c.team,'Votre nation a été conquise.','bad'); broadcast(); checkWinner(); });
-  socket.on('mj:bonus', ({countryId, amount})=>{ const c=gameState.countries[countryId]; if(!c) return; c.treasury+=amount; c.power=calcPower(c); addLog(`${amount>0?'+':''}${amount} or → ${c.flag}`,amount>0?'economy':'attack'); broadcast(); });
-  socket.on('mj:reset', ()=>{ if(timerInterval)clearInterval(timerInterval); if(warTurnInterval)clearInterval(warTurnInterval); timerInterval=null; warTurnInterval=null; gameState={ phase:'setup', currentPeriod:0, currentEvent:null, nextHint:null, periodSequence:[], countries:{}, takenCountries:{}, teams:{}, prices:{oil:80,food:40,tourism:120,agriculture:60}, eventMod:{oilMultiplier:1,tourismMultiplier:1,agriMultiplier:1,baseMultiplier:1,blockOilBelowPower:0,peace:false}, coalition:{proposed:false,moroccoAccepted:false,guineaAccepted:false,active:false}, alliances:{}, pendingAllianceProposals:{}, log:[], timerSeconds:600, timerRunning:false, warTurnOrder:[], warCurrentTurn:0, warTurnSeconds:30, teamActionsThisPeriod:{}, pendingChoiceEvent:null, winner:null, isTutorial:false, tutorialResources:{} }; broadcast(); io.emit('timer',{seconds:600,running:false}); });
-  socket.on('team:join', ({teamName})=>{ if(!gameState.teams[teamName]) gameState.teams[teamName]={country:null,news:[]}; broadcast(); });
-  socket.on('team:draftCountry', ({teamName, countryId})=>{ if(gameState.takenCountries[countryId]){ socket.emit('error','Déjà pris !'); return; } gameState.takenCountries[countryId]=teamName; gameState.teams[teamName].country=countryId; gameState.countries[countryId].team=teamName; addLog(`${gameState.countries[countryId].flag} ${gameState.countries[countryId].name} → ${teamName}`,'event'); broadcast(); });
+  socket.on('mj:eliminate',({countryId})=>{const c=gameState.countries[countryId];if(!c)return;c.eliminated=true;addLog(`☠️ ${c.flag} éliminé !`,'eliminated');addTeamNews(c.team,'Votre nation a été conquise.','bad');broadcast();checkWinner();});
+  socket.on('mj:bonus',({countryId,amount})=>{const c=gameState.countries[countryId];if(!c)return;c.treasury+=amount;c.power=calcPower(c);addLog(`${amount>0?'+':''}${amount} or → ${c.flag}`,amount>0?'economy':'attack');broadcast();});
+  socket.on('mj:reset',()=>{if(timerInterval)clearInterval(timerInterval);if(warTurnInterval)clearInterval(warTurnInterval);timerInterval=null;warTurnInterval=null;gameState={phase:'setup',currentPeriod:0,currentEvent:null,nextHint:null,periodSequence:[],countries:{},takenCountries:{},teams:{},prices:{oil:80,food:40,tourism:120,agriculture:60},eventMod:{oilMultiplier:1,tourismMultiplier:1,agriMultiplier:1,baseMultiplier:1,blockOilBelowPower:0},coalition:{proposed:false,moroccoAccepted:false,guineaAccepted:false,active:false},alliances:{},pendingAllianceProposals:{},log:[],timerSeconds:600,timerRunning:false,warTurnOrder:[],warCurrentTurn:0,warTurnSeconds:30,teamActionsThisPeriod:{},lastActionByTeam:{},pendingChoiceEvent:null,winner:null,winners:[],isTutorial:false,tutorialSnapshot:{},gameOver:false};broadcast();io.emit('timer',{seconds:600,running:false});});
+  socket.on('team:join',({teamName})=>{if(!gameState.teams[teamName])gameState.teams[teamName]={country:null,news:[]};broadcast();});
+  socket.on('team:draftCountry',({teamName,countryId})=>{if(gameState.takenCountries[countryId]){socket.emit('error','Déjà pris !');return;}gameState.takenCountries[countryId]=teamName;gameState.teams[teamName].country=countryId;gameState.countries[countryId].team=teamName;addLog(`${gameState.countries[countryId].flag} ${gameState.countries[countryId].name} → ${teamName}`,'event');broadcast();});
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Geopolitica running on port ${PORT}`));
+const PORT=process.env.PORT||3000;
+server.listen(PORT,()=>console.log(`Geopolitica running on port ${PORT}`));
