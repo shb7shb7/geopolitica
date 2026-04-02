@@ -11,110 +11,115 @@
 :root{--bg:#050709;--bg2:#0a0c10;--bg3:#111520;--border:#1e2640;--gold:#c9a84c;--red:#c0392b;--green:#1a7a4a;--text:#d4d8e8;--text2:#8892b0}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width:100vw;height:100vh;overflow:hidden}
 
-/* CINEMATIC OVERLAY */
+/* CINEMATIC */
 #cinematic{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column}
 #cinematic.active{display:flex}
-.cin-bg{position:absolute;inset:0;background:#000}
-.cin-bars-top{position:absolute;top:0;left:0;right:0;height:80px;background:#000;z-index:1}
-.cin-bars-bot{position:absolute;bottom:0;left:0;right:0;height:80px;background:#000;z-index:1}
-.cin-content{position:relative;z-index:2;text-align:center;padding:0 10%;animation:cinIn 1s ease-out}
-@keyframes cinIn{0%{opacity:0;transform:scale(1.05)}100%{opacity:1;transform:scale(1)}}
-.cin-overline{font-size:11px;letter-spacing:6px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;font-family:'Cinzel',serif}
-.cin-title{font-size:clamp(36px,5vw,72px);font-weight:900;color:#fff;font-family:'Cinzel',serif;line-height:1.1;margin-bottom:16px;text-shadow:0 0 60px rgba(255,255,255,.15)}
-.cin-subtitle{font-size:clamp(13px,1.5vw,18px);color:rgba(255,255,255,.6);line-height:1.7;max-width:700px;margin:0 auto 28px}
-.cin-effect{display:inline-block;font-size:14px;padding:8px 24px;border:1px solid rgba(201,168,76,.5);border-radius:2px;color:var(--gold);letter-spacing:2px;margin-bottom:32px}
-.cin-skip{font-size:11px;color:rgba(255,255,255,.3);letter-spacing:2px;cursor:pointer;text-transform:uppercase;position:absolute;bottom:100px;right:40px;z-index:3;border:1px solid rgba(255,255,255,.1);padding:8px 18px;border-radius:2px;transition:all .2s}
-.cin-skip:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+.cin-bg{position:absolute;inset:0}
+.cin-bars-t{position:absolute;top:0;left:0;right:0;height:72px;background:#000;z-index:1}
+.cin-bars-b{position:absolute;bottom:0;left:0;right:0;height:72px;background:#000;z-index:1}
+.cin-content{position:relative;z-index:2;text-align:center;padding:0 8%;animation:cinIn .8s ease-out}
+@keyframes cinIn{0%{opacity:0;transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
+.cin-overline{font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;font-family:'Cinzel',serif}
+.cin-title{font-size:clamp(32px,5vw,68px);font-weight:900;color:#fff;font-family:'Cinzel',serif;line-height:1.1;margin-bottom:14px;text-shadow:0 0 60px rgba(255,255,255,.12)}
+.cin-subtitle{font-size:clamp(12px,1.4vw,17px);color:rgba(255,255,255,.55);line-height:1.7;max-width:680px;margin:0 auto 24px}
+.cin-effect{display:inline-block;font-size:13px;padding:7px 22px;border:1px solid rgba(201,168,76,.5);border-radius:2px;color:var(--gold);letter-spacing:2px;margin-bottom:28px}
+.cin-skip{font-size:10px;color:rgba(255,255,255,.25);letter-spacing:2px;cursor:pointer;text-transform:uppercase;position:absolute;bottom:88px;right:36px;z-index:3;border:1px solid rgba(255,255,255,.08);padding:7px 16px;border-radius:2px;transition:all .2s}
+.cin-skip:hover{color:#fff;border-color:rgba(255,255,255,.35)}
 .cin-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .cin-particle{position:absolute;width:2px;height:2px;background:var(--gold);border-radius:50%;animation:floatUp linear infinite;opacity:0}
-@keyframes floatUp{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:.6}90%{opacity:.2}100%{transform:translateY(-20px) translateX(var(--drift));opacity:0}}
-.cin-line{position:absolute;width:1px;background:linear-gradient(180deg,transparent,var(--gold),transparent);animation:scanLine 3s ease-in-out infinite;opacity:.3}
-@keyframes scanLine{0%,100%{transform:translateY(-100%);opacity:0}50%{opacity:.4}60%{transform:translateY(100vh);opacity:0}}
+@keyframes floatUp{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:.5}90%{opacity:.15}100%{transform:translateY(-20px) translateX(var(--drift));opacity:0}}
+.cin-war .cin-bg{background:radial-gradient(ellipse at center,#1a0205,#000) !important}
+.cin-war .cin-title{color:#f87171 !important;text-shadow:0 0 80px rgba(192,57,43,.5) !important}
+.cin-war .cin-overline,.cin-war .cin-effect{color:#f87171 !important;border-color:rgba(248,113,113,.4) !important}
+.cin-war .cin-particle{background:#f87171 !important}
 
-/* WAR CINEMATIC EXTRAS */
-.cin-war-bg{background:radial-gradient(ellipse at center,#1a0205 0%,#000 70%)}
-.cin-war-title{color:#f87171!important;text-shadow:0 0 80px rgba(192,57,43,.6)!important}
-.cin-war-overline{color:#f87171!important}
-.cin-war-effect{border-color:rgba(248,113,113,.5)!important;color:#f87171!important}
-
-/* VIEWS */
 .view{display:none;width:100vw;height:100vh;flex-direction:column}.view.active{display:flex}
 
 /* WAITING */
 #view-waiting{align-items:center;justify-content:center;gap:2rem;background:radial-gradient(ellipse at center,#0d1424,#050709)}
-.wait-logo{font-size:clamp(48px,8vw,96px);color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-3px;text-shadow:0 0 80px rgba(201,168,76,.2)}
-.wait-sub{font-size:12px;color:var(--text2);letter-spacing:5px;text-transform:uppercase}
-.pulse-ring{width:120px;height:120px;border:1px solid rgba(201,168,76,.3);border-radius:50%;animation:rp 3s ease-in-out infinite}
-@keyframes rp{0%,100%{transform:scale(1);opacity:.2}50%{transform:scale(1.4);opacity:.7}}
+.wait-logo{font-size:clamp(44px,8vw,92px);color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-3px;text-shadow:0 0 80px rgba(201,168,76,.2)}
+.wait-sub{font-size:11px;color:var(--text2);letter-spacing:5px;text-transform:uppercase}
+.pulse-ring{width:110px;height:110px;border:1px solid rgba(201,168,76,.25);border-radius:50%;animation:rp 3s ease-in-out infinite}
+@keyframes rp{0%,100%{transform:scale(1);opacity:.2}50%{transform:scale(1.4);opacity:.65}}
+
+/* WINNER VIEW */
+#view-winner{align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;background:radial-gradient(ellipse at center,#1a1204,#050709)}
+.winner-confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.confetti-piece{position:absolute;width:10px;height:10px;animation:fall linear infinite}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.winner-flag{font-size:clamp(60px,12vw,120px);animation:winflag 2s ease-in-out infinite}
+@keyframes winflag{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.winner-title{font-size:clamp(28px,5vw,60px);font-weight:900;color:var(--gold);font-family:'Cinzel',serif;text-align:center;text-shadow:0 0 40px rgba(201,168,76,.4)}
+.winner-sub{font-size:clamp(12px,1.5vw,18px);color:var(--text2);letter-spacing:3px;text-transform:uppercase}
+.winner-stats{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.winner-stat{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:6px;padding:12px 20px;text-align:center}
+.winner-stat-label{font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.winner-stat-val{font-size:22px;font-weight:700;font-family:'Cinzel',serif;color:var(--gold)}
+.winner-lb{margin-top:16px;width:100%;max-width:500px}
 
 /* PROSPERITY */
 #view-prosperity{background:radial-gradient(ellipse at 20% 20%,#0d1424,#050709)}
-.pros-header{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;border-bottom:1px solid var(--border);flex-shrink:0}
-.screen-logo{font-size:22px;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-1px}
-.per-badge{font-size:10px;padding:5px 16px;border:1px solid var(--gold);color:var(--gold);border-radius:2px;letter-spacing:3px;text-transform:uppercase}
-.pros-body{flex:1;display:grid;grid-template-columns:1fr 360px;overflow:hidden;padding:20px 28px;gap:24px}
-
-/* EVENT CARD */
-.ev-card{background:linear-gradient(135deg,rgba(13,20,36,.9),rgba(22,27,40,.9));border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:28px 32px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:14px}
+.pros-header{display:flex;align-items:center;justify-content:space-between;padding:13px 28px;border-bottom:1px solid var(--border);flex-shrink:0}
+.screen-logo{font-size:20px;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-1px}
+.per-badge{font-size:10px;padding:4px 14px;border:1px solid var(--gold);color:var(--gold);border-radius:2px;letter-spacing:3px;text-transform:uppercase}
+.pros-body{flex:1;display:grid;grid-template-columns:1fr 350px;overflow:hidden;padding:18px 24px;gap:20px}
+.ev-card{background:linear-gradient(135deg,rgba(13,20,36,.9),rgba(22,27,40,.9));border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:24px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px}
 .ev-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.ev-card::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top right,rgba(201,168,76,.05),transparent 60%);pointer-events:none}
-.ev-period{font-size:10px;color:var(--gold);letter-spacing:4px;text-transform:uppercase;font-family:'Cinzel',serif}
-.ev-name{font-size:clamp(24px,3vw,40px);font-weight:700;color:#fff;font-family:'Cinzel',serif;line-height:1.15}
-.ev-desc{font-size:14px;color:rgba(212,216,232,.8);line-height:1.8}
-.ev-effect{display:inline-block;font-size:12px;padding:7px 18px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);border-radius:2px;color:var(--gold);letter-spacing:1px}
-
-/* TIMER BLOCK */
-.timer-block{display:flex;align-items:center;gap:16px;padding:14px 20px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);border-radius:6px;margin-top:auto}
-.timer-val{font-size:clamp(40px,5vw,64px);font-weight:700;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-2px;font-variant-numeric:tabular-nums;transition:color .3s}
+.ev-type-pill{font-size:10px;padding:3px 10px;border-radius:2px;font-weight:700;letter-spacing:2px;text-transform:uppercase;display:inline-block;margin-bottom:4px}
+.ev-type-market{background:rgba(26,122,74,.2);color:#4ade80;border:1px solid var(--green)}
+.ev-type-choice{background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.4)}
+.ev-type-targeted{background:rgba(192,57,43,.2);color:#f87171;border:1px solid var(--red)}
+.ev-period{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif}
+.ev-name{font-size:clamp(22px,3vw,38px);font-weight:700;color:#fff;font-family:'Cinzel',serif;line-height:1.15}
+.ev-desc{font-size:13px;color:rgba(212,216,232,.8);line-height:1.8}
+.ev-effect{display:inline-block;font-size:11px;padding:6px 16px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);border-radius:2px;color:var(--gold);letter-spacing:1px}
+.timer-block{display:flex;align-items:center;gap:14px;padding:12px 18px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.15);border-radius:6px;margin-top:auto}
+.timer-val{font-size:clamp(36px,5vw,60px);font-weight:700;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-2px;font-variant-numeric:tabular-nums}
 .timer-val.urgent{color:#f87171;animation:tpulse 1s infinite}
 @keyframes tpulse{0%,100%{opacity:1}50%{opacity:.4}}
-.timer-label{font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;line-height:1.6}
-
-/* LEADERBOARD */
-.lb-panel{display:flex;flex-direction:column;gap:8px}
-.lb-head{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);font-family:'Cinzel',serif;margin-bottom:6px}
-.lb-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:4px;background:rgba(17,21,32,.8);border:1px solid var(--border);transition:all .4s}
+.timer-bar-wrap{flex:1;height:3px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden}
+.timer-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),#e8c97a);transition:width 1s linear}
+.lb-panel{display:flex;flex-direction:column;gap:7px}
+.lb-head{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);font-family:'Cinzel',serif;margin-bottom:4px}
+.lb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:4px;background:rgba(17,21,32,.8);border:1px solid var(--border);transition:all .4s}
 .lb-item.first{background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(201,168,76,.06));border-color:rgba(201,168,76,.4)}
-.lb-pos{font-size:13px;font-weight:700;min-width:24px;color:var(--text2);font-family:'Cinzel',serif}
+.lb-pos{font-size:12px;font-weight:700;min-width:20px;color:var(--text2);font-family:'Cinzel',serif}
 .lb-item.first .lb-pos{color:var(--gold)}
-.lb-fl{font-size:24px}
+.lb-fl{font-size:22px}
 .lb-info{flex:1}
 .lb-nm{font-size:13px;font-weight:600;color:#fff;font-family:'Cinzel',serif}
-.lb-team{font-size:10px;color:var(--text2);margin-top:1px}
-.lb-pw{font-size:13px;color:var(--text2);font-family:'Cinzel',serif;white-space:nowrap}
-.lb-bw{width:100%;height:2px;background:rgba(255,255,255,.05);margin-top:6px;border-radius:1px}
+.lb-team-label{font-size:9px;color:var(--text2);margin-top:1px}
+.lb-pw{font-size:12px;color:var(--text2);font-family:'Cinzel',serif;white-space:nowrap}
+.lb-bw{width:100%;height:2px;background:rgba(255,255,255,.05);margin-top:5px;border-radius:1px}
 .lb-bf{height:100%;border-radius:1px;transition:width .6s ease}
 .bfh{background:linear-gradient(90deg,#1a7a4a,#4ade80)}.bfm{background:linear-gradient(90deg,#854d0e,#ca8a04)}.bfl{background:linear-gradient(90deg,#7f1d1d,#f87171)}
 
 /* WAR VIEW */
 #view-war{background:#03010a}
-.war-header{display:flex;align-items:center;justify-content:space-between;padding:12px 28px;border-bottom:1px solid #1a0408;flex-shrink:0}
-.war-logo{font-size:20px;color:#f87171;font-family:'Cinzel',serif;letter-spacing:3px}
-.war-timer-wrap{display:flex;align-items:center;gap:10px;padding:8px 18px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.25);border-radius:4px}
-.war-timer-val{font-size:clamp(28px,3.5vw,44px);font-weight:700;color:#f87171;font-family:'Cinzel',serif;letter-spacing:-1px;font-variant-numeric:tabular-nums}
-.war-timer-val.urgent{animation:tpulse 1s infinite}
-.war-body{flex:1;display:grid;grid-template-columns:1fr 280px;overflow:hidden;padding:16px 20px;gap:16px}
+.war-header{display:flex;align-items:center;justify-content:space-between;padding:11px 24px;border-bottom:1px solid #1a0408;flex-shrink:0}
+.war-logo{font-size:18px;color:#f87171;font-family:'Cinzel',serif;letter-spacing:3px}
+.war-timer-wrap{display:flex;align-items:center;gap:8px;padding:7px 16px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.25);border-radius:4px}
+.war-timer{font-size:clamp(26px,3.5vw,42px);font-weight:700;color:#f87171;font-family:'Cinzel',serif;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.war-timer.urgent{animation:tpulse 1s infinite}
+.war-body{flex:1;display:grid;grid-template-columns:1fr 260px;overflow:hidden;padding:14px 18px;gap:14px}
 .map-wrap{display:flex;flex-direction:column;gap:10px}
-#world-map{flex:1;border:1px solid #1a0408;border-radius:6px;min-height:0}
-.war-nations{display:flex;flex-direction:column;gap:6px;overflow-y:auto}
-.wn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:4px;border:1px solid #1a0408;background:#080108;transition:all .4s;position:relative;overflow:hidden}
+
+/* WORLD MAP — beautiful SVG */
+#world-map{flex:1;border:1px solid #1a0408;border-radius:8px;background:#03010a;min-height:0}
+.war-nations{display:flex;flex-direction:column;gap:5px;overflow-y:auto}
+.wn{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:4px;border:1px solid #1a0408;background:#070108;transition:all .4s;position:relative}
 .wn.elim{opacity:.2;filter:grayscale(1)}
-.wn.elim::after{content:'CONQUIS';position:absolute;right:10px;font-size:9px;letter-spacing:2px;color:#f87171;font-family:'Cinzel',serif}
-.wn-flag{font-size:20px}
-.wn-body{flex:1}
-.wn-top{display:flex;justify-content:space-between;align-items:center}
-.wn-name{font-size:12px;font-weight:600;color:#fff;font-family:'Cinzel',serif}
-.wn-pts{font-size:11px;color:#f87171;font-family:'Cinzel',serif}
-.wbw{width:100%;height:2px;background:#1a0408;margin-top:4px;border-radius:1px}
+.wn.elim::after{content:'CONQUIS';position:absolute;right:9px;font-size:9px;letter-spacing:2px;color:#f87171;font-family:'Cinzel',serif}
+.wn-flag{font-size:19px}
+.wn-name{flex:1;font-size:11px;font-weight:600;color:#fff;font-family:'Cinzel',serif}
+.wn-pts{font-size:10px;color:#f87171;font-family:'Cinzel',serif}
+.wbw{width:100%;height:2px;background:#1a0408;margin-top:3px;border-radius:1px}
 .wbf{height:100%;background:linear-gradient(90deg,#7f1d1d,#f87171);transition:width .5s}
 
 /* BATTLE POPUP */
-.battle-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:2px solid var(--gold);border-radius:10px;padding:36px 52px;z-index:300;text-align:center;display:none;min-width:420px}
+.battle-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:2px solid var(--gold);border-radius:10px;padding:32px 48px;z-index:300;text-align:center;display:none;min-width:400px}
 .battle-popup.show{display:block;animation:bpop .5s cubic-bezier(.34,1.56,.64,1)}
 @keyframes bpop{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
-.battle-popup.war-popup{border-color:var(--red)}
-
-/* ATTACK FLASH */
 .anim-flash{position:fixed;inset:0;pointer-events:none;z-index:250}
 .anim-flash.flash{animation:warflash 2s ease-out forwards}
 @keyframes warflash{0%{background:rgba(192,57,43,0)}8%{background:rgba(192,57,43,.75)}25%{background:rgba(192,57,43,.4)}100%{background:rgba(192,57,43,0)}}
@@ -124,14 +129,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 
 <div class="anim-flash" id="anim-flash"></div>
 
-<!-- CINEMATIC OVERLAY -->
+<!-- CINEMATIC -->
 <div id="cinematic">
-  <div class="cin-bg" id="cin-bg"></div>
+  <div class="cin-bg" id="cin-bg" style="background:radial-gradient(ellipse at center,#0a1628,#000)"></div>
   <div class="cin-particles" id="cin-particles"></div>
-  <div class="cin-line" style="left:20%;height:100vh;animation-delay:0s"></div>
-  <div class="cin-line" style="left:80%;height:100vh;animation-delay:1.5s"></div>
-  <div class="cin-bars-top"></div>
-  <div class="cin-bars-bot"></div>
+  <div class="cin-bars-t"></div>
+  <div class="cin-bars-b"></div>
   <div class="cin-content" id="cin-content">
     <div class="cin-overline" id="cin-overline"></div>
     <div class="cin-title" id="cin-title"></div>
@@ -143,10 +146,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 
 <!-- BATTLE POPUP -->
 <div class="battle-popup" id="battle-popup">
-  <div id="bp-icon" style="font-size:56px;margin-bottom:12px"></div>
-  <div id="bp-title" style="font-size:24px;font-weight:700;font-family:'Cinzel',serif;margin-bottom:8px;color:#fff"></div>
-  <div id="bp-flags" style="font-size:42px;margin-bottom:12px"></div>
-  <div id="bp-scores" style="font-size:14px;color:var(--text2);line-height:2"></div>
+  <div id="bp-icon" style="font-size:52px;margin-bottom:10px"></div>
+  <div id="bp-title" style="font-size:22px;font-weight:700;font-family:'Cinzel',serif;margin-bottom:8px;color:#fff"></div>
+  <div id="bp-flags" style="font-size:40px;margin-bottom:10px"></div>
+  <div id="bp-scores" style="font-size:13px;color:var(--text2);line-height:2"></div>
 </div>
 
 <!-- WAITING -->
@@ -156,33 +159,44 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
   <div class="wait-sub">En attente du début de la partie</div>
 </div>
 
+<!-- WINNER -->
+<div id="view-winner" class="view">
+  <div class="winner-confetti" id="winner-confetti"></div>
+  <div class="winner-flag" id="winner-flag">🏳️</div>
+  <div class="winner-title" id="winner-title">Vainqueur</div>
+  <div class="winner-sub">remporte Geopolitica</div>
+  <div class="winner-stats" id="winner-stats"></div>
+  <div class="winner-lb" id="winner-lb"></div>
+</div>
+
 <!-- PROSPERITY -->
 <div id="view-prosperity" class="view">
   <div class="pros-header">
     <div class="screen-logo">Geopolitica</div>
     <div class="per-badge" id="sc-per-badge">Période 1/6</div>
-    <div style="font-size:11px;color:var(--text2);letter-spacing:1px" id="sc-nations">0 nations</div>
+    <div style="font-size:11px;color:var(--text2)" id="sc-nations">0 nations</div>
   </div>
   <div class="pros-body">
-    <div style="display:flex;flex-direction:column;gap:16px;min-height:0">
+    <div style="display:flex;flex-direction:column;gap:14px;min-height:0">
       <div class="ev-card" style="flex:1">
-        <div class="ev-period" id="sc-ev-period">Période 1</div>
+        <div>
+          <div class="ev-type-pill ev-type-market" id="sc-ev-type">MARCHÉ</div>
+          <div class="ev-period" id="sc-ev-period">Période 1</div>
+        </div>
         <div class="ev-name" id="sc-ev-name">—</div>
         <div class="ev-desc" id="sc-ev-desc"></div>
         <div class="ev-effect" id="sc-ev-effect"></div>
       </div>
       <div class="timer-block">
         <div>
-          <div class="timer-label">Temps restant</div>
+          <div style="font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px">Temps restant</div>
           <div class="timer-val" id="sc-timer">10:00</div>
         </div>
-        <div style="flex:1;height:2px;background:rgba(201,168,76,.1);border-radius:1px;overflow:hidden">
-          <div id="sc-timer-bar" style="height:100%;background:linear-gradient(90deg,var(--gold),#e8c97a);width:100%;transition:width 1s linear"></div>
-        </div>
+        <div class="timer-bar-wrap"><div class="timer-bar-fill" id="sc-timer-bar" style="width:100%"></div></div>
       </div>
     </div>
     <div class="lb-panel">
-      <div class="lb-head">Classement des nations</div>
+      <div class="lb-head">Classement</div>
       <div id="sc-lb"></div>
     </div>
   </div>
@@ -192,28 +206,62 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 <div id="view-war" class="view">
   <div class="war-header">
     <div class="war-logo">⚔️ Guerre Mondiale</div>
-    <div class="war-timer-wrap">
-      <div class="war-timer-val" id="war-timer">10:00</div>
-    </div>
-    <div style="font-size:11px;color:#f87171;letter-spacing:2px;text-transform:uppercase" id="war-alive">0 nations actives</div>
+    <div class="war-timer-wrap"><div class="war-timer" id="war-timer">10:00</div></div>
+    <div style="font-size:11px;color:#f87171;letter-spacing:2px;text-transform:uppercase" id="war-alive">0 nations</div>
   </div>
   <div class="war-body">
     <div class="map-wrap">
-      <svg id="world-map" viewBox="0 0 800 370" preserveAspectRatio="xMidYMid meet" style="width:100%;flex:1">
-        <rect width="800" height="370" fill="#03010a" rx="6"/>
-        <g stroke="#120208" stroke-width="0.5" fill="none">
-          <line x1="0" y1="123" x2="800" y2="123"/><line x1="0" y1="185" x2="800" y2="185"/>
-          <line x1="0" y1="247" x2="800" y2="247"/><line x1="200" y1="0" x2="200" y2="370"/>
-          <line x1="400" y1="0" x2="400" y2="370"/><line x1="600" y1="0" x2="600" y2="370"/>
+      <!-- BEAUTIFUL WORLD MAP with real continent shapes -->
+      <svg id="world-map" viewBox="0 0 900 480" preserveAspectRatio="xMidYMid meet" style="width:100%;flex:1">
+        <defs>
+          <radialGradient id="mapGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#0a0204" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#050009" stop-opacity="1"/>
+          </radialGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="3" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <!-- Ocean background -->
+        <rect width="900" height="480" fill="#03010a" rx="8"/>
+        <!-- Grid lines (latitude/longitude) -->
+        <g stroke="#0f0318" stroke-width="0.5" fill="none" opacity="0.6">
+          <line x1="0" y1="120" x2="900" y2="120"/><line x1="0" y1="200" x2="900" y2="200"/>
+          <line x1="0" y1="280" x2="900" y2="280"/><line x1="0" y1="360" x2="900" y2="360"/>
+          <line x1="180" y1="0" x2="180" y2="480"/><line x1="360" y1="0" x2="360" y2="480"/>
+          <line x1="540" y1="0" x2="540" y2="480"/><line x1="720" y1="0" x2="720" y2="480"/>
         </g>
-        <g fill="#090109" stroke="#160412" stroke-width="1">
-          <ellipse cx="148" cy="148" rx="108" ry="77"/>
-          <ellipse cx="198" cy="288" rx="58" ry="78"/>
-          <ellipse cx="378" cy="115" rx="60" ry="46"/>
-          <ellipse cx="388" cy="268" rx="78" ry="88"/>
-          <ellipse cx="588" cy="148" rx="138" ry="96"/>
-          <ellipse cx="658" cy="308" rx="68" ry="46"/>
-        </g>
+        <!-- NORTH AMERICA -->
+        <path d="M40,60 L80,50 L130,55 L170,70 L200,90 L220,130 L210,160 L190,180 L170,200 L150,210 L130,240 L120,260 L100,270 L80,260 L60,240 L45,220 L30,190 L25,160 L30,130 L35,100 Z" fill="#0a0208" stroke="#1a0410" stroke-width="1.5"/>
+        <!-- CENTRAL AMERICA / CARIBBEAN -->
+        <path d="M150,260 L180,265 L200,275 L195,290 L175,295 L155,285 Z" fill="#0a0208" stroke="#1a0410" stroke-width="1"/>
+        <!-- SOUTH AMERICA -->
+        <path d="M160,300 L200,290 L240,300 L270,320 L280,360 L275,400 L260,440 L240,460 L210,455 L185,435 L165,400 L155,360 L155,330 Z" fill="#0a0208" stroke="#1a0410" stroke-width="1.5"/>
+        <!-- EUROPE -->
+        <path d="M360,60 L390,55 L420,60 L440,75 L445,95 L435,110 L415,115 L395,110 L375,100 L360,85 Z" fill="#0a0208" stroke="#1a0410" stroke-width="1.5"/>
+        <!-- SCANDINAVIA -->
+        <path d="M390,30 L410,25 L420,40 L415,55 L400,60 L385,55 L382,40 Z" fill="#080107" stroke="#1a0410" stroke-width="1"/>
+        <!-- AFRICA -->
+        <path d="M370,130 L420,120 L460,130 L480,160 L490,200 L485,250 L475,300 L460,340 L440,370 L415,380 L385,375 L360,355 L345,320 L340,280 L345,240 L355,200 L360,165 Z" fill="#0a0208" stroke="#1a0410" stroke-width="1.5"/>
+        <!-- MIDDLE EAST / ARABIAN PENINSULA -->
+        <path d="M490,140 L530,135 L555,145 L560,170 L545,185 L520,188 L498,175 Z" fill="#0a0208" stroke="#1a0410" stroke-width="1"/>
+        <!-- RUSSIA / EURASIA -->
+        <path d="M440,30 L530,20 L640,25 L720,30 L780,40 L800,60 L790,85 L760,95 L720,90 L680,85 L640,90 L600,95 L560,90 L520,80 L490,75 L460,70 L440,55 Z" fill="#0a0208" stroke="#1a0410" stroke-width="1.5"/>
+        <!-- CENTRAL / SOUTH ASIA -->
+        <path d="M560,95 L640,90 L680,100 L700,130 L690,160 L660,175 L625,170 L595,155 L570,135 L558,115 Z" fill="#0a0208" stroke="#1a0410" stroke-width="1.5"/>
+        <!-- SOUTHEAST ASIA -->
+        <path d="M700,140 L750,135 L780,150 L790,175 L775,195 L745,195 L718,180 L705,160 Z" fill="#0a0208" stroke="#1a0410" stroke-width="1"/>
+        <!-- CHINA -->
+        <path d="M680,85 L750,80 L790,90 L800,115 L790,140 L755,150 L715,145 L685,130 L670,110 L672,92 Z" fill="#0a0208" stroke="#1a0410" stroke-width="1.5"/>
+        <!-- JAPAN -->
+        <path d="M820,85 L835,80 L845,92 L838,105 L822,108 L815,96 Z" fill="#080107" stroke="#1a0410" stroke-width="1"/>
+        <!-- AUSTRALIA -->
+        <path d="M730,320 L790,310 L840,320 L860,350 L855,390 L835,415 L800,420 L760,410 L730,385 L720,355 Z" fill="#0a0208" stroke="#1a0410" stroke-width="1.5"/>
+        <!-- INDONESIA -->
+        <path d="M735,225 L765,220 L790,228 L795,242 L775,248 L748,244 Z" fill="#080107" stroke="#1a0410" stroke-width="1"/>
+        <!-- INDIAN SUBCONTINENT -->
+        <path d="M600,165 L640,160 L660,175 L655,210 L640,235 L618,240 L598,225 L590,195 L592,175 Z" fill="#0a0208" stroke="#1a0410" stroke-width="1.5"/>
+        <!-- Vignette -->
+        <rect width="900" height="480" fill="url(#mapGlow)" rx="8"/>
+        <!-- Country markers layer -->
         <g id="map-countries"></g>
         <g id="map-anims"></g>
       </svg>
@@ -223,129 +271,114 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 </div>
 
 <script>
-const socket = io();
+const socket=io();
 let state={}, timerSec=600, timerTotal=600, lastPhase=null, lastPeriod=0;
 
+// Accurate map positions for each country
 const MAP_POS={
-  usa:{x:128,y:148},china:{x:618,y:142},russia:{x:558,y:90},
-  germany:{x:382,y:106},qatar:{x:478,y:185},france:{x:358,y:116},
-  brazil:{x:202,y:286},india:{x:558,y:192},morocco:{x:346,y:202},guinea:{x:322,y:240},
+  usa:    {x:120, y:155, label:'NW'},
+  china:  {x:720, y:118, label:'NE'},
+  russia: {x:600, y:58,  label:'NE'},
+  germany:{x:408, y:82,  label:'NE'},
+  qatar:  {x:528, y:158, label:'NE'},
+  france: {x:390, y:90,  label:'NW'},
+  brazil: {x:210, y:370, label:'NE'},
+  india:  {x:625, y:200, label:'NE'},
+  morocco:{x:378, y:155, label:'NW'},
+  guinea: {x:355, y:195, label:'NW'},
 };
-const COLORS={
+
+const COUNTRY_COLORS={
   usa:'#3b82f6',china:'#ef4444',russia:'#8b5cf6',germany:'#f59e0b',
   qatar:'#06b6d4',france:'#ec4899',brazil:'#22c55e',india:'#f97316',
   morocco:'#84cc16',guinea:'#14b8a6',
 };
 
-// Period cinematic configs
-const PERIOD_THEMES = [
-  { overline:'Période 1 · Janvier — Juin · An 1', bg:'radial-gradient(ellipse at center,#0a1628,#000)', accent:'#c9a84c' },
-  { overline:'Période 2 · Juillet — Déc · An 1',  bg:'radial-gradient(ellipse at center,#0e1a10,#000)', accent:'#c9a84c' },
-  { overline:'Période 3 · Janvier — Juin · An 2',  bg:'radial-gradient(ellipse at center,#1a0808,#000)', accent:'#f87171' },
-  { overline:'Période 4 · Juillet — Déc · An 2',   bg:'radial-gradient(ellipse at center,#0e0a1a,#000)', accent:'#8b5cf6' },
-  { overline:'Période 5 · Janvier — Juin · An 3',  bg:'radial-gradient(ellipse at center,#1a0e00,#000)', accent:'#f59e0b' },
-  { overline:'Période 6 · Juillet — Déc · An 3',   bg:'radial-gradient(ellipse at center,#1a0208,#000)', accent:'#f87171' },
+const PERIOD_THEMES=[
+  {overline:'Période 1 · Janvier — Juin · An 1',bg:'radial-gradient(ellipse at center,#0a1628,#000)',war:false},
+  {overline:'Période 2 · Juillet — Déc · An 1', bg:'radial-gradient(ellipse at center,#0e1a10,#000)',war:false},
+  {overline:'Période 3 · Janvier — Juin · An 2', bg:'radial-gradient(ellipse at center,#1a0808,#000)',war:false},
+  {overline:'Période 4 · Juillet — Déc · An 2',  bg:'radial-gradient(ellipse at center,#0e0a1a,#000)',war:false},
+  {overline:'Période 5 · Janvier — Juin · An 3', bg:'radial-gradient(ellipse at center,#1a0e00,#000)',war:false},
+  {overline:'Période 6 · Juillet — Déc · An 3',  bg:'radial-gradient(ellipse at center,#1a0208,#000)',war:false},
 ];
 
-socket.on('state', s => { const prev=state; state=s; onUpdate(prev); });
-socket.on('timer', ({seconds,running,ended}) => {
-  timerSec=seconds;
-  updateTimers();
-  if(ended) onTimerEnd();
-});
-socket.on('attackAnimation', ({attackerId,defenderId,success,scoreAtt,scoreDef}) => {
-  showBattle(attackerId,defenderId,success,scoreAtt,scoreDef);
-});
+socket.on('state', s=>{const prev=state;state=s;onUpdate(prev);});
+socket.on('timer', ({seconds,running,ended})=>{timerSec=seconds;updateTimers();if(ended)flashTimerEnd();});
+socket.on('attackAnimation', ({attackerId,defenderId,success,scoreAtt,scoreDef})=>showBattle(attackerId,defenderId,success,scoreAtt,scoreDef));
+socket.on('winner', w=>showWinner(w));
 
-function showView(id){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
-function showCinematic(opts, duration) {
-  const cin = document.getElementById('cinematic');
-  const bg = document.getElementById('cin-bg');
-  const content = document.getElementById('cin-content');
-  bg.style.background = opts.bg || 'radial-gradient(ellipse at center,#0a1628,#000)';
-  document.getElementById('cin-overline').textContent = opts.overline || '';
-  document.getElementById('cin-overline').className = 'cin-overline' + (opts.war ? ' cin-war-overline' : '');
-  document.getElementById('cin-title').textContent = opts.title || '';
-  document.getElementById('cin-title').className = 'cin-title' + (opts.war ? ' cin-war-title' : '');
-  document.getElementById('cin-subtitle').textContent = opts.subtitle || '';
-  document.getElementById('cin-effect').textContent = opts.effect || '';
-  document.getElementById('cin-effect').className = 'cin-effect' + (opts.war ? ' cin-war-effect' : '');
-  // Generate particles
-  const pp = document.getElementById('cin-particles'); pp.innerHTML = '';
-  for(let i=0;i<30;i++){
-    const p=document.createElement('div'); p.className='cin-particle';
-    const drift = (Math.random()-0.5)*200;
-    p.style.cssText=`left:${Math.random()*100}%;animation-duration:${3+Math.random()*4}s;animation-delay:${Math.random()*3}s;--drift:${drift}px;${opts.war?'background:#f87171':''}`;
-    pp.appendChild(p);
-  }
-  cin.classList.add('active');
-  if(duration) setTimeout(hideCinematic, duration);
+function showCinematic(opts, dur){
+  const cin=document.getElementById('cinematic');
+  document.getElementById('cin-bg').style.background=opts.bg||'radial-gradient(ellipse at center,#0a1628,#000)';
+  document.getElementById('cin-overline').textContent=opts.overline||'';
+  document.getElementById('cin-title').textContent=opts.title||'';
+  document.getElementById('cin-subtitle').textContent=opts.subtitle||'';
+  document.getElementById('cin-effect').textContent=opts.effect||'';
+  cin.className=opts.war?'active cin-war':'active';
+  // Particles
+  const pp=document.getElementById('cin-particles');pp.innerHTML='';
+  for(let i=0;i<25;i++){const p=document.createElement('div');p.className='cin-particle';const drift=(Math.random()-0.5)*180;p.style.cssText=`left:${Math.random()*100}%;animation-duration:${3+Math.random()*4}s;animation-delay:${Math.random()*3}s;--drift:${drift}px;${opts.war?'background:#f87171':''}`;pp.appendChild(p);}
+  if(dur)setTimeout(hideCinematic,dur);
 }
-
-function hideCinematic(){
-  document.getElementById('cinematic').classList.remove('active');
-}
+function hideCinematic(){const c=document.getElementById('cinematic');c.className='';c.style.display='none';setTimeout(()=>{c.style.display='';},50);}
 
 function updateTimers(){
-  const m=Math.floor(timerSec/60), s=timerSec%60;
+  const m=Math.floor(timerSec/60),s=timerSec%60;
   const fmt=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   const urgent=timerSec<60;
-  ['sc-timer','war-timer'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.textContent=fmt; el.className=(id==='sc-timer'?'timer-val':'war-timer-val')+(urgent?' urgent':''); }});
-  const bar=document.getElementById('sc-timer-bar');
-  if(bar) bar.style.width=Math.max(0,timerSec/timerTotal*100)+'%';
+  ['sc-timer','war-timer'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=fmt;el.className=(id==='sc-timer'?'timer-val':'war-timer')+(urgent?' urgent':'');}});
+  const bar=document.getElementById('sc-timer-bar');if(bar)bar.style.width=Math.max(0,timerSec/timerTotal*100)+'%';
 }
 
-function onTimerEnd(){
-  ['sc-timer','war-timer'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.color='#f87171'; setTimeout(()=>{ if(el) el.style.color=''; },4000); });
-}
+function flashTimerEnd(){['sc-timer','war-timer'].forEach(id=>{const el=document.getElementById(id);if(el){const orig=el.style.color;el.style.color='#f87171';setTimeout(()=>{el.style.color=orig;},4000);}});}
 
 function showBattle(attId,defId,success,scoreAtt,scoreDef){
-  const fl=document.getElementById('anim-flash');
-  fl.className='anim-flash flash'; setTimeout(()=>fl.className='anim-flash',2000);
-  const att=state.countries&&state.countries[attId];
-  const def=state.countries&&state.countries[defId];
-  if(!att||!def) return;
-  const popup=document.getElementById('battle-popup');
-  popup.className='battle-popup war-popup show';
+  const fl=document.getElementById('anim-flash');fl.className='anim-flash flash';setTimeout(()=>fl.className='anim-flash',2000);
+  const att=state.countries&&state.countries[attId];const def=state.countries&&state.countries[defId];if(!att||!def)return;
+  const p=document.getElementById('battle-popup');
+  p.className='battle-popup show';
   document.getElementById('bp-icon').textContent=success?'💥':'🛡️';
   document.getElementById('bp-title').textContent=success?'Victoire écrasante !':'Attaque repoussée !';
   document.getElementById('bp-flags').textContent=att.flag+' ⚔️ '+def.flag;
-  document.getElementById('bp-scores').innerHTML=`<span style="color:${success?'#4ade80':'#f87171'}">${att.flag} ${att.name}: ${scoreAtt} pts</span><br><span style="color:${success?'#f87171':'#4ade80'}">${def.flag} ${def.name}: ${scoreDef} pts</span><br><br><span style="color:var(--gold)">${success?'🏴 Toutes les ressources pillées !':'🛡️ La défense a tenu !'}</span>`;
-  setTimeout(()=>popup.classList.remove('show'),9000);
+  document.getElementById('bp-scores').innerHTML=`<span style="color:${success?'#4ade80':'#f87171'}">${att.flag} ${att.name}: ${scoreAtt.toLocaleString()} pts</span><br><span style="color:${success?'#f87171':'#4ade80'}">${def.flag} ${def.name}: ${scoreDef.toLocaleString()} pts</span><br><br><span style="color:var(--gold)">${success?'🏴 Toutes ressources pillées !':'🛡️ La défense a tenu !'}</span>`;
+  setTimeout(()=>p.classList.remove('show'),9000);
+}
+
+function showWinner(w){
+  showView('view-winner');
+  document.getElementById('winner-flag').textContent=w.flag;
+  document.getElementById('winner-title').textContent=w.name;
+  document.getElementById('winner-stats').innerHTML=`<div class="winner-stat"><div class="winner-stat-label">Puissance finale</div><div class="winner-stat-val">${w.power.toLocaleString()}</div></div><div class="winner-stat"><div class="winner-stat-label">Trésor</div><div class="winner-stat-val">${w.treasury.toLocaleString()}</div></div><div class="winner-stat"><div class="winner-stat-label">Armée</div><div class="winner-stat-val">${w.army}</div></div>`;
+  // Confetti
+  const cc=document.getElementById('winner-confetti');cc.innerHTML='';
+  const colors=['#c9a84c','#f87171','#4ade80','#60a5fa','#f59e0b'];
+  for(let i=0;i<50;i++){const p=document.createElement('div');p.className='confetti-piece';p.style.cssText=`left:${Math.random()*100}%;top:-20px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${3+Math.random()*4}s;animation-delay:${Math.random()*3}s;border-radius:${Math.random()>0.5?'50%':'0'};opacity:${0.6+Math.random()*0.4}`;cc.appendChild(p);}
+  // Final leaderboard
+  const teams=Object.values(state.countries||{}).filter(c=>c.team);
+  const sorted=[...teams].sort((a,b)=>b.power-a.power);
+  document.getElementById('winner-lb').innerHTML=`<div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);font-family:'Cinzel',serif;margin-bottom:8px;text-align:center">Classement final</div>`+sorted.map((c,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:4px;background:${i===0?'rgba(201,168,76,.12)':'rgba(17,21,32,.6)'};border:1px solid ${i===0?'rgba(201,168,76,.3)':'var(--border)'};margin-bottom:4px"><div style="font-size:11px;font-weight:700;min-width:20px;color:${i===0?'var(--gold)':'var(--text2)'};font-family:'Cinzel',serif">${i+1}</div><div style="font-size:18px">${c.flag}</div><div style="flex:1;font-size:11px;font-weight:600;color:#fff;font-family:'Cinzel',serif">${c.name}</div><div style="font-size:11px;color:var(--text2)">${c.power.toLocaleString()} pts</div></div>`).join('');
 }
 
 function onUpdate(prev){
   if(state.phase!==lastPhase){
     if(state.phase==='war'&&lastPhase!=='war'){
-      showCinematic({
-        war:true,
-        overline:'Breaking News · Alerte Mondiale',
-        bg:'radial-gradient(ellipse at center,#1a0205,#000)',
-        title:'La Guerre est Déclarée',
-        subtitle:'Le monde tel que nous le connaissions vient de basculer. Dix nations se disputent la suprématie. Une seule survivra.',
-        effect:'⚔️ Que le meilleur règne sur le monde'
-      }, 12000);
-      setTimeout(()=>showView('view-war'), 600);
+      showCinematic({war:true,overline:'Breaking News · Alerte Mondiale Maximale',bg:'radial-gradient(ellipse at center,#1a0205,#000)',title:'La Guerre est Déclarée',subtitle:'Le monde tel que nous le connaissions vient de basculer. Dix nations. Une seule survivra. Que la guerre commence.',effect:'⚔️ Que le meilleur règne sur le monde'},14000);
+      setTimeout(()=>showView('view-war'),500);
     } else if(state.phase==='prosperity') showView('view-prosperity');
-    else showView('view-waiting');
+    else if(state.phase==='draft'||state.phase==='setup') showView('view-waiting');
     lastPhase=state.phase;
   }
   if(state.currentPeriod!==lastPeriod&&state.currentPeriod>0&&state.phase==='prosperity'){
     const theme=PERIOD_THEMES[(state.currentPeriod-1)%PERIOD_THEMES.length];
     const ev=state.currentEvent;
-    showCinematic({
-      overline: theme.overline,
-      bg: theme.bg,
-      title: ev?.periodName||'Nouvelle Période',
-      subtitle: ev?.periodDesc||'',
-      effect: ev ? ('⚡ '+ev.title+' — '+ev.effect) : '',
-    }, 8000);
-    timerTotal=600;
-    lastPeriod=state.currentPeriod;
+    showCinematic({overline:theme.overline,bg:theme.bg,title:ev?.periodName||'Nouvelle Période',subtitle:ev?.periodDesc||'',effect:ev?('⚡ '+ev.title+' — '+ev.effect):''},10000);
+    timerTotal=600;lastPeriod=state.currentPeriod;
   }
-  if(state.phase==='prosperity') renderProsperity();
-  if(state.phase==='war') renderWar();
+  if(state.phase==='prosperity')renderProsperity();
+  if(state.phase==='war')renderWar();
 }
 
 function renderProsperity(){
@@ -354,9 +387,13 @@ function renderProsperity(){
   const sorted=[...alive].sort((a,b)=>b.power-a.power);
   const maxP=sorted[0]?.power||1;
   document.getElementById('sc-per-badge').textContent=`Période ${state.currentPeriod||1}/6`;
-  document.getElementById('sc-nations').textContent=alive.length+' nations actives';
+  document.getElementById('sc-nations').textContent=alive.length+' nations';
   if(state.currentEvent){
     const ev=state.currentEvent;
+    const tl={market:'MARCHÉ',choice:'CHOIX — DÉCISION REQUISE',targeted:'CIBLÉ'};
+    const tc={market:'ev-type-market',choice:'ev-type-choice',targeted:'ev-type-targeted'};
+    const pill=document.getElementById('sc-ev-type');
+    if(pill){pill.textContent=tl[ev.type]||'';pill.className='ev-type-pill '+(tc[ev.type]||'ev-type-market');}
     document.getElementById('sc-ev-period').textContent=`Période ${ev.periodNumber||''} · ${ev.periodSubtitle||''}`;
     document.getElementById('sc-ev-name').textContent=ev.periodName||'';
     document.getElementById('sc-ev-desc').textContent=ev.periodDesc||'';
@@ -365,18 +402,7 @@ function renderProsperity(){
   document.getElementById('sc-lb').innerHTML=sorted.map((c,i)=>{
     const pct=Math.round(c.power/maxP*100);
     const bc=pct<30?'bfl':pct<60?'bfm':'bfh';
-    return `<div class="lb-item ${i===0?'first':''}">
-      <div class="lb-pos">${i+1}</div>
-      <div class="lb-fl">${c.flag}</div>
-      <div class="lb-info">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div class="lb-nm">${c.name}</div>
-          <div class="lb-pw">${c.power.toLocaleString()} pts</div>
-        </div>
-        <div class="lb-team">${c.team||''}</div>
-        <div class="lb-bw"><div class="lb-bf ${bc}" style="width:${pct}%"></div></div>
-      </div>
-    </div>`;
+    return `<div class="lb-item ${i===0?'first':''}"><div class="lb-pos">${i+1}</div><div class="lb-fl">${c.flag}</div><div class="lb-info"><div style="display:flex;justify-content:space-between;align-items:center"><div class="lb-nm">${c.name}</div><div class="lb-pw">${c.power.toLocaleString()}</div></div><div class="lb-team-label">${c.team||''}</div><div class="lb-bw"><div class="lb-bf ${bc}" style="width:${pct}%"></div></div></div></div>`;
   }).join('');
 }
 
@@ -389,44 +415,60 @@ function renderWar(){
   document.getElementById('war-alive').textContent=alive.length+' nations actives';
   document.getElementById('war-nations').innerHTML=sorted.map(c=>{
     const pct=Math.round(c.power/maxP*100);
-    return `<div class="wn ${c.eliminated?'elim':''}">
-      <div class="wn-flag">${c.flag}</div>
-      <div class="wn-body">
-        <div class="wn-top"><div class="wn-name">${c.name}</div><div class="wn-pts">${c.power.toLocaleString()}</div></div>
-        <div class="wbw"><div class="wbf" style="width:${pct}%"></div></div>
-      </div>
-    </div>`;
+    return `<div class="wn ${c.eliminated?'elim':''}"><div class="wn-flag">${c.flag}</div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><div class="wn-name">${c.name}</div><div class="wn-pts">${c.power.toLocaleString()}</div></div><div class="wbw"><div class="wbf" style="width:${pct}%"></div></div></div></div>`;
   }).join('');
-  // Map
-  const mapG=document.getElementById('map-countries'); mapG.innerHTML='';
+
+  // Beautiful map rendering
+  const mapG=document.getElementById('map-countries');mapG.innerHTML='';
   const animG=document.getElementById('map-anims');
   teams.forEach(c=>{
-    const pos=MAP_POS[c.id]; if(!pos) return;
-    const color=COLORS[c.id]||'#fff';
+    const pos=MAP_POS[c.id];if(!pos)return;
+    const color=COUNTRY_COLORS[c.id]||'#fff';
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');
-    // Pulse glow
-    const glow=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    glow.setAttribute('cx',pos.x); glow.setAttribute('cy',pos.y); glow.setAttribute('r','22');
-    glow.setAttribute('fill',c.eliminated?'#0a0204':color); glow.setAttribute('opacity',c.eliminated?'0.03':'0.15');
-    g.appendChild(glow);
+    // Outer glow ring
+    const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    ring.setAttribute('cx',pos.x);ring.setAttribute('cy',pos.y);ring.setAttribute('r','26');
+    ring.setAttribute('fill',c.eliminated?'#0a0204':color);ring.setAttribute('opacity',c.eliminated?'0.03':'0.12');
+    g.appendChild(ring);
+    // Inner glow
+    const innerRing=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    innerRing.setAttribute('cx',pos.x);innerRing.setAttribute('cy',pos.y);innerRing.setAttribute('r','14');
+    innerRing.setAttribute('fill',c.eliminated?'#0a0204':color);innerRing.setAttribute('opacity',c.eliminated?'0.05':'0.2');
+    g.appendChild(innerRing);
     // Main dot
     const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    dot.setAttribute('cx',pos.x); dot.setAttribute('cy',pos.y); dot.setAttribute('r','9');
-    dot.setAttribute('fill',c.eliminated?'#1a0408':color); dot.setAttribute('stroke','#000'); dot.setAttribute('stroke-width','1.5');
+    dot.setAttribute('cx',pos.x);dot.setAttribute('cy',pos.y);dot.setAttribute('r','9');
+    dot.setAttribute('fill',c.eliminated?'#1a0408':color);dot.setAttribute('stroke',c.eliminated?'#0a0204':'#000');dot.setAttribute('stroke-width','1.5');
+    if(!c.eliminated)dot.setAttribute('filter','url(#glow)');
     g.appendChild(dot);
-    // Flag
+    // Flag emoji
     const flag=document.createElementNS('http://www.w3.org/2000/svg','text');
-    flag.setAttribute('x',pos.x); flag.setAttribute('y',pos.y-19);
-    flag.setAttribute('text-anchor','middle'); flag.setAttribute('font-size','20');
+    flag.setAttribute('x',pos.x);flag.setAttribute('y',pos.y-(pos.label==='NW'?20:18));
+    flag.setAttribute('text-anchor','middle');flag.setAttribute('font-size','18');
     flag.setAttribute('opacity',c.eliminated?'0.1':'1');
-    flag.textContent=c.flag; g.appendChild(flag);
-    // Name
+    flag.textContent=c.flag;g.appendChild(flag);
+    // Country name
     const nm=document.createElementNS('http://www.w3.org/2000/svg','text');
-    nm.setAttribute('x',pos.x); nm.setAttribute('y',pos.y+22);
-    nm.setAttribute('text-anchor','middle'); nm.setAttribute('font-size','8');
+    nm.setAttribute('x',pos.x);nm.setAttribute('y',pos.y+22);
+    nm.setAttribute('text-anchor','middle');nm.setAttribute('font-size','8');
     nm.setAttribute('fill',c.eliminated?'#1a0408':color);
-    nm.setAttribute('font-family','Cinzel,serif'); nm.setAttribute('letter-spacing','1');
-    nm.textContent=c.name.toUpperCase(); g.appendChild(nm);
+    nm.setAttribute('font-family','Cinzel,serif');nm.setAttribute('letter-spacing','1');
+    nm.textContent=c.name.toUpperCase();g.appendChild(nm);
+    // Power label
+    if(!c.eliminated){
+      const pw=document.createElementNS('http://www.w3.org/2000/svg','text');
+      pw.setAttribute('x',pos.x);pw.setAttribute('y',pos.y+33);
+      pw.setAttribute('text-anchor','middle');pw.setAttribute('font-size','7');
+      pw.setAttribute('fill','rgba(255,255,255,0.35)');pw.setAttribute('font-family','Cinzel,serif');
+      pw.textContent=c.power.toLocaleString()+' pts';g.appendChild(pw);
+    }
+    // Eliminated X
+    if(c.eliminated){
+      const x1=document.createElementNS('http://www.w3.org/2000/svg','line');
+      x1.setAttribute('x1',pos.x-6);x1.setAttribute('y1',pos.y-6);x1.setAttribute('x2',pos.x+6);x1.setAttribute('y2',pos.y+6);x1.setAttribute('stroke','#f87171');x1.setAttribute('stroke-width','2');g.appendChild(x1);
+      const x2=document.createElementNS('http://www.w3.org/2000/svg','line');
+      x2.setAttribute('x1',pos.x+6);x2.setAttribute('y1',pos.y-6);x2.setAttribute('x2',pos.x-6);x2.setAttribute('y2',pos.y+6);x2.setAttribute('stroke','#f87171');x2.setAttribute('stroke-width','2');g.appendChild(x2);
+    }
     mapG.appendChild(g);
   });
 }
