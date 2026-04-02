@@ -655,6 +655,12 @@ socket.on('choiceEvent',ev=>showChoiceModal(ev));
 socket.on('allianceProposal',proposal=>{if(proposal.to===myTeam){pendingAllianceProposal=proposal;showAllyNotif(proposal);}});
 socket.on('allianceExpired',()=>hideAllyNotif());
 socket.on('winner',({winners,type})=>showWinnerOverlay(winners,type));
+socket.on('state', (state) => {
+    if (!state.gameOver) {
+        const overlay = document.getElementById('winner-overlay');
+        if (overlay) overlay.style.display = 'none';
+    }
+});
 socket.on('actionFeedback',data=>showActionFlash(data));
 socket.on('actionUndone',()=>{canUndo=false;setUndoBtns(false);showActionFlash({type:'undo'});});
 socket.on('error',msg=>toast(msg));
