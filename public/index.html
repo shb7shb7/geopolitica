@@ -27,7 +27,8 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 /* TOOLTIP */
 .tip{position:relative;display:inline-flex;align-items:center}
 .tip-icon{width:14px;height:14px;border-radius:50%;background:rgba(136,146,176,.2);border:1px solid var(--text3);color:var(--text2);font-size:9px;display:inline-flex;align-items:center;justify-content:center;cursor:help;flex-shrink:0;margin-left:4px;font-weight:700}
-.tip-box{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:11px;color:var(--text2);line-height:1.5;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:800;min-width:180px;max-width:260px;white-space:normal;font-family:'Inter',sans-serif;font-weight:400}
+.tip-box{position:fixed;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:11px;color:var(--text2);line-height:1.5;pointer-events:none;opacity:0;transition:opacity .15s;z-index:9999;min-width:180px;max-width:260px;white-space:normal;font-family:'Inter',sans-serif;font-weight:400;top:auto;left:auto}
+.tip:hover .tip-box{opacity:1}
 .tip:hover .tip-box{opacity:1}
 
 /* MODALS */
@@ -567,14 +568,8 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
       </div>
     </div>
 
-    <!-- BLOCS D'INFORMATION — causal + indice -->
-    <div id="hint-card" style="display:none;display:flex;flex-direction:column;gap:8px">
-      <!-- BLOC JAUNE : explication causale (pourquoi les prix ont changé) -->
-      <div id="hint-causal-block" style="display:none;background:linear-gradient(135deg,rgba(133,79,11,.35),rgba(99,56,6,.2));border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:11px 13px">
-        <div style="font-size:9px;font-weight:700;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:5px" id="hint-causal-title"></div>
-        <div style="font-size:12px;color:#fde68a;line-height:1.65" id="hint-causal-text"></div>
-      </div>
-      <!-- BLOC BLEU : indice pour la prochaine période -->
+    <!-- INDICE — bloc bleu uniquement -->
+    <div id="hint-card" style="display:none">
       <div id="hint-blue-block" style="display:none;background:linear-gradient(135deg,rgba(30,58,95,.5),rgba(20,40,70,.35));border:1px solid #3b7dd8;border-radius:8px;padding:11px 13px;position:relative;overflow:hidden">
         <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#60a5fa,transparent)"></div>
         <div style="font-size:9px;font-weight:700;color:#60a5fa;letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:5px;display:flex;align-items:center;gap:6px">
@@ -583,6 +578,8 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
         </div>
         <div style="font-size:13px;color:#bfdbfe;line-height:1.65" id="hint-card-text"></div>
       </div>
+      <!-- causal block removed — justification is in price tooltips -->
+      <div id="hint-causal-block" style="display:none"><div id="hint-causal-title"></div><div id="hint-causal-text"></div></div>
     </div>
 
     <!-- 2. OR + PUISSANCE -->
@@ -641,7 +638,7 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
       <div style="padding:8px 12px 6px;border-bottom:1px solid var(--border);font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:2px;font-family:'Cinzel',serif;display:flex;align-items:center;gap:6px">
         Capacité militaire
         <span class="tip"><span class="tip-icon">?</span><span class="tip-box">Armée = taille de vos forces. ATK = multiplicateur offensif (+1.2%/point). DEF = multiplicateur défensif (+1.2%/point). Disponible en manches 5-6.</span></span>
-        <span id="army-available-badge" style="display:none;margin-left:auto;font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(26,122,74,.2);color:#4ade80;border:1px solid rgba(26,122,74,.4)">Disponible manche 5</span>
+        <span id="army-available-badge" style="display:none;margin-left:auto;font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(26,122,74,.2);color:#4ade80;border:1px solid rgba(26,122,74,.4)">Disponible Année 5</span>
         <span id="army-locked-badge" style="display:none;margin-left:auto;font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)" id="army-locked-badge"></span>
       </div>
       <div class="army-top">
@@ -710,7 +707,7 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
       </div>
       <div id="army-locked-panel" class="army-locked-msg" style="display:none">
         <span class="army-locked-icon">🔒</span>
-        <div>L'investissement militaire est disponible à partir de la <strong>manche 5</strong>.<br><span style="color:var(--text3)">Concentrez-vous sur les ressources économiques pour l'instant.</span></div>
+        <div>L'investissement militaire est disponible à partir de la <strong>Année 5</strong>.<br><span style="color:var(--text3)">Concentrez-vous sur les ressources économiques pour l'instant.</span></div>
       </div>
       <div id="army-panel-content" style="display:none">
         <div class="army-buy-card">
@@ -810,6 +807,10 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
       <div class="pay-opt selected" id="ally-peace-opt" onclick="selectAllyType('peace')" style="flex:1"><div class="pay-opt-icon">🕊️</div><div class="pay-opt-label">Non-agression</div><div class="pay-opt-cost" style="color:#4ade80">Gratuit</div><div style="font-size:9px;color:var(--text3);margin-top:2px">Double victoire si 2 derniers</div></div>
       <div class="pay-opt" id="ally-off-opt" onclick="selectAllyType('offensive')" style="flex:1"><div class="pay-opt-icon">⚔️</div><div class="pay-opt-label">Offensive</div><div class="pay-opt-cost" style="color:var(--gold)">100 or</div><div style="font-size:9px;color:var(--text3);margin-top:2px">+15% combat, 1 tour</div></div>
     </div>
+    <div id="ally-target-nation-wrap" style="display:none;margin-bottom:8px">
+      <div style="font-size:10px;color:var(--gold);margin-bottom:4px;letter-spacing:1px;text-transform:uppercase;font-weight:600">Cible du pacte offensif</div>
+      <select class="sel" id="ally-target-nation"><option value="">Choisir la nation à attaquer...</option></select>
+    </div>
     <div style="display:flex;gap:7px">
       <button class="btn-primary" onclick="sendAllianceProposal()" style="flex:1">Proposer →</button>
       <button class="btn-secondary" onclick="document.getElementById('ally-modal').style.display='none'" style="flex:1">Annuler</button>
@@ -818,6 +819,31 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 </div>
 
 <script>
+// Dynamic tooltip positioning to avoid overflow
+document.addEventListener('mouseover',e=>{
+  const icon=e.target.closest('.tip');
+  if(!icon)return;
+  const box=icon.querySelector('.tip-box');
+  if(!box)return;
+  const rect=icon.getBoundingClientRect();
+  box.style.opacity='1';
+  // Position below by default, adjust if near top
+  const spaceAbove=rect.top;
+  const spaceBelow=window.innerHeight-rect.bottom;
+  if(spaceAbove>120){
+    box.style.top=(rect.top-box.offsetHeight-8)+'px';
+  } else {
+    box.style.top=(rect.bottom+8)+'px';
+  }
+  box.style.left=Math.max(8,Math.min(rect.left+rect.width/2-130,window.innerWidth-270))+'px';
+});
+document.addEventListener('mouseout',e=>{
+  const icon=e.target.closest('.tip');
+  if(!icon)return;
+  const box=icon.querySelector('.tip-box');
+  if(box)box.style.opacity='0';
+});
+
 const socket=io();
 let state={},myTeam=null,myCountryId=null,selectedDraft=null;
 let timerSec=600,soundEnabled=true;
@@ -888,6 +914,16 @@ socket.on('allianceExpired',()=>hideAllyNotif());
 socket.on('winner',({winners,type})=>showWinnerOverlay(winners,type));
 socket.on('actionFeedback',data=>showActionFlash(data));
 socket.on('actionUndone',()=>{canUndo=false;setUndoBtns(false);showActionFlash({type:'undo'});});
+socket.on('allianceAccepted',({by,byCountry,type})=>{
+  const name=byCountry?byCountry.flag+' '+byCountry.name:by;
+  toast('✅ '+name+' a accepté votre alliance '+(type==='offensive'?'offensive':'de non-agression')+' !');
+  // Show a brief overlay
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:700;background:rgba(26,122,74,.95);border:2px solid #4ade80;border-radius:10px;padding:14px 22px;text-align:center;animation:actionPop 3s ease-out forwards;font-family:Cinzel,serif;color:#4ade80';
+  overlay.innerHTML='<div style="font-size:13px;font-weight:700">✅ Alliance acceptée !</div><div style="font-size:11px;margin-top:3px;opacity:.8">'+name+'</div>';
+  document.body.appendChild(overlay);
+  setTimeout(()=>overlay.remove(),3000);
+});
 socket.on('error',msg=>toast(msg));
 socket.on('kicked',(msg)=>{clearSession();myTeam=null;myCountryId=null;toast('❌ '+msg);setTimeout(()=>showScreen('screen-landing'),2000);});
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();if(canUndo)undoAction();}});
@@ -901,12 +937,15 @@ function undoAction(){socket.emit('team:undoAction',{teamName:myTeam});}
 function hideWinnerOverlay(){document.getElementById('winner-overlay').classList.remove('show');}
 function returnToMJ(){
   hideWinnerOverlay();
-  // If MJ screen is not active, we need to re-auth — just show MJ screen if already authed this session
+  // Always works: hide overlay, show MJ if active or go to landing
   const mjScreen=document.getElementById('screen-mj');
-  if(mjScreen&&!mjScreen.classList.contains('active')){
-    // Try to show MJ screen — if not authed, go to auth
+  if(mjScreen&&mjScreen.classList.contains('active')){
+    // Already on MJ — nothing to do
+  } else {
     showScreen('screen-mj');
   }
+  // Scroll to top
+  window.scrollTo(0,0);
 }
 
 function showActionFlash(data){
@@ -1016,16 +1055,40 @@ function selectPayment(type){selectedPayment=type;['gold','oil','food'].forEach(
 function selectAllyType(type){
   selectedAllyType=type;
   ['peace','off'].forEach(t=>{['ally-'+t+'-opt','na-'+t+'-opt'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('selected',t===type);});});
+  // Show target selector for offensive pact
+  const w=document.getElementById('ally-target-nation-wrap');
+  if(w)w.style.display=type==='offensive'?'block':'none';
 }
 
 function openAllyModal(){
   const sel=document.getElementById('ally-target');if(!sel)return;
-  sel.innerHTML='<option value="">Choisir la nation...</option>';
-  if(state.countries)Object.values(state.countries).forEach(c=>{if(c.id!==myCountryId&&!c.eliminated&&c.team){const o=document.createElement('option');o.value=c.team;o.textContent=`${c.flag} ${c.name} — ${c.power.toLocaleString()} pts`;sel.appendChild(o);}});
+  sel.innerHTML='<option value="">Choisir la nation alliée...</option>';
+  if(state.countries)Object.values(state.countries).forEach(c=>{if(c.id!==myCountryId&&!c.eliminated&&c.team){const o=document.createElement('option');o.value=c.team;o.textContent=c.flag+' '+c.name+' — '+c.power.toLocaleString()+' pts';sel.appendChild(o);}});
+  const tsel=document.getElementById('ally-target-nation');
+  if(tsel){tsel.innerHTML='<option value="">Choisir la cible...</option>';if(state.countries)Object.values(state.countries).forEach(c=>{if(c.id!==myCountryId&&!c.eliminated&&c.team){const o=document.createElement('option');o.value=c.id;o.textContent=c.flag+' '+c.name;tsel.appendChild(o);}});}
   document.getElementById('ally-modal').style.display='flex';
 }
-function sendAllianceProposal(){const toTeam=document.getElementById('ally-target').value;if(!toTeam){toast('Choisissez une nation !');return;}socket.emit('team:proposeAlliance',{fromTeam:myTeam,toTeam,allianceType:selectedAllyType});document.getElementById('ally-modal').style.display='none';toast('Alliance proposée — 30 sec pour répondre !');}
-function sendNegocAllianceProposal(){const toTeam=document.getElementById('negoc-ally-target').value;if(!toTeam){toast('Choisissez une nation !');return;}socket.emit('team:proposeAlliance',{fromTeam:myTeam,toTeam,allianceType:selectedAllyType});toast('Alliance proposée !');}
+function sendAllianceProposal(){
+  const toTeam=document.getElementById('ally-target').value;if(!toTeam){toast('Choisissez une nation !');return;}
+  let targetId=null;
+  if(selectedAllyType==='offensive'){
+    targetId=document.getElementById('ally-target-nation')?.value||null;
+    if(!targetId){toast('Choisissez la nation cible pour le pacte offensif !');return;}
+  }
+  socket.emit('team:proposeAlliance',{fromTeam:myTeam,toTeam,allianceType:selectedAllyType,targetId});
+  document.getElementById('ally-modal').style.display='none';
+  toast('Alliance proposée — 30 sec pour répondre !');
+}
+function sendNegocAllianceProposal(){
+  const toTeam=document.getElementById('negoc-ally-target').value;if(!toTeam){toast('Choisissez une nation !');return;}
+  let targetId=null;
+  if(selectedAllyType==='offensive'){
+    targetId=document.getElementById('negoc-ally-target-nation')?.value||null;
+    if(!targetId){toast('Choisissez la nation cible pour le pacte offensif !');return;}
+  }
+  socket.emit('team:proposeAlliance',{fromTeam:myTeam,toTeam,allianceType:selectedAllyType,targetId});
+  toast('Alliance proposée !');
+}
 function buyAtk(){const qty=parseInt(document.getElementById('atk-qty').value)||1;socket.emit('team:buyAtk',{teamName:myTeam,qty});}
 function buyDef(){const qty=parseInt(document.getElementById('def-qty').value)||1;socket.emit('team:buyDef',{teamName:myTeam,qty});}
 
@@ -1214,7 +1277,7 @@ function updateTeamUI(){
   const lockedBadge=document.getElementById('army-locked-badge');
   const availBadge=document.getElementById('army-available-badge');
   if(lockedBadge)lockedBadge.style.display=armyAvail?'none':'inline-flex';
-  if(lockedBadge&&!armyAvail)lockedBadge.textContent=`Disponible manche 5 (${5-state.currentPeriod} manche${5-state.currentPeriod>1?'s':''} restante${5-state.currentPeriod>1?'s':''})`;
+  if(lockedBadge&&!armyAvail)lockedBadge.textContent=`Disponible Année 5 (${5-state.currentPeriod} manche${5-state.currentPeriod>1?'s':''} restante${5-state.currentPeriod>1?'s':''})`;
   if(availBadge)availBadge.style.display=armyAvail?'inline-flex':'none';
   document.getElementById('army-locked-panel').style.display=armyAvail?'none':'flex';
   document.getElementById('army-panel-content').style.display=armyAvail?'block':'none';
@@ -1270,7 +1333,7 @@ function updateTeamUI(){
   // Phase badge
   const pb=document.getElementById('team-phase-badge');
   const pmap={prosperity:state.isTutorial?'ph-t':'ph-p',war:'ph-w',draft:'ph-d',setup:'ph-s',negotiation:'ph-n'};
-  const plbl={prosperity:state.isTutorial?'Manche Test':'Prospérité',war:'Guerre ⚔️',draft:'Draft',setup:'En attente',negotiation:'💬 Négociation'};
+  const plbl={prosperity:state.isTutorial?'Année Test':'Prospérité',war:'Guerre ⚔️',draft:'Draft',setup:'En attente',negotiation:'💬 Négociation'};
   pb.className='phase-badge '+(pmap[state.phase]||'ph-s');pb.textContent=plbl[state.phase]||'En attente';
 
   // Actions
@@ -1357,7 +1420,7 @@ function renderMarket(){
         </div>
       </div>
       <div class="mr-controls">
-        <div class="mr-stock">Stock actuel : ${stock.toLocaleString()}</div>
+        <div class="mr-stock">Stock: ${stock.toLocaleString()} · ${r.hint}</div>
         <input type="number" class="qty-input" id="${r.id}-qty" value="1" min="1" max="9999" ${oilBlocked?'disabled':''}/>
         <button class="buybtn" ${buyBlocked?'disabled':''} onclick="socket.emit('team:buyResource',{teamName:myTeam,resource:'${r.id}',qty:parseInt(document.getElementById('${r.id}-qty').value)||1})">Acheter</button>
         <button class="sellbtn" ${isWar||stock===0?'disabled':''} onclick="socket.emit('team:sellResource',{teamName:myTeam,resource:'${r.id}',qty:parseInt(document.getElementById('${r.id}-qty').value)||1})">Vendre</button>
@@ -1396,7 +1459,7 @@ function renderMJ(){
   const pb=document.getElementById('mj-phase-badge');
   const isTut=state.isTutorial;
   const pmap={setup:'ph-s',draft:'ph-d',prosperity:isTut?'ph-t':'ph-p',war:'ph-w',negotiation:'ph-n'};
-  const plbl={setup:'Configuration',draft:'Draft',prosperity:isTut?'Manche Test':'Prospérité',war:'Guerre ⚔️',negotiation:'💬 Négociation'};
+  const plbl={setup:'Configuration',draft:'Draft',prosperity:isTut?'Année Test':'Prospérité',war:'Guerre ⚔️',negotiation:'💬 Négociation'};
   pb.className='phase-badge '+(pmap[state.phase]||'ph-s');pb.textContent=plbl[state.phase]||'Configuration';
   const pbtns=document.getElementById('phase-btns'),pdesc=document.getElementById('phase-desc');
   const wtm=document.getElementById('war-turn-mj'),pc=document.getElementById('period-card');
@@ -1406,7 +1469,7 @@ function renderMJ(){
   else if(state.phase==='prosperity'){
     const canWar=state.currentPeriod>=6;
     pbtns.innerHTML=(state.currentPeriod<6?'<button class="btn-sm bo" onclick="socket.emit(\'mj:nextPeriod\')">Période suivante →</button>':'')+(canWar?'<button class="btn-sm bb" onclick="socket.emit(\'mj:startNegotiation\')" style="margin-left:5px">Négociation →</button>':'');
-    pdesc.textContent=`Période ${state.currentPeriod}/6 — 2 actions/équipe. Armée dispo manche 5+.`;pc.style.display='block';wtm.style.display='none';
+    pdesc.textContent=`Période ${state.currentPeriod}/6 — 2 actions/équipe. Armée dispo Année 5+.`;pc.style.display='block';wtm.style.display='none';
   }
   else if(state.phase==='negotiation'){pbtns.innerHTML='<button class="btn-sm br" onclick="socket.emit(\'mj:startWar\')">Démarrer la Guerre ⚔️</button>';pdesc.textContent='Négociation en cours — lancez la guerre quand prêt.';pc.style.display='none';wtm.style.display='none';}
   else if(state.phase==='war'){pbtns.innerHTML=state.gameOver?'<button class="btn-sm" onclick="document.getElementById(\'winner-overlay\').classList.add(\'show\')">Voir le vainqueur 🏆</button>':'';pdesc.textContent=state.gameOver?'Partie terminée.':'Tours de 30 sec.';pc.style.display='none';wtm.style.display=state.gameOver?'none':'block';}
@@ -1417,9 +1480,20 @@ function renderMJ(){
     document.getElementById('pc-num').innerHTML=`Période ${ev.periodNumber||0} · ${ev.periodSubtitle||''} <span class="ev-type-tag ${tc[ev.type]||''}">${tl[ev.type]||''}</span>`;
     document.getElementById('pc-name').textContent=ev.periodName||'';
     document.getElementById('pc-desc').textContent=ev.periodDesc||'';
-    document.getElementById('pc-event').textContent='⚡ '+ev.title+' — '+ev.effect;
-    if(ev.nextHint){document.getElementById('pc-hint-box').style.display='block';document.getElementById('pc-hint-text').textContent=ev.nextHint;}
-    else document.getElementById('pc-hint-box').style.display='none';
+    // Bloc jaune MJ : explication causale de l'event actuel (ce qui explique les prix N)
+    const prevEvMJ=state.prevEvent;
+    if(prevEvMJ&&prevEvMJ.causalExplanation){
+      document.getElementById('pc-event').textContent='⚡ '+prevEvMJ.title+' — '+prevEvMJ.causalExplanation;
+    } else {
+      document.getElementById('pc-event').textContent='⚡ '+ev.title+' — '+ev.effect;
+    }
+    // Bloc bleu MJ : indice pour la prochaine période (phrase uniquement)
+    if(ev.nextHint){
+      document.getElementById('pc-hint-box').style.display='block';
+      document.getElementById('pc-hint-text').textContent=ev.nextHint;
+      const hintLabel=document.querySelector('#pc-hint-box div:first-child');
+      if(hintLabel)hintLabel.textContent='🔮 Indice joueurs — prochaine période';
+    } else document.getElementById('pc-hint-box').style.display='none';
     if(ev.nextPrices){
       const prices=state.prices||BASE_PRICES;
       document.getElementById('pc-next-prices').style.display='block';
