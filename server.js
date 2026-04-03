@@ -660,9 +660,12 @@ io.on('connection',(socket)=>{
   socket.on('mj:nextPeriod',()=>{
     if(gameState.currentPeriod>=6)return;
     // Prices for this new period = prices announced by PREVIOUS event
-    const thisEv=gameState.periodSequence[gameState.currentPeriod];   // will be new period
+    // Event announced last period = periodSequence[currentPeriod-1] (0-based)
+    // e.g. from period 1 (currentPeriod=1): periodSequence[0] = real year-1 event
+    const thisEv=gameState.periodSequence[gameState.currentPeriod-1];
     gameState.prevPrices={...gameState.prices};
-    gameState.prevEvent = gameState.currentEvent || null; // store for causal explanation display
+    // prevEvent = the real event taking effect NOW (explains why prices changed)
+    gameState.prevEvent = thisEv || null;
     // Step 1: mean-revert current prices toward base
     const reverted = meanRevertPrices(gameState.currentPrices || gameState.prices);
     // Step 2: apply THIS period's event multipliers to reverted prices (cumulative)
@@ -676,7 +679,8 @@ io.on('connection',(socket)=>{
     gameState.pendingChoiceEvent=null;
     if(ev.type==='market'||ev.type==='targeted')applyEvent(ev);
     else if(ev.type==='choice'){gameState.pendingChoiceEvent=ev;io.emit('choiceEvent',ev);}
-    const nev=gameState.periodSequence[gameState.currentPeriod];
+    // Next event to announce = periodSequence[currentPeriod-1] (after increment, currentPeriod is already N+1)
+    const nev=gameState.periodSequence[gameState.currentPeriod-1];
     gameState.nextEvent=nev||null;
     const nextPrices=gameState.currentPeriod<6?previewNextPrices(gameState.prices, nev):{...BASE_PRICES};
     gameState.nextHint=gameState.currentPeriod<6?(nev?.hint||null):'⚔️ La GUERRE commence après cette période. Une phase de négociation aura lieu pour former des alliances. Gardez au moins 600 or.';
