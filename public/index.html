@@ -1277,7 +1277,7 @@ function updateTeamUI(){
   const lockedBadge=document.getElementById('army-locked-badge');
   const availBadge=document.getElementById('army-available-badge');
   if(lockedBadge)lockedBadge.style.display=armyAvail?'none':'inline-flex';
-  if(lockedBadge&&!armyAvail)lockedBadge.textContent=`Disponible Année 5 (${5-state.currentPeriod} manche${5-state.currentPeriod>1?'s':''} restante${5-state.currentPeriod>1?'s':''})`;
+  if(lockedBadge&&!armyAvail)lockedBadge.textContent=`Disponible Année 5 (${5-state.currentPeriod} année${5-state.currentPeriod>1?'s':''} restante${5-state.currentPeriod>1?'s':''})`;
   if(availBadge)availBadge.style.display=armyAvail?'inline-flex':'none';
   document.getElementById('army-locked-panel').style.display=armyAvail?'none':'flex';
   document.getElementById('army-panel-content').style.display=armyAvail?'block':'none';
@@ -1319,7 +1319,7 @@ function updateTeamUI(){
   // PÉRIODE INFO (compacte)
   if(ev){
     document.getElementById('team-period').style.display='block';
-    document.getElementById('tp-num').textContent=`Période ${ev.periodNumber||0} · ${ev.periodSubtitle||''}`;
+    document.getElementById('tp-num').textContent=`${ev.periodSubtitle||'Année '+ev.periodNumber}`;
     document.getElementById('tp-name').textContent=ev.periodName||'';
     document.getElementById('tp-desc').textContent=ev.periodDesc||'';
   } else document.getElementById('team-period').style.display='none';
@@ -1469,7 +1469,7 @@ function renderMJ(){
   else if(state.phase==='prosperity'){
     const canWar=state.currentPeriod>=6;
     pbtns.innerHTML=(state.currentPeriod<6?'<button class="btn-sm bo" onclick="socket.emit(\'mj:nextPeriod\')">Période suivante →</button>':'')+(canWar?'<button class="btn-sm bb" onclick="socket.emit(\'mj:startNegotiation\')" style="margin-left:5px">Négociation →</button>':'');
-    pdesc.textContent=`Période ${state.currentPeriod}/6 — 2 actions/équipe. Armée dispo Année 5+.`;pc.style.display='block';wtm.style.display='none';
+    pdesc.textContent=`Année ${state.currentPeriod}/6 — 2 actions/équipe. Armée dispo Année 5+.`;pc.style.display='block';wtm.style.display='none';
   }
   else if(state.phase==='negotiation'){pbtns.innerHTML='<button class="btn-sm br" onclick="socket.emit(\'mj:startWar\')">Démarrer la Guerre ⚔️</button>';pdesc.textContent='Négociation en cours — lancez la guerre quand prêt.';pc.style.display='none';wtm.style.display='none';}
   else if(state.phase==='war'){pbtns.innerHTML=state.gameOver?'<button class="btn-sm" onclick="document.getElementById(\'winner-overlay\').classList.add(\'show\')">Voir le vainqueur 🏆</button>':'';pdesc.textContent=state.gameOver?'Partie terminée.':'Tours de 30 sec.';pc.style.display='none';wtm.style.display=state.gameOver?'none':'block';}
