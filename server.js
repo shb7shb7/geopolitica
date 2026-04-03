@@ -328,12 +328,12 @@ function generateSequence() {
 const TUTORIAL_EV = { id:'tutorial', type:'market', title:'Manche Test', desc:'Explorez librement — ressources remises à zéro après. Aucune conséquence !', effect:'Actions illimitées' };
 
 const PERIODS = [
-  { number:1, name:"L'Ère de Croissance",          subtitle:"Janvier — Juin · An 1" },
-  { number:2, name:"Premières Tensions",            subtitle:"Juillet — Déc · An 1" },
-  { number:3, name:"Crise Mondiale",                subtitle:"Janvier — Juin · An 2" },
-  { number:4, name:"Course aux Armements",          subtitle:"Juillet — Déc · An 2" },
-  { number:5, name:"Ultimatums",                    subtitle:"Janvier — Juin · An 3" },
-  { number:6, name:"Le Monde Retient son Souffle",  subtitle:"Juillet — Déc · An 3" },
+  { number:1, name:"L'Ère de Croissance",       subtitle:"Année 1" },
+  { number:2, name:"Premières Tensions",         subtitle:"Année 2" },
+  { number:3, name:"Crise Mondiale",             subtitle:"Année 3" },
+  { number:4, name:"Course aux Armements",       subtitle:"Année 4" },
+  { number:5, name:"Ultimatums",                 subtitle:"Année 5" },
+  { number:6, name:"L'Heure de Vérité",         subtitle:"Année 6" },
 ];
 
 const PERIOD_DESCS = [
