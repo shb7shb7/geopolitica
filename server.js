@@ -306,10 +306,10 @@ let gameState = {
   coalition:{proposed:false,moroccoAccepted:false,guineaAccepted:false,active:false},
   alliances:{}, pendingAllianceProposals:{},
   log:[], timerSeconds:600, timerRunning:false,
-  warTurnOrder:[], warCurrentTurn:0, warTurnSeconds:30,
+  warTurnOrder:[], warCurrentTurn:0, warTurnSeconds:30, negotiationRanking:[],
   teamActionsThisPeriod:{}, lastActionByTeam:{},
   pendingChoiceEvent:null, winner:null, winners:[],
-  isTutorial:false, tutorialSnapshot:{}, gameOver:false,
+  isTutorial:false, tutorialSnapshot:{}, gameOver:false, negotiationRanking:[],
 };
 
 let timerInterval=null, warTurnInterval=null;
@@ -544,10 +544,18 @@ io.on('connection',(socket)=>{
     gameState.phase='negotiation';
     gameState.teamActionsThisPeriod={};gameState.lastActionByTeam={};
     gameState.alliances={};gameState.pendingAllianceProposals={};
-    addLog('💬 Phase de négociation — Alliances avant la guerre','event');
-    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,'💬 PHASE DE NÉGOCIATION\nLa guerre commence bientôt. Proposez des alliances maintenant dans l\'onglet "Attaquer". Une alliance active au début de la guerre peut changer tout !','neutral');});
+    const alive=Object.values(gameState.countries).filter(c=>c.team&&!c.eliminated).sort((a,b)=>b.power-a.power);
+    const N=alive.length;
+    gameState.negotiationRanking=alive.map((c,i)=>({rank:i+1,id:c.id,flag:c.flag,name:c.name,power:c.power,team:c.team,tier:c.tier,atk:c.atk||0,def:c.def||0,army:c.army,treasury:c.treasury}));
+    addLog('Phase de negociation','event');
+    alive.forEach((c,i)=>{
+      const myRank=i+1;
+      const canProposeTo=alive.slice(N-myRank).map(cc=>cc.flag+' '+cc.name).join(', ');
+      addTeamNews(c.team,'NEGOCIATION rang '+myRank+'/'+N+' — alliance possible avec : '+canProposeTo,'neutral');
+    });
     broadcast();
   });
+
 
   socket.on('mj:startWar',()=>{
     gameState.phase='war';gameState.currentEvent=null;gameState.pendingChoiceEvent=null;
@@ -622,6 +630,17 @@ io.on('connection',(socket)=>{
     const team=gameState.teams[fromTeam];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
     const fromCountry=Object.values(gameState.countries).find(cc=>cc.team===fromTeam);
+    if(gameState.phase==='negotiation'){
+      const aliveN=Object.values(gameState.countries).filter(cc=>cc.team&&!cc.eliminated).sort((a,b)=>b.power-a.power);
+      const NN=aliveN.length;
+      const fromRank=aliveN.findIndex(cc=>cc.team===fromTeam)+1;
+      const toRank=aliveN.findIndex(cc=>cc.team===toTeam)+1;
+      const minAllowedRank=NN-fromRank+1;
+      if(toRank<minAllowedRank){
+        const canTo=aliveN.slice(NN-fromRank).map(cc=>cc.flag+' '+cc.name).join(', ');
+        socket.emit('error','Rang '+fromRank+'/'+NN+' — alliance uniquement possible avec : '+canTo);return;
+      }
+    }
     if(cost>0&&c.treasury<cost){socket.emit('error','Pas assez d\'or !');return;}
     const proposal={from:fromTeam,fromCountry:fromCountry?{flag:fromCountry.flag,name:fromCountry.name}:null,to:toTeam,type:allianceType,cost,expires:Date.now()+30000};
     gameState.pendingAllianceProposals[toTeam]=proposal;
@@ -802,7 +821,7 @@ io.on('connection',(socket)=>{
   socket.on('mj:bonus',({countryId,amount})=>{const c=gameState.countries[countryId];if(!c)return;c.treasury+=amount;c.power=calcPower(c);addLog(`${amount>0?'+':''}${amount} or → ${c.flag}`,amount>0?'economy':'attack');broadcast();});
   socket.on('mj:reset',()=>{
     if(timerInterval)clearInterval(timerInterval);if(warTurnInterval)clearInterval(warTurnInterval);timerInterval=null;warTurnInterval=null;
-    gameState={phase:'setup',currentPeriod:0,currentEvent:null,nextEvent:null,nextHint:null,periodSequence:[],countries:{},takenCountries:{},teams:{},prices:{...BASE_PRICES},prevPrices:{...BASE_PRICES},currentPrices:{...BASE_PRICES},eventMod:{oilMultiplier:1,tourismMultiplier:1,agriMultiplier:1,baseMultiplier:1,blockOilBelowPower:0},coalition:{proposed:false,moroccoAccepted:false,guineaAccepted:false,active:false},alliances:{},pendingAllianceProposals:{},log:[],timerSeconds:600,timerRunning:false,warTurnOrder:[],warCurrentTurn:0,warTurnSeconds:30,teamActionsThisPeriod:{},lastActionByTeam:{},pendingChoiceEvent:null,winner:null,winners:[],isTutorial:false,tutorialSnapshot:{},gameOver:false};
+    gameState={phase:'setup',currentPeriod:0,currentEvent:null,nextEvent:null,nextHint:null,periodSequence:[],countries:{},takenCountries:{},teams:{},prices:{...BASE_PRICES},prevPrices:{...BASE_PRICES},currentPrices:{...BASE_PRICES},eventMod:{oilMultiplier:1,tourismMultiplier:1,agriMultiplier:1,baseMultiplier:1,blockOilBelowPower:0},coalition:{proposed:false,moroccoAccepted:false,guineaAccepted:false,active:false},alliances:{},pendingAllianceProposals:{},log:[],timerSeconds:600,timerRunning:false,warTurnOrder:[],warCurrentTurn:0,warTurnSeconds:30,teamActionsThisPeriod:{},lastActionByTeam:{},pendingChoiceEvent:null,winner:null,winners:[],isTutorial:false,tutorialSnapshot:{},gameOver:false,negotiationRanking:[]};
     broadcast();io.emit('timer',{seconds:600,running:false});
   });
   socket.on('team:join',({teamName})=>{if(!gameState.teams[teamName])gameState.teams[teamName]={country:null,news:[]};broadcast();});
