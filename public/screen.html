@@ -192,6 +192,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
   <div class="pulse-ring"></div>
   <div class="wait-logo">Geopolitica</div>
   <div class="wait-sub">En attente du début de la partie</div>
+  <div id="screen-session-code" style="display:none;margin-top:1rem;text-align:center">
+    <div style="font-size:10px;color:rgba(201,168,76,.5);letter-spacing:4px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:8px">Code pour rejoindre</div>
+    <div id="screen-session-code-val" style="font-size:clamp(36px,7vw,64px);font-weight:700;font-family:'Cinzel',serif;color:var(--gold);letter-spacing:8px"></div>
+    <div style="font-size:11px;color:rgba(201,168,76,.4);margin-top:6px">Saisissez ce code dans l'interface joueur</div>
+  </div>
 </div>
 
 <!-- WINNER -->
@@ -341,6 +346,12 @@ const PERIOD_THEMES=[
 ];
 
 socket.on('state',s=>{const prev=state;state=s;onUpdate(prev);});
+socket.on('sessionInfo',({sessionCode})=>{
+  const el=document.getElementById('screen-session-code-val');
+  const wrap=document.getElementById('screen-session-code');
+  if(el)el.textContent=sessionCode;
+  if(wrap)wrap.style.display='block';
+});
 socket.on('timer',({seconds,running,ended})=>{if(gameOver)return;timerSec=seconds;updateTimers();if(ended)flashTimerEnd();});
 socket.on('attackAnimation',({attackerId,defenderId,success,scoreAtt,scoreDef})=>showBattle(attackerId,defenderId,success,scoreAtt,scoreDef));
 socket.on('winner',({winners,type})=>triggerWinner(winners,type));
@@ -453,6 +464,7 @@ function onUpdate(prev){
       showCinematic({negoc:true,overline:'Phase diplomatique · Avant la guerre',bg:'radial-gradient(ellipse at center,#0a1628,#000)',title:'Phase de Négociation',subtitle:'La guerre est imminente. C\'est le dernier moment pour former des alliances. Une alliance de non-agression entre les deux derniers survivants signifie une double victoire.',effect:'🕊️ Proposez vos alliances maintenant'},15000);
       setTimeout(()=>{hideCinematic();showView('view-negotiation');},600);
     } else if(state.phase==='prosperity'){
+      const w=document.getElementById('screen-session-code');if(w)w.style.display='none';
       showView('view-prosperity');
     } else if(state.phase==='draft'||state.phase==='setup'){
       showView('view-waiting');
