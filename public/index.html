@@ -12,18 +12,25 @@
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 .screen{display:none;min-height:100vh;flex-direction:column}.screen.active{display:flex}
 h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
+
+/* FLASHES */
 .atk-flash{position:fixed;inset:0;pointer-events:none;z-index:500}
 .atk-flash.go{animation:wf 2s ease-out forwards}
 @keyframes wf{0%{background:rgba(192,57,43,0)}8%{background:rgba(192,57,43,.7)}25%{background:rgba(192,57,43,.35)}100%{background:rgba(192,57,43,0)}}
-.def-flash{position:fixed;inset:0;pointer-events:none;z-index:490;display:none}
-.def-flash.show{display:block;animation:df 1.5s ease-out forwards}
-@keyframes df{0%{background:rgba(26,122,74,0)}15%{background:rgba(26,122,74,.5)}100%{background:rgba(26,122,74,0)}}
 .action-flash-overlay{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:600;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px}
 .action-flash{padding:10px 20px;border-radius:6px;font-size:14px;font-weight:700;font-family:'Cinzel',serif;letter-spacing:1px;animation:actionPop 2s ease-out forwards}
 .action-flash.buy{background:rgba(26,122,74,.9);color:#4ade80;border:1px solid var(--green)}
 .action-flash.sell{background:rgba(192,57,43,.9);color:#f87171;border:1px solid var(--red)}
 .action-flash.undo{background:rgba(201,168,76,.9);color:#0a0c10;border:1px solid var(--gold)}
 @keyframes actionPop{0%{opacity:0;transform:translateY(-8px) scale(.9)}10%{opacity:1;transform:translateY(0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-16px)}}
+
+/* TOOLTIP */
+.tip{position:relative;display:inline-flex;align-items:center}
+.tip-icon{width:14px;height:14px;border-radius:50%;background:rgba(136,146,176,.2);border:1px solid var(--text3);color:var(--text2);font-size:9px;display:inline-flex;align-items:center;justify-content:center;cursor:help;flex-shrink:0;margin-left:4px;font-weight:700}
+.tip-box{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:11px;color:var(--text2);line-height:1.5;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:800;min-width:180px;max-width:260px;white-space:normal;font-family:'Inter',sans-serif;font-weight:400}
+.tip:hover .tip-box{opacity:1}
+
+/* MODALS */
 .atk-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:2px solid var(--gold);border-radius:10px;padding:22px 34px;z-index:501;text-align:center;display:none;min-width:290px}
 .atk-popup.show{display:block;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
 @keyframes pop{0%{transform:translate(-50%,-50%) scale(.6);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
@@ -36,8 +43,6 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 .conf-flag{font-size:28px;margin-bottom:4px}
 .conf-name{font-size:11px;font-weight:700;color:#fff;font-family:'Cinzel',serif;margin-bottom:3px}
 .conf-power{font-size:20px;font-weight:700;font-family:'Cinzel',serif;color:var(--gold)}
-.conf-power-label{font-size:9px;color:var(--text2);letter-spacing:1px;text-transform:uppercase}
-.conf-win-pct{font-size:11px;margin-top:3px;font-weight:600}
 .conf-stats{font-size:10px;color:var(--text2);margin-top:4px;line-height:1.5}
 .prob-bar{height:10px;background:var(--bg3);border-radius:5px;overflow:hidden;margin:5px 0}
 .prob-fill{height:100%;background:linear-gradient(90deg,#4ade80,#1a7a4a);transition:width .5s}
@@ -59,27 +64,14 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 .turn-banner.active{transform:translateY(0)}
 .turn-banner.my-turn{background:linear-gradient(135deg,rgba(201,168,76,.95),rgba(184,126,30,.95));border-bottom:2px solid var(--gold)}
 .turn-banner.other-turn{background:rgba(17,21,40,.96);border-bottom:1px solid var(--border)}
-.turn-banner.negotiation{background:linear-gradient(135deg,rgba(30,58,95,.95),rgba(20,40,70,.95));border-bottom:2px solid #60a5fa}
 .turn-timer-d{font-size:22px;font-weight:700;font-family:'Cinzel',serif;font-variant-numeric:tabular-nums}
 .turn-timer-d.urgent{color:#f87171;animation:pulse 1s infinite}
-.hint-box{background:linear-gradient(135deg,rgba(30,58,95,.4),rgba(30,58,95,.2));border:1px solid #2d5a8e;border-radius:6px;padding:9px 12px;font-size:11px;color:#93c5fd;line-height:1.7}
-.hint-box-title{font-size:10px;font-weight:700;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;font-family:'Cinzel',serif}
-/* PRICE CHANGE INDICATOR */
-.price-change{font-size:10px;font-weight:700;margin-left:4px}
-.price-change.up{color:#f87171}
-.price-change.down{color:#4ade80}
-.war-reserve{border-radius:5px;padding:7px 11px;font-size:11px;display:flex;align-items:center;gap:7px}
 .winner-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:700;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1.2rem;padding:2rem;text-align:center}
 .winner-overlay.show{display:flex;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
 .winner-confetti-piece{position:absolute;width:10px;height:10px;animation:fall linear infinite}
 @keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
-/* NEGOTIATION BANNER */
-.negoc-banner{background:linear-gradient(135deg,rgba(30,58,95,.4),rgba(30,58,95,.2));border:1px solid #2d5a8e;border-radius:6px;padding:10px 14px;font-size:12px;color:#93c5fd;line-height:1.7;display:none}
-/* ATK/DEF BARS */
-.stat-bar-wrap{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:3px}
-.stat-bar-fill{height:100%;border-radius:4px;transition:width .5s}
-.atk-bar{background:linear-gradient(90deg,#dc2626,#f87171)}
-.def-bar{background:linear-gradient(90deg,#1a7a4a,#4ade80)}
+
+/* LANDING */
 #screen-landing{align-items:center;justify-content:center;gap:1.8rem;padding:2rem;text-align:center;background:radial-gradient(ellipse at center,#0d1424,#050709)}
 .logo{font-size:50px;font-weight:700;color:var(--gold);letter-spacing:-2px;text-shadow:0 0 40px rgba(201,168,76,.2)}
 .tagline{font-size:11px;color:var(--text2);letter-spacing:4px;text-transform:uppercase}
@@ -100,6 +92,8 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 .ph-n{background:rgba(30,58,95,.4);color:#60a5fa;border:1px solid #1e3a5f}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:12px}
 .card-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;font-family:'Cinzel',serif}
+
+/* MJ */
 #screen-mj{flex-direction:column}
 .mj-body{display:grid;grid-template-columns:1fr 255px;flex:1;overflow:hidden;height:calc(100vh - 53px)}
 .mj-main{padding:11px;overflow-y:auto;display:flex;flex-direction:column;gap:9px}
@@ -115,12 +109,12 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 .ev-type-targeted{background:rgba(192,57,43,.2);color:#f87171;border:1px solid var(--red)}
 .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:5px}
 .cc{border:1px solid var(--border);border-radius:4px;padding:7px;background:var(--bg3);position:relative}
-.cc.eliminated{opacity:.3;filter:grayscale(1)}.cc.has-defense{border-color:#4ade80}.cc.alert-t{border-color:#f87171}.cc.alert-f{border-color:#f59e0b}
+.cc.eliminated{opacity:.3;filter:grayscale(1)}.cc.alert-t{border-color:#f87171}.cc.alert-f{border-color:#f59e0b}
 .cc-flag{font-size:16px;margin-bottom:1px}.cc-name{font-size:9px;font-weight:700;color:#fff;font-family:'Cinzel',serif;margin-bottom:1px}
 .cc-stats{font-size:8px;color:var(--text2);line-height:1.5}.cc-alerts{position:absolute;top:2px;right:2px;font-size:9px}
 .pbar{height:3px;background:var(--bg);border-radius:2px;margin-top:4px}
 .pfill{height:100%;border-radius:2px;transition:width .5s}
-.ph{background:linear-gradient(90deg,var(--green),#4ade80)}.pm{background:linear-gradient(90deg,#854d0e,#ca8a04)}.pl{background:linear-gradient(90deg,var(--red),#f87171)}
+.ph_{background:linear-gradient(90deg,var(--green),#4ade80)}.pm{background:linear-gradient(90deg,#854d0e,#ca8a04)}.pl{background:linear-gradient(90deg,var(--red),#f87171)}
 .lbr{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:4px;background:var(--bg3);margin-bottom:3px;border:1px solid transparent}
 .lbr.first{background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));border-color:rgba(201,168,76,.3)}
 .lbr-rank{font-size:10px;font-weight:700;min-width:15px;color:var(--text2);font-family:'Cinzel',serif}
@@ -142,8 +136,9 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 .log-e{font-size:10px;padding:4px 7px;border-radius:3px;margin-bottom:2px;border-left:2px solid transparent;line-height:1.4}
 .la{background:rgba(192,57,43,.15);border-color:var(--red);color:#f87171}
 .le{background:rgba(30,58,95,.3);border-color:#2d5a8e;color:#60a5fa}
-.lec{background:rgba(26,122,74,.15);border-color:var(--green);color:#4ade80}
 .lel{background:rgba(192,57,43,.25);border-color:var(--red);color:#fca5a5;font-weight:600}
+
+/* LOBBY + DRAFT */
 #screen-lobby{align-items:center;justify-content:center;background:var(--bg)}
 .lobby-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:22px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
 .lobby-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
@@ -158,14 +153,74 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 .tier-A{background:rgba(30,58,95,.5);color:#60a5fa;border:1px solid #1e3a5f;font-size:9px;padding:2px 7px;border-radius:2px;display:inline-block;font-weight:700;letter-spacing:1px}
 .tier-B{background:rgba(26,122,74,.2);color:#4ade80;border:1px solid var(--green);font-size:9px;padding:2px 7px;border-radius:2px;display:inline-block;font-weight:700;letter-spacing:1px}
 .dc-stats{font-size:9px;color:var(--text2);margin-top:4px;line-height:1.7}
+
+/* ─── TEAM SCREEN ─────────────────────────────────────────────── */
 #screen-team{flex-direction:column;background:var(--bg)}
-.team-body{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;padding-top:50px}
-.gold-card{background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.3);border-radius:6px;padding:9px 12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:7px}
-.gold-val{font-size:26px;font-weight:700;font-family:'Cinzel',serif;color:var(--gold)}
-.gold-meta{font-size:10px;color:var(--text2);display:flex;flex-direction:column;gap:3px;text-align:right}
-.power-bar-me{height:100%;background:linear-gradient(90deg,var(--gold),#e8c97a);border-radius:3px;transition:width .5s}
-.food-warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.4);border-radius:4px;padding:6px 9px;font-size:11px;color:#fbbf24;display:none}
-.action-bar{display:flex;gap:5px;padding:6px 9px;border-radius:4px;font-size:10px;align-items:center;justify-content:space-between}
+.team-body{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:10px;padding-top:50px}
+
+/* INDICE — priorité visuelle maximale */
+.hint-card{background:linear-gradient(135deg,rgba(30,58,95,.5),rgba(20,40,70,.35));border:1px solid #3b7dd8;border-radius:8px;padding:12px 14px;position:relative;overflow:hidden}
+.hint-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#60a5fa,transparent)}
+.hint-card-label{font-size:9px;font-weight:700;color:#60a5fa;letter-spacing:3px;text-transform:uppercase;margin-bottom:5px;font-family:'Cinzel',serif;display:flex;align-items:center;gap:6px}
+.hint-card-pulse{width:6px;height:6px;border-radius:50%;background:#60a5fa;animation:hpulse 2s ease-in-out infinite}
+@keyframes hpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.hint-card-text{font-size:13px;color:#bfdbfe;line-height:1.65}
+.hint-card-effect{margin-top:7px;font-size:11px;color:#93c5fd;padding:5px 9px;background:rgba(30,58,95,.4);border-radius:4px;border-left:2px solid #60a5fa}
+.hint-next-prices{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.hnp{font-size:11px;padding:3px 8px;border-radius:4px;display:flex;align-items:center;gap:4px;font-weight:500}
+.hnp.up{background:rgba(192,57,43,.15);color:#f87171;border:1px solid rgba(192,57,43,.3)}
+.hnp.down{background:rgba(26,122,74,.15);color:#4ade80;border:1px solid rgba(26,122,74,.3)}
+.hnp.flat{background:rgba(136,146,176,.1);color:var(--text2);border:1px solid var(--border)}
+
+/* OR + PUISSANCE — section principale */
+.gold-section{background:linear-gradient(135deg,rgba(201,168,76,.12),rgba(201,168,76,.06));border:1px solid rgba(201,168,76,.35);border-radius:8px;padding:12px 14px}
+.gold-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.gold-label{font-size:9px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:3px}
+.gold-val{font-size:30px;font-weight:700;font-family:'Cinzel',serif;color:var(--gold);line-height:1}
+.gold-income{font-size:11px;color:rgba(201,168,76,.6);margin-top:3px}
+.power-block{text-align:right}
+.power-label{font-size:9px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px}
+.power-val{font-size:22px;font-weight:700;font-family:'Cinzel',serif;color:#fff;line-height:1}
+.power-rank{font-size:10px;color:var(--text2);margin-top:3px}
+.power-bar-wrap{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:8px}
+.power-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),#e8c97a);border-radius:2px;transition:width .5s}
+.war-reserve-strip{margin-top:7px;font-size:11px;padding:5px 9px;border-radius:4px;display:flex;align-items:center;gap:6px;font-weight:500}
+.war-reserve-strip.ok{background:rgba(26,122,74,.15);color:#4ade80;border:1px solid rgba(26,122,74,.3)}
+.war-reserve-strip.warn{background:rgba(192,57,43,.15);color:#f87171;border:1px solid rgba(192,57,43,.3)}
+
+/* RESSOURCES */
+.res-section{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.res-section-title{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:2px;padding:8px 12px 6px;font-family:'Cinzel',serif;border-bottom:1px solid var(--border)}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.res-item{padding:10px 12px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);position:relative}
+.res-item:nth-child(2n){border-right:none}
+.res-item:nth-last-child(-n+2){border-bottom:none}
+.res-icon-name{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.res-icon{font-size:14px}
+.res-name{font-size:10px;color:var(--text2);font-weight:500}
+.res-val{font-size:20px;font-weight:700;font-family:'Cinzel',serif;color:#fff;line-height:1;margin-bottom:2px}
+.res-sub{font-size:10px;color:var(--text3);line-height:1.3}
+.res-sub .can-buy{color:#4ade80;font-weight:500}
+.res-sub .can-buy-zero{color:#f87171}
+
+/* ARMÉE */
+.army-section{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.army-top{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--border)}
+.army-block{flex:1;padding:10px 12px;border-right:1px solid var(--border)}
+.army-block:last-child{border-right:none}
+.army-label{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;display:flex;align-items:center}
+.army-val{font-size:20px;font-weight:700;font-family:'Cinzel',serif;line-height:1}
+.army-val.atk{color:#f87171}
+.army-val.def{color:#4ade80}
+.army-val.troops{color:#f87171}
+.stat-bar{height:3px;border-radius:2px;margin-top:4px;background:var(--bg3);overflow:hidden}
+.stat-bar-fill{height:100%;border-radius:2px;transition:width .5s}
+.atk-fill{background:linear-gradient(90deg,#dc2626,#f87171)}
+.def-fill{background:linear-gradient(90deg,#1a7a4a,#4ade80)}
+.army-locked{font-size:11px;color:var(--text3);padding:10px 12px;line-height:1.5;display:flex;align-items:center;gap:7px}
+
+/* ACTION BAR */
+.action-bar{display:flex;gap:5px;padding:6px 9px;border-radius:6px;font-size:10px;align-items:center;justify-content:space-between;margin-bottom:2px}
 .action-bar.free{background:rgba(26,122,74,.12);border:1px solid rgba(26,122,74,.3);color:#4ade80}
 .action-bar.one{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:#fbbf24}
 .action-bar.used{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);color:#f87171}
@@ -173,84 +228,100 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 .action-bar.tutorial{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);color:var(--gold)}
 .undo-btn{font-size:9px;padding:3px 8px;border-radius:3px;border:1px solid var(--text3);background:transparent;color:var(--text2);cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
 .undo-btn:hover{border-color:var(--gold);color:var(--gold)}.undo-btn:disabled{opacity:.3;cursor:not-allowed}
-.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.sc{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:8px;text-align:center;position:relative;overflow:hidden}
-.sc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px}
-.sc.os::after{background:#60a5fa}.sc.fs::after{background:#4ade80}.sc.as::after{background:#f87171}
-.sc.ts::after{background:#f59e0b}.sc.ags::after{background:#22c55e}
-.sc.atks::after{background:#ef4444}.sc.defs::after{background:#22c55e}
-.sl{font-size:9px;color:var(--text2);margin-bottom:2px;letter-spacing:1px;text-transform:uppercase}
-.sv{font-size:17px;font-weight:700;font-family:'Cinzel',serif}
-.oc{color:#60a5fa}.fc{color:#4ade80}.ac{color:#f87171}.tc{color:#f59e0b}.agc{color:#22c55e}
-.atkc{color:#f87171}.defc{color:#4ade80}
-.price-row{display:flex;gap:5px;flex-wrap:wrap;padding:5px 0}
-.price-pill{font-size:10px;padding:3px 8px;border-radius:3px;background:var(--bg3);border:1px solid var(--border);color:var(--text2)}
-.price-pill.cheap{border-color:var(--green);color:#4ade80}
-.price-pill.expensive{border-color:var(--red);color:#f87171}
-/* NEXT PERIOD PRICES */
-.next-price-box{background:rgba(30,58,95,.2);border:1px solid #2d5a8e;border-radius:5px;padding:8px 10px;margin-top:5px}
-.next-price-title{font-size:9px;font-weight:700;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:'Cinzel',serif}
-.tabs{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden}
-.tab{flex:1;padding:7px 3px;font-size:9px;font-weight:600;text-align:center;cursor:pointer;background:var(--bg2);color:var(--text2);border-right:1px solid var(--border);letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+
+/* MARCHÉ — ressources achetables */
+.market-resource{border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:6px;background:var(--bg3);transition:border-color .2s}
+.market-resource:hover:not(.blocked){border-color:rgba(201,168,76,.4)}
+.market-resource.blocked{opacity:.5;border-color:#f87171}
+.mr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.mr-name{font-size:12px;font-weight:600;color:#fff;font-family:'Cinzel',serif;display:flex;align-items:center;gap:6px}
+.mr-price-block{text-align:right}
+.mr-price{font-size:14px;font-weight:700;font-family:'Cinzel',serif;color:var(--gold)}
+.mr-price-change{font-size:10px;font-weight:700;margin-left:4px}
+.mr-price-change.up{color:#f87171}
+.mr-price-change.down{color:#4ade80}
+.mr-capacity{font-size:10px;color:var(--text2);margin-top:1px}
+.mr-capacity .cap-val{color:#4ade80;font-weight:600}
+.mr-capacity .cap-zero{color:#f87171}
+.mr-controls{display:flex;align-items:center;gap:6px}
+.mr-stock{font-size:10px;color:var(--text3);flex:1}
+.qty-input{width:60px;font-size:13px;font-weight:700;text-align:center;padding:5px 4px;border:1px solid var(--border);border-radius:4px;background:var(--bg2);color:var(--text);font-family:'Cinzel',serif;outline:none}
+.qty-input:focus{border-color:var(--gold)}
+.buybtn{font-size:10px;padding:6px 10px;border-radius:3px;border:1px solid var(--green);background:transparent;color:#4ade80;cursor:pointer;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+.buybtn:hover{background:rgba(26,122,74,.2)}.buybtn:disabled{opacity:.4;cursor:not-allowed}
+.sellbtn{font-size:10px;padding:6px 10px;border-radius:3px;border:1px solid rgba(136,146,176,.3);background:transparent;color:var(--text2);cursor:pointer;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.sellbtn:hover{background:rgba(136,146,176,.1)}.sellbtn:disabled{opacity:.4;cursor:not-allowed}
+
+/* TABS */
+.tabs{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.tab{flex:1;padding:8px 3px;font-size:9px;font-weight:600;text-align:center;cursor:pointer;background:var(--bg2);color:var(--text2);border-right:1px solid var(--border);letter-spacing:1px;text-transform:uppercase;transition:all .15s}
 .tab:last-child{border-right:none}.tab.active{background:var(--gold);color:#0a0c10}
 .panel{display:none}.panel.active{display:block}
-.mrow{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border:1px solid var(--border);border-radius:5px;margin-bottom:5px;background:var(--bg3);flex-wrap:wrap;gap:5px;transition:border-color .2s}
-.mrow:hover:not(.blocked){border-color:var(--gold)}.mrow.blocked{opacity:.5;border-color:#f87171}
-.mrow.locked{opacity:.4;background:var(--bg2)}
-.mn{font-size:11px;font-weight:600;color:#fff;font-family:'Cinzel',serif;margin-bottom:1px}
-.mp{font-size:10px;color:var(--text2)}
-.mp.locked-msg{color:#f59e0b;font-style:italic}
-.mcontrols{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-.qty-input{width:52px;font-size:12px;font-weight:700;text-align:center;padding:4px 4px;border:1px solid var(--border);border-radius:4px;background:var(--bg2);color:var(--text);font-family:'Cinzel',serif;outline:none}
-.qty-input:focus{border-color:var(--gold)}
-.buybtn{font-size:10px;padding:5px 9px;border-radius:3px;border:1px solid var(--green);background:transparent;color:#4ade80;cursor:pointer;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
-.buybtn:hover{background:rgba(26,122,74,.2)}.buybtn:disabled{opacity:.4;cursor:not-allowed}
-.sellbtn{font-size:10px;padding:5px 9px;border-radius:3px;border:1px solid var(--red);background:transparent;color:#f87171;cursor:pointer;font-weight:600;letter-spacing:1px;text-transform:uppercase}
-.sellbtn:hover{background:rgba(192,57,43,.2)}.sellbtn:disabled{opacity:.4;cursor:not-allowed}
-.attack-target-sel{width:100%;font-size:15px;padding:12px 14px;border:2px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text);outline:none;margin-bottom:10px;transition:border-color .2s;font-family:'Cinzel',serif}
+
+/* ARMY PANEL */
+.army-buy-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:11px 13px;margin-bottom:7px}
+.army-buy-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;font-family:'Cinzel',serif}
+.army-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:5px}
+.army-row:last-child{border-bottom:none;padding-bottom:0}
+.ar-left{flex:1}
+.ar-name{font-size:12px;font-weight:600;color:#fff;font-family:'Cinzel',serif;margin-bottom:2px;display:flex;align-items:center}
+.ar-desc{font-size:10px;color:var(--text2);line-height:1.4}
+.ar-desc .ar-cap{color:#4ade80;font-weight:500}
+.ar-controls{display:flex;align-items:center;gap:5px}
+.army-locked-msg{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:6px;padding:10px 13px;font-size:11px;color:#fbbf24;line-height:1.6;display:flex;align-items:flex-start;gap:8px}
+.army-locked-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+
+/* ATTACK */
+.attack-target-sel{width:100%;font-size:14px;padding:11px 13px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text);outline:none;margin-bottom:10px;transition:border-color .2s;font-family:'Cinzel',serif}
 .attack-target-sel:focus{border-color:var(--gold)}
-.pay-select{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
-.pay-opt{flex:1;padding:6px;border:1px solid var(--border);border-radius:4px;background:var(--bg3);cursor:pointer;text-align:center;transition:all .15s;font-size:10px;min-width:65px}
+.pay-select{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
+.pay-opt{flex:1;padding:7px 6px;border:1px solid var(--border);border-radius:5px;background:var(--bg3);cursor:pointer;text-align:center;transition:all .15s;font-size:10px;min-width:70px}
 .pay-opt:hover{border-color:var(--gold)}.pay-opt.selected{border-color:var(--gold);background:rgba(201,168,76,.1)}
-.pay-opt-icon{font-size:15px;margin-bottom:2px}.pay-opt-label{font-size:9px;color:var(--text2)}.pay-opt-cost{font-size:11px;font-weight:700;font-family:'Cinzel',serif}
-.ne{padding:7px 10px;border-left:2px solid var(--border);margin-bottom:5px;border-radius:0 4px 4px 0;background:var(--bg3)}
+.pay-opt-icon{font-size:16px;margin-bottom:2px}.pay-opt-label{font-size:9px;color:var(--text2)}.pay-opt-cost{font-size:12px;font-weight:700;font-family:'Cinzel',serif}
+.aw{background:rgba(30,58,95,.3);color:#60a5fa;border-radius:6px;padding:10px;font-size:11px;line-height:1.6;border:1px solid #1e3a5f}
+.ally-type-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:3px;font-weight:700;letter-spacing:1px}
+.ally-type-peace{background:rgba(26,122,74,.2);color:#4ade80;border:1px solid var(--green)}
+.ally-type-offensive{background:rgba(192,57,43,.2);color:#f87171;border:1px solid var(--red)}
+
+/* NEWS */
+.ne{padding:8px 11px;border-left:2px solid var(--border);margin-bottom:5px;border-radius:0 5px 5px 0;background:var(--bg3)}
 .ng{border-color:var(--green)}.nb{border-color:var(--red)}.nn{border-color:#2d5a8e}
 .nt{font-size:9px;color:var(--text3);margin-bottom:2px;letter-spacing:1px}
-.nm{font-size:11px;line-height:1.5;white-space:pre-line}
-.aw{background:rgba(30,58,95,.3);color:#60a5fa;border-radius:4px;padding:9px;font-size:11px;line-height:1.6;border:1px solid #1e3a5f}
-.elim-banner{background:rgba(192,57,43,.2);color:#f87171;text-align:center;padding:12px;border-radius:5px;border:1px solid var(--red)}
+.nm{font-size:11px;line-height:1.55;white-space:pre-line}
+
+/* RULES */
+.rule-block{margin-bottom:12px}
+.rule-block h3{font-size:10px;color:var(--gold);margin-bottom:5px;letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif}
+.rule-block p,.rule-block li{font-size:12px;color:var(--text);line-height:1.7}
+.rule-block ul{padding-left:14px}
+.rule-example{background:var(--bg3);border-left:2px solid rgba(201,168,76,.4);padding:6px 10px;border-radius:0 4px 4px 0;font-size:11px;color:var(--text2);margin-top:4px;line-height:1.6}
+
+/* MISC */
+.elim-banner{background:rgba(192,57,43,.2);color:#f87171;text-align:center;padding:12px;border-radius:6px;border:1px solid var(--red)}
 .coal-box{background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.4);border-radius:6px;padding:11px;text-align:center;position:relative;overflow:hidden}
 .coal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .my-turn-box{background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.08));border:2px solid var(--gold);border-radius:7px;padding:11px;text-align:center;animation:myturnpulse 1.5s ease-in-out infinite}
 @keyframes myturnpulse{0%,100%{box-shadow:0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 16px rgba(201,168,76,.3)}}
 .other-turn-box{background:rgba(17,21,40,.6);border:1px solid var(--border);border-radius:7px;padding:11px;text-align:center}
-.ally-section{background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:8px}
-.ally-type-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:3px;font-weight:700;letter-spacing:1px}
-.ally-type-peace{background:rgba(26,122,74,.2);color:#4ade80;border:1px solid var(--green)}
-.ally-type-offensive{background:rgba(192,57,43,.2);color:#f87171;border:1px solid var(--red)}
-.rules-s{margin-bottom:10px}
-.rules-s h3{font-size:10px;color:var(--gold);margin-bottom:4px;letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif}
-.rules-s p,.rules-s li{font-size:11px;color:var(--text);line-height:1.7}
-.rules-s ul{padding-left:12px}
+.negoc-banner{background:rgba(30,58,95,.3);border:1px solid #2d5a8e;border-radius:6px;padding:9px 12px;font-size:12px;color:#93c5fd;line-height:1.6;display:none}
+.food-warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.4);border-radius:5px;padding:6px 10px;font-size:11px;color:#fbbf24;display:none}
 #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--bg2);color:var(--gold);padding:8px 15px;border-radius:4px;font-size:12px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap;border:1px solid var(--gold)}
 #toast.show{opacity:1}
-@media(max-width:640px){.mj-body{grid-template-columns:1fr}.mj-sidebar{display:none}.sgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.mj-body{grid-template-columns:1fr}.mj-sidebar{display:none}}
 </style>
 </head>
 <body>
 <div class="atk-flash" id="atk-flash"></div>
-<div class="def-flash" id="def-flash"></div>
 <div class="action-flash-overlay" id="action-flash-overlay"></div>
 
 <!-- WINNER OVERLAY -->
 <div class="winner-overlay" id="winner-overlay">
   <div style="position:absolute;inset:0;overflow:hidden" id="winner-confetti-cont"></div>
   <div style="font-size:clamp(48px,10vw,80px)" id="wo-flags"></div>
-  <div style="font-size:clamp(20px,4vw,36px);font-weight:900;color:var(--gold);font-family:'Cinzel',serif;text-align:center;text-shadow:0 0 40px rgba(201,168,76,.4)" id="wo-title"></div>
+  <div style="font-size:clamp(20px,4vw,36px);font-weight:900;color:var(--gold);font-family:'Cinzel',serif;text-align:center" id="wo-title"></div>
   <div style="font-size:14px;color:var(--text2);letter-spacing:2px;text-transform:uppercase" id="wo-subtitle"></div>
   <div style="max-width:500px;width:100%;margin-top:8px" id="wo-lb"></div>
-  <!-- RESET BUTTON -->
-  <button onclick="hideWinnerOverlay()" style="margin-top:16px;font-size:11px;padding:10px 24px;border-radius:4px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:var(--text2);cursor:pointer;letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif;transition:all .2s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,.2)';this.style.color='var(--text2)'">← Retour à l'interface MJ</button>
+  <button onclick="hideWinnerOverlay()" style="margin-top:16px;font-size:11px;padding:10px 24px;border-radius:4px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:var(--text2);cursor:pointer;letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif">← Retour à l'interface MJ</button>
 </div>
 
 <!-- ATTACK RESULT -->
@@ -258,33 +329,19 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
   <div id="ap-icon" style="font-size:34px;margin-bottom:7px"></div>
   <div id="ap-title" style="font-size:14px;font-weight:700;font-family:'Cinzel',serif;margin-bottom:4px;color:#fff"></div>
   <div id="ap-detail" style="font-size:11px;color:var(--text2);line-height:1.7"></div>
-  <button onclick="document.getElementById('atk-popup').classList.remove('show')" style="margin-top:9px;font-size:10px;padding:4px 11px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;letter-spacing:1px;text-transform:uppercase">Fermer</button>
+  <button onclick="document.getElementById('atk-popup').classList.remove('show')" style="margin-top:9px;font-size:10px;padding:4px 11px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer">Fermer</button>
 </div>
 
-<!-- CONFRONTATION MODAL -->
+<!-- CONFRONTATION -->
 <div class="conf-modal" id="conf-modal">
   <div class="conf-card">
     <div style="font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:10px;text-align:center">⚔️ Analyse de Combat</div>
     <div class="conf-vs">
-      <div class="conf-nation">
-        <div class="conf-flag" id="conf-att-flag">🏳️</div>
-        <div class="conf-name" id="conf-att-name">—</div>
-        <div class="conf-power-label">Puissance</div>
-        <div class="conf-power" id="conf-att-power">0</div>
-        <div class="conf-win-pct" id="conf-att-pct" style="color:#4ade80"></div>
-        <div class="conf-stats" id="conf-att-stats"></div>
-      </div>
+      <div class="conf-nation"><div class="conf-flag" id="conf-att-flag">🏳️</div><div class="conf-name" id="conf-att-name">—</div><div style="font-size:9px;color:var(--text2);margin-bottom:2px">Puissance</div><div class="conf-power" id="conf-att-power">0</div><div class="conf-stats" id="conf-att-stats"></div><div style="font-size:11px;margin-top:3px;font-weight:600;color:#4ade80" id="conf-att-pct"></div></div>
       <div style="font-size:18px;color:var(--red);font-family:'Cinzel',serif;font-weight:700;text-align:center">VS</div>
-      <div class="conf-nation">
-        <div class="conf-flag" id="conf-def-flag">🏳️</div>
-        <div class="conf-name" id="conf-def-name">—</div>
-        <div class="conf-power-label">Puissance + DEF</div>
-        <div class="conf-power" id="conf-def-power">0</div>
-        <div class="conf-win-pct" id="conf-def-pct" style="color:#f87171"></div>
-        <div class="conf-stats" id="conf-def-stats"></div>
-      </div>
+      <div class="conf-nation"><div class="conf-flag" id="conf-def-flag">🏳️</div><div class="conf-name" id="conf-def-name">—</div><div style="font-size:9px;color:var(--text2);margin-bottom:2px">Puissance + DEF</div><div class="conf-power" id="conf-def-power">0</div><div class="conf-stats" id="conf-def-stats"></div><div style="font-size:11px;margin-top:3px;font-weight:600;color:#f87171" id="conf-def-pct"></div></div>
     </div>
-    <div style="font-size:10px;color:var(--text2);margin-bottom:5px;text-align:center">Estimé · ±18-36% aléatoire · ATK bouste l'attaque · DEF bouste la défense (+10%)</div>
+    <div style="font-size:10px;color:var(--text2);margin-bottom:5px;text-align:center">Estimé · ±18-36% aléatoire · ATK booste l'attaque · DEF booste la défense</div>
     <div class="prob-bar"><div class="prob-fill" id="prob-fill"></div></div>
     <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:12px"><span id="prob-att-label" style="color:#4ade80"></span><span id="prob-def-label" style="color:#f87171"></span></div>
     <div style="display:flex;gap:8px">
@@ -294,15 +351,15 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
   </div>
 </div>
 
-<!-- CHOICE MODAL -->
+<!-- CHOICE -->
 <div class="choice-modal" id="choice-modal">
   <div class="choice-card">
     <div style="font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:3px">⚡ Choix stratégique — décision irréversible</div>
     <div class="choice-cd" id="choice-cd">60</div>
     <div style="font-size:14px;font-weight:700;color:#fff;font-family:'Cinzel',serif;margin-bottom:4px" id="choice-title"></div>
     <div style="font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:12px" id="choice-desc"></div>
-    <button class="choice-btn" id="choice-btn-a" onclick="submitChoice('A')"><div class="choice-btn-label">Option A</div><div id="choice-label-a"></div></button>
-    <button class="choice-btn" id="choice-btn-b" onclick="submitChoice('B')"><div class="choice-btn-label">Option B</div><div id="choice-label-b"></div></button>
+    <button class="choice-btn" onclick="submitChoice('A')"><div class="choice-btn-label">Option A</div><div id="choice-label-a"></div></button>
+    <button class="choice-btn" onclick="submitChoice('B')"><div class="choice-btn-label">Option B</div><div id="choice-label-b"></div></button>
     <div style="font-size:10px;color:var(--text3);margin-top:5px;text-align:center">Option B automatique si pas de réponse</div>
   </div>
 </div>
@@ -365,12 +422,12 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
   <div class="draft-body">
     <div>
       <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:4px;font-family:'Cinzel',serif">Choisissez votre Nation</div>
-      <div style="font-size:10px;color:var(--text2);line-height:1.7">S = Superpuissance · A = Puissance majeure · B = Émergente (+15%)<br>Revenus passifs: Pétrole ×25 · Tourisme ×25 · Agriculture ×20 par unité/période<br>⚔️ Armée disponible manches 4-5-6. Gardez 600 or pour la guerre.</div>
+      <div style="font-size:10px;color:var(--text2);line-height:1.7">S = Superpuissance · A = Puissance majeure · B = Émergente (+15% en combat)<br>Revenus passifs par période : Pétrole ×25 · Tourisme ×25 · Agriculture ×20<br>⚔️ Armée disponible manches 5-6. Gardez 600 or pour la guerre.</div>
     </div>
     <div class="dgrid" id="draft-grid"></div>
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
       <button class="btn-primary" id="confirm-draft-btn" onclick="confirmDraft()" disabled>Confirmer →</button>
-      <div id="draft-waiting" style="display:none;font-size:11px;color:var(--text2)">En attente...</div>
+      <div id="draft-waiting" style="display:none;font-size:11px;color:var(--text2)">En attente du MJ...</div>
     </div>
   </div>
 </div>
@@ -397,14 +454,13 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
         <div class="pname" id="pc-name"></div>
         <div style="font-size:10px;color:var(--text);line-height:1.6;margin-bottom:5px" id="pc-desc"></div>
         <div class="epill" id="pc-event"></div>
-        <div id="pc-hint-box" style="display:none;margin-top:9px" class="hint-box">
-          <div class="hint-box-title">🔮 Ce qui va arriver — prochaine période</div>
-          <div id="pc-hint-text" style="font-size:11px;line-height:1.7"></div>
+        <div id="pc-hint-box" style="display:none;margin-top:9px;background:rgba(30,58,95,.3);border:1px solid #2d5a8e;border-radius:5px;padding:8px 11px;font-size:11px;color:#93c5fd;line-height:1.6">
+          <div style="font-size:9px;font-weight:700;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;font-family:'Cinzel',serif">🔮 Indice — prochaine période</div>
+          <div id="pc-hint-text"></div>
         </div>
-        <!-- Next period prices preview -->
-        <div id="pc-next-prices" style="display:none;margin-top:7px" class="next-price-box">
-          <div class="next-price-title">💰 Prix prochaine période</div>
-          <div id="pc-next-prices-content" class="price-row" style="padding:2px 0"></div>
+        <div id="pc-next-prices" style="display:none;margin-top:7px;background:rgba(30,58,95,.2);border:1px solid #2d5a8e;border-radius:5px;padding:7px 10px">
+          <div style="font-size:9px;font-weight:700;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:'Cinzel',serif">💰 Prix prochaine période</div>
+          <div id="pc-next-prices-content" style="display:flex;gap:5px;flex-wrap:wrap"></div>
         </div>
       </div>
       <div class="card" id="war-turn-mj" style="display:none">
@@ -469,92 +525,112 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
   <div class="team-body">
     <div id="elim-banner" style="display:none" class="elim-banner"><h2 style="font-size:14px;margin-bottom:2px;font-family:'Cinzel',serif">Nation Conquise</h2><p style="font-size:11px;color:#fca5a5">Votre nation a été vaincue.</p></div>
     <div id="tutorial-banner" style="display:none;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);border-radius:5px;padding:7px 11px;font-size:11px;color:var(--gold);text-align:center">🎮 MANCHE TEST — Actions illimitées. Ressources remises à zéro après.</div>
-    <!-- NEGOTIATION BANNER -->
-    <div id="negoc-banner" class="negoc-banner">
-      💬 <strong>Phase de Négociation</strong> — Proposez des alliances maintenant avant que la guerre commence. Allez dans l'onglet "Attaquer" → "Alliance".
-    </div>
+    <div id="negoc-banner" class="negoc-banner">💬 <strong>Phase de Négociation</strong> — Proposez des alliances avant la guerre dans l'onglet "Attaquer".</div>
     <div id="coal-box" style="display:none" class="coal-box">
-      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:3px;font-family:'Cinzel',serif">🤝 Proposition de Coalition</div>
-      <div style="font-size:11px;color:var(--text);line-height:1.5;margin-bottom:7px">Alliance africaine — +25% ressources partagées.</div>
+      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:3px;font-family:'Cinzel',serif">🤝 Coalition Africaine proposée</div>
+      <div style="font-size:11px;color:var(--text);line-height:1.5;margin-bottom:7px">Avec l'Afrique du Sud — +25% ressources partagées.</div>
       <div style="font-size:10px;color:var(--text2);margin-bottom:7px" id="coal-status"></div>
       <div style="display:flex;gap:8px;justify-content:center" id="coal-btns">
         <button class="btn-primary" onclick="respondCoalition(true)">Accepter</button>
         <button class="btn-secondary" onclick="respondCoalition(false)">Refuser</button>
       </div>
     </div>
-    <!-- OR -->
-    <div class="gold-card">
-      <div>
-        <div style="font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px">Or</div>
-        <div class="gold-val" id="t-gold">0</div>
+
+    <!-- 1. INDICE EN PREMIER — le plus important -->
+    <div id="hint-card" class="hint-card" style="display:none">
+      <div class="hint-card-label">
+        <div class="hint-card-pulse"></div>
+        Indice — ce qui arrive la prochaine période
       </div>
-      <div class="gold-meta">
-        <div>Puissance: <strong id="t-power" style="color:var(--gold);font-family:'Cinzel',serif">0</strong></div>
-        <div>Période: <strong id="t-round">—</strong></div>
-        <div id="action-summary" style="color:#4ade80;font-size:10px">✓ 2 actions</div>
+      <div class="hint-card-text" id="hint-card-text"></div>
+      <div class="hint-card-effect" id="hint-card-effect" style="display:none"></div>
+      <div class="hint-next-prices" id="hint-next-prices"></div>
+    </div>
+
+    <!-- 2. OR + PUISSANCE -->
+    <div class="gold-section">
+      <div class="gold-top">
+        <div>
+          <div class="gold-label">Or disponible</div>
+          <div class="gold-val" id="t-gold">0</div>
+          <div class="gold-income">Revenus estimés : <span id="t-income" style="color:var(--gold)">+0</span> / période</div>
+        </div>
+        <div class="power-block">
+          <div class="power-label">Puissance</div>
+          <div class="power-val" id="t-power">0</div>
+          <div class="power-rank" id="t-rank">Rang —</div>
+        </div>
       </div>
-    </div>
-    <!-- WAR RESERVE -->
-    <div id="war-reserve" class="war-reserve" style="display:none">
-      ⚔️ Réservez 600 or pour la guerre — actuellement: <strong id="war-reserve-val"></strong>
-    </div>
-    <!-- POWER BAR -->
-    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:8px 11px">
-      <div style="font-size:9px;color:var(--text2);margin-bottom:4px;letter-spacing:1px;text-transform:uppercase">Puissance vs classement</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="font-size:10px;color:var(--text2)"><strong id="pc-my-power" style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold)">0</strong><br>Vous</div>
-        <div style="flex:1;height:5px;background:var(--bg);border-radius:3px;overflow:hidden"><div class="power-bar-me" id="pc-bar" style="width:50%"></div></div>
-        <div style="font-size:10px;color:var(--text2);text-align:right"><strong id="pc-max-power" style="font-family:'Cinzel',serif;font-size:14px">0</strong><br>Leader</div>
-      </div>
-      <div style="font-size:10px;color:var(--text2);margin-top:3px;text-align:center">Rang: <strong id="pc-rank" style="color:var(--gold)">—</strong></div>
-    </div>
-    <div id="food-warn" class="food-warn">⚠️ Nourriture faible — risque famine prochaine période !</div>
-    <!-- RESOURCES -->
-    <div class="sgrid">
-      <div class="sc os"><div class="sl">Pétrole</div><div class="sv oc" id="t-oil">0</div></div>
-      <div class="sc fs"><div class="sl">Nourriture</div><div class="sv fc" id="t-food">0</div></div>
-      <div class="sc as"><div class="sl">Armée</div><div class="sv ac" id="t-army">0</div></div>
-    </div>
-    <div class="sgrid">
-      <div class="sc ts"><div class="sl">Tourisme</div><div class="sv tc" id="t-tourism">0</div></div>
-      <div class="sc ags"><div class="sl">Agriculture</div><div class="sv agc" id="t-agriculture">0</div></div>
-      <div class="sc" style="background:var(--bg3)"><div class="sl">Rev/période</div><div class="sv" id="t-income" style="color:#fff;font-size:13px">+~0</div></div>
-    </div>
-    <!-- ATK / DEF -->
-    <div class="sgrid">
-      <div class="sc atks">
-        <div class="sl">⚔️ Attaque</div>
-        <div class="sv atkc" id="t-atk">0</div>
-        <div style="font-size:9px;color:var(--text3);margin-top:2px">+<span id="t-atk-pct">0</span>% offensif</div>
-        <div class="stat-bar-wrap"><div class="stat-bar-fill atk-bar" id="t-atk-bar" style="width:0%"></div></div>
-      </div>
-      <div class="sc defs">
-        <div class="sl">🛡️ Défense</div>
-        <div class="sv defc" id="t-def">0</div>
-        <div style="font-size:9px;color:var(--text3);margin-top:2px">+<span id="t-def-pct">0</span>% défensif</div>
-        <div class="stat-bar-wrap"><div class="stat-bar-fill def-bar" id="t-def-bar" style="width:0%"></div></div>
-      </div>
-      <div class="sc" style="background:var(--bg3)">
-        <div class="sl">Invest. armée</div>
-        <div style="font-size:11px;color:var(--text2);margin-top:4px;line-height:1.5" id="t-army-status">Dispo manche 5+</div>
+      <div class="power-bar-wrap"><div class="power-bar-fill" id="pc-bar" style="width:50%"></div></div>
+      <div id="war-reserve" style="display:none" class="war-reserve-strip ok">
+        ⚔️ Réserve guerre : <strong id="war-reserve-val"></strong>
+        <span id="war-reserve-hint" style="font-size:10px;opacity:.7"></span>
       </div>
     </div>
-    <!-- PERIOD + HINT -->
-    <div id="team-period" style="display:none" class="period-box">
+    <div id="food-warn" class="food-warn">⚠️ Nourriture faible — risque de famine à la prochaine période !</div>
+
+    <!-- 3. RESSOURCES économiques -->
+    <div class="res-section">
+      <div class="res-section-title">Ressources économiques
+        <span class="tip" style="margin-left:6px"><span class="tip-icon">?</span><span class="tip-box">Ces ressources génèrent des revenus passifs chaque période. Pétrole et tourisme rapportent ×25 par unité, agriculture ×20. La nourriture est consommée par votre population.</span></span>
+      </div>
+      <div class="res-grid">
+        <div class="res-item">
+          <div class="res-icon-name"><span class="res-icon">🛢️</span><span class="res-name">Pétrole</span><span class="tip"><span class="tip-icon">?</span><span class="tip-box">Revenus : ×25 or/unité/période. Prix variable selon les events.</span></span></div>
+          <div class="res-val oc" id="t-oil">0</div>
+          <div class="res-sub" id="t-oil-sub"></div>
+        </div>
+        <div class="res-item">
+          <div class="res-icon-name"><span class="res-icon">🌾</span><span class="res-name">Nourriture</span><span class="tip"><span class="tip-icon">?</span><span class="tip-box">Consommée chaque période selon votre population. Si vous manquez de nourriture, vous perdez des points de puissance.</span></span></div>
+          <div class="res-val fc" id="t-food">0</div>
+          <div class="res-sub" id="t-food-sub"></div>
+        </div>
+        <div class="res-item">
+          <div class="res-icon-name"><span class="res-icon">🏖️</span><span class="res-name">Tourisme</span><span class="tip"><span class="tip-icon">?</span><span class="tip-box">Revenus : ×25 or/unité/période. Très sensible aux events sécuritaires et aux crises.</span></span></div>
+          <div class="res-val tc" id="t-tourism">0</div>
+          <div class="res-sub" id="t-tourism-sub"></div>
+        </div>
+        <div class="res-item" style="border-bottom:none">
+          <div class="res-icon-name"><span class="res-icon">🌿</span><span class="res-name">Agriculture</span><span class="tip"><span class="tip-icon">?</span><span class="tip-box">Revenus : ×20 or/unité/période. Stratégique en cas de crise alimentaire mondiale.</span></span></div>
+          <div class="res-val agc" id="t-agriculture">0</div>
+          <div class="res-sub" id="t-agriculture-sub"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. ARMÉE + ATK/DEF -->
+    <div class="army-section">
+      <div style="padding:8px 12px 6px;border-bottom:1px solid var(--border);font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:2px;font-family:'Cinzel',serif;display:flex;align-items:center;gap:6px">
+        Capacité militaire
+        <span class="tip"><span class="tip-icon">?</span><span class="tip-box">Armée = taille de vos forces. ATK = multiplicateur offensif (+1.2%/point). DEF = multiplicateur défensif (+1.2%/point). Disponible en manches 5-6.</span></span>
+        <span id="army-available-badge" style="display:none;margin-left:auto;font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(26,122,74,.2);color:#4ade80;border:1px solid rgba(26,122,74,.4)">Disponible manche 5</span>
+        <span id="army-locked-badge" style="display:none;margin-left:auto;font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)" id="army-locked-badge"></span>
+      </div>
+      <div class="army-top">
+        <div class="army-block">
+          <div class="army-label">Soldats</div>
+          <div class="army-val troops" id="t-army">0</div>
+        </div>
+        <div class="army-block">
+          <div class="army-label">⚔️ Attaque <span class="tip"><span class="tip-icon">?</span><span class="tip-box">Chaque point ATK = +1.2% en combat offensif. 200 or par point.</span></span></div>
+          <div class="army-val atk" id="t-atk">0</div>
+          <div class="stat-bar"><div class="stat-bar-fill atk-fill" id="t-atk-bar" style="width:0%"></div></div>
+        </div>
+        <div class="army-block">
+          <div class="army-label">🛡️ Défense <span class="tip"><span class="tip-icon">?</span><span class="tip-box">Chaque point DEF = +1.2% en résistance défensive. 200 or par point.</span></span></div>
+          <div class="army-val def" id="t-def">0</div>
+          <div class="stat-bar"><div class="stat-bar-fill def-fill" id="t-def-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PÉRIODE INFO -->
+    <div id="team-period" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:11px 13px">
       <div class="pnum" id="tp-num"></div>
       <div class="pname" id="tp-name"></div>
-      <div style="font-size:10px;color:var(--text);line-height:1.6;margin-bottom:5px" id="tp-desc"></div>
-      <div class="epill" id="tp-event"></div>
-      <div id="tp-hint-box" style="display:none;margin-top:8px" class="hint-box">
-        <div class="hint-box-title">🔮 Ce qui va arriver — prochaine période</div>
-        <div id="tp-hint-text" style="font-size:11px;line-height:1.7"></div>
-      </div>
-      <!-- Next period prices -->
-      <div id="tp-next-prices" style="display:none;margin-top:7px" class="next-price-box">
-        <div class="next-price-title">💰 Prix prochaine période (anticipez !)</div>
-        <div id="tp-next-prices-content" class="price-row" style="padding:2px 0"></div>
-      </div>
+      <div style="font-size:10px;color:var(--text);line-height:1.6;margin-top:3px" id="tp-desc"></div>
     </div>
+
     <!-- WAR TURN -->
     <div id="my-turn-box" style="display:none" class="my-turn-box">
       <div style="font-size:13px;font-weight:700;color:var(--gold);font-family:'Cinzel',serif;margin-bottom:3px">⚔️ C'est votre tour !</div>
@@ -569,6 +645,8 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
       <div style="font-size:11px;color:var(--text2);margin-bottom:3px">Tour de :</div>
       <div style="font-size:13px;font-weight:700;color:#fff;font-family:'Cinzel',serif" id="other-turn-name">—</div>
     </div>
+
+    <!-- TABS -->
     <div class="tabs">
       <div class="tab active" onclick="switchTab('market')">Marché</div>
       <div class="tab" onclick="switchTab('army')">Armée</div>
@@ -576,50 +654,70 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
       <div class="tab" onclick="switchTab('news')">News</div>
       <div class="tab" onclick="switchTab('rules')">Règles</div>
     </div>
-    <!-- MARKET -->
+
+    <!-- MARKET PANEL -->
     <div id="panel-market" class="panel active">
-      <div class="action-bar free" id="action-bar-market">
-        <span>✓ 2 actions disponibles</span>
+      <div class="action-bar free" id="action-bar-market" style="margin-bottom:6px">
+        <span id="action-bar-market-text">✓ 2 actions disponibles</span>
         <button class="undo-btn" id="undo-btn-market" onclick="undoAction()" disabled>↩ Annuler</button>
       </div>
-      <div class="price-row" id="price-row"></div>
-      <div id="market-rows" style="margin-top:5px"></div>
+      <div id="market-rows"></div>
     </div>
-    <!-- ARMY -->
+
+    <!-- ARMY PANEL -->
     <div id="panel-army" class="panel">
-      <div class="action-bar free" id="action-bar-army">
-        <span>✓ 2 actions disponibles</span>
+      <div class="action-bar free" id="action-bar-army" style="margin-bottom:6px">
+        <span id="action-bar-army-text">✓ 2 actions disponibles</span>
         <button class="undo-btn" id="undo-btn-army" onclick="undoAction()" disabled>↩ Annuler</button>
       </div>
-      <div id="army-locked-msg" style="display:none;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:5px;padding:10px;margin-top:6px;font-size:11px;color:#fbbf24;line-height:1.6">
-        🔒 L'investissement militaire (Armée, Attaque, Défense) est disponible à partir de la <strong>manche 5</strong>.<br>Concentrez-vous sur les ressources économiques pour l'instant.
+      <div id="army-locked-panel" class="army-locked-msg" style="display:none">
+        <span class="army-locked-icon">🔒</span>
+        <div>L'investissement militaire est disponible à partir de la <strong>manche 5</strong>.<br><span style="color:var(--text3)">Concentrez-vous sur les ressources économiques pour l'instant.</span></div>
       </div>
-      <div id="army-content">
-        <div class="card" style="margin-top:6px;margin-bottom:6px">
-          <div class="card-title">Recruter des soldats</div>
-          <div class="mrow" id="army-row"><div><div class="mn">Bataillon</div><div class="mp">150 or · +1 armée · +20 pts puissance</div></div><div class="mcontrols"><input type="number" class="qty-input" id="army-qty" value="1" min="1" max="999"/><button class="buybtn" onclick="recruitArmy('bataillon')">Recruter</button></div></div>
-          <div class="mrow" id="tech-row"><div><div class="mn">Tech militaire</div><div class="mp">300 or · +50 pts puissance</div></div><div class="mcontrols"><input type="number" class="qty-input" id="tech-qty" value="1" min="1" max="999"/><button class="buybtn" onclick="recruitArmy('tech')">Acquérir</button></div></div>
+      <div id="army-panel-content" style="display:none">
+        <div class="army-buy-card">
+          <div class="army-buy-title">Recruter des soldats</div>
+          <div class="army-row">
+            <div class="ar-left">
+              <div class="ar-name">Bataillon <span class="tip"><span class="tip-icon">?</span><span class="tip-box">Augmente votre armée (+20 pts puissance) et vos chances de victoire en combat.</span></span></div>
+              <div class="ar-desc">150 or / soldat · <span class="ar-cap" id="can-buy-army"></span></div>
+            </div>
+            <div class="ar-controls"><input type="number" class="qty-input" id="army-qty" value="1" min="1" max="999"/><button class="buybtn" onclick="recruitArmy('bataillon')">Recruter</button></div>
+          </div>
         </div>
-        <div class="card" style="margin-bottom:6px">
-          <div class="card-title">⚔️ Investissement offensif — ATK</div>
-          <div style="font-size:10px;color:var(--text2);margin-bottom:8px;line-height:1.6">Chaque point ATK donne +1.2% de puissance d'attaque. 200 or/point. Booste vos chances de victoire en attaque.</div>
-          <div class="mrow"><div><div class="mn">Capacité offensive</div><div class="mp">200 or · +1 ATK · +1.2% attaque</div></div><div class="mcontrols"><input type="number" class="qty-input" id="atk-qty" value="1" min="1" max="50"/><button class="buybtn" onclick="buyAtk()">Investir</button></div></div>
+        <div class="army-buy-card">
+          <div class="army-buy-title">⚔️ Investissement offensif — ATK</div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.6">Chaque point ATK = +1.2% de puissance d'attaque. Booste vos chances de victoire.</div>
+          <div class="army-row">
+            <div class="ar-left">
+              <div class="ar-name">Capacité offensive</div>
+              <div class="ar-desc">200 or / point ATK · <span class="ar-cap" id="can-buy-atk"></span></div>
+            </div>
+            <div class="ar-controls"><input type="number" class="qty-input" id="atk-qty" value="1" min="1" max="50"/><button class="buybtn" onclick="buyAtk()">Investir</button></div>
+          </div>
         </div>
-        <div class="card">
-          <div class="card-title">🛡️ Investissement défensif — DEF</div>
-          <div style="font-size:10px;color:var(--text2);margin-bottom:8px;line-height:1.6">Chaque point DEF donne +1.2% de résistance défensive. 200 or/point. Réduit les dégâts subis et booste la défense.</div>
-          <div class="mrow"><div><div class="mn">Capacité défensive</div><div class="mp">200 or · +1 DEF · +1.2% défense</div></div><div class="mcontrols"><input type="number" class="qty-input" id="def-qty" value="1" min="1" max="50"/><button class="buybtn" onclick="buyDef()">Investir</button></div></div>
+        <div class="army-buy-card">
+          <div class="army-buy-title">🛡️ Investissement défensif — DEF</div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.6">Chaque point DEF = +1.2% de résistance défensive. Réduit les dégâts subis.</div>
+          <div class="army-row">
+            <div class="ar-left">
+              <div class="ar-name">Capacité défensive</div>
+              <div class="ar-desc">200 or / point DEF · <span class="ar-cap" id="can-buy-def"></span></div>
+            </div>
+            <div class="ar-controls"><input type="number" class="qty-input" id="def-qty" value="1" min="1" max="50"/><button class="buybtn" onclick="buyDef()">Investir</button></div>
+          </div>
         </div>
       </div>
     </div>
-    <!-- ATTACK -->
+
+    <!-- ATTACK PANEL -->
     <div id="panel-attack" class="panel">
-      <div class="aw" id="attack-warning">Attaques disponibles en Phase de Guerre, pendant votre tour. La phase de négociation avant la guerre permet aussi de proposer des alliances.</div>
+      <div class="aw" id="attack-warning">Attaques disponibles en Phase de Guerre pendant votre tour. En phase de négociation, vous pouvez proposer des alliances ci-dessous.</div>
       <div id="attack-form" style="display:none">
-        <div class="card">
+        <div class="card" style="margin-bottom:8px">
           <div class="card-title">Déclarer une attaque</div>
-          <div style="font-size:10px;color:var(--text2);margin-bottom:9px;line-height:1.7">Résultat: Armée × (1+ATK%) × aléatoire ± 18-36%.<br><span style="color:#4ade80">Victoire</span> → toutes ressources pillées. <span style="color:#f87171">Défaite</span> → −35% or + pertes armée.</div>
-          <div style="font-size:10px;color:var(--gold);margin-bottom:5px;font-weight:600">Payer avec :</div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.7">Victoire : toutes les ressources de l'ennemi sont pillées.<br>Défaite : −35% de votre or + pertes en armée.</div>
+          <div style="font-size:10px;color:var(--gold);margin-bottom:6px;font-weight:600">Payer avec :</div>
           <div class="pay-select">
             <div class="pay-opt selected" onclick="selectPayment('gold')" id="pay-gold"><div class="pay-opt-icon">💰</div><div class="pay-opt-label">Or</div><div class="pay-opt-cost">150</div></div>
             <div class="pay-opt" onclick="selectPayment('oil')" id="pay-oil"><div class="pay-opt-icon">🛢️</div><div class="pay-opt-label">Pétrole</div><div class="pay-opt-cost">200</div></div>
@@ -628,34 +726,36 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
           <select class="attack-target-sel" id="attack-target" onchange="updateConfrontation()"><option value="">🎯 Choisir la nation cible...</option></select>
           <button class="btn-primary" id="attack-btn" onclick="openConfrontation()" style="width:100%;font-size:13px;padding:13px;opacity:.5" disabled>⚔️ Analyser le combat →</button>
         </div>
-        <div id="ally-status-box" style="display:none;margin-top:7px" class="ally-section">
+        <div id="ally-status-box" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:8px 11px;margin-bottom:8px">
           <div style="font-size:10px;font-weight:600;color:var(--gold);margin-bottom:4px;font-family:'Cinzel',serif">Alliance active :</div>
           <div id="ally-status-text" style="font-size:11px;color:var(--text2)"></div>
         </div>
       </div>
-      <!-- Alliance in negotiation phase -->
-      <div id="negoc-ally-box" style="display:none;margin-top:8px" class="card">
-        <div class="card-title">💬 Phase de Négociation — Proposer une Alliance</div>
-        <div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.6">Proposez des alliances avant que la guerre commence. Une alliance de non-agression = si vous êtes les 2 derniers, vous gagnez ensemble !</div>
+      <div id="negoc-ally-box" style="display:none" class="card">
+        <div class="card-title">💬 Négociation — Proposer une Alliance</div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.6">Non-agression : si vous êtes les 2 derniers, vous gagnez ensemble. Offensive : +15% en combat.</div>
         <select class="sel" id="negoc-ally-target" style="margin-bottom:8px"><option value="">Choisir la nation...</option></select>
-        <div style="display:flex;gap:6px;margin-bottom:8px">
+        <div style="display:flex;gap:5px;margin-bottom:8px">
           <div class="pay-opt selected" id="na-peace-opt" onclick="selectAllyType('peace')" style="flex:1"><div class="pay-opt-icon">🕊️</div><div class="pay-opt-label">Non-agression</div><div class="pay-opt-cost" style="color:#4ade80">Gratuit</div></div>
           <div class="pay-opt" id="na-off-opt" onclick="selectAllyType('offensive')" style="flex:1"><div class="pay-opt-icon">⚔️</div><div class="pay-opt-label">Offensive</div><div class="pay-opt-cost" style="color:var(--gold)">100 or</div></div>
         </div>
-        <button class="btn-primary" onclick="sendNegocAllianceProposal()" style="width:100%">Proposer l'alliance →</button>
+        <button class="btn-primary" onclick="sendNegocAllianceProposal()" style="width:100%">Proposer →</button>
       </div>
     </div>
-    <!-- NEWS -->
-    <div id="panel-news" class="panel"><div id="news-log"></div></div>
-    <!-- RULES -->
+
+    <!-- NEWS PANEL -->
+    <div id="panel-news" class="panel"><div id="news-log"><div style="font-size:11px;color:var(--text3);padding:8px">Aucune actualité pour l'instant.</div></div></div>
+
+    <!-- RULES PANEL -->
     <div id="panel-rules" class="panel">
       <div class="card">
-        <div class="rules-s"><h3>🎯 Objectif</h3><p>Être la dernière nation (ou alliance de non-agression) debout.</p></div>
-        <div class="rules-s"><h3>🔮 Indices — lisez-les !</h3><p>Chaque période, un indice vous dit ce qui va arriver la période suivante. Si ça dit "pétrole va exploser" → achetez du pétrole maintenant. Les prix affichés sont ceux qui s'appliquent la prochaine fois.</p></div>
-        <div class="rules-s"><h3>📊 Puissance = Or×0.25 + Armée×10 + Pétrole×0.8 + Tourisme×0.6 + Agri×0.5 + Nourr×1.2 + ATK×8 + DEF×6 (×1.15 si Tier B)</h3></div>
-        <div class="rules-s"><h3>⚔️🛡️ Système ATK / DEF (manches 4-5-6)</h3><ul><li>ATK: multiplicateur offensif. +1.2% par point. 200 or/point.</li><li>DEF: multiplicateur défensif. +1.2% par point. 200 or/point.</li><li>Combat: Armée × (1+ATK%) × aléatoire vs Armée × (1+DEF%) × 1.10 × aléatoire</li></ul></div>
-        <div class="rules-s"><h3>💬 Phase de Négociation (avant la guerre)</h3><p>Avant la guerre, une phase de négociation permet de former des alliances. Alliances disponibles aussi en guerre.</p></div>
-        <div class="rules-s"><h3>⚔️ ⚠️ GARDEZ 600 OR POUR LA GUERRE</h3><p>Attaque: 150 or / 200 pétrole / 300 nourriture.</p></div>
+        <div class="rule-block"><h3>🎯 Objectif</h3><p>Être la dernière nation debout — ou former une alliance de non-agression avec un autre survivant pour une double victoire.</p></div>
+        <div class="rule-block"><h3>🔮 L'indice — votre avantage</h3><p>Chaque période, un indice annonce ce qui arrive à la période suivante. Lisez-le et investissez en conséquence <strong>avant les autres</strong>.</p><div class="rule-example">Ex : "Les routes maritimes sont bloquées" → le pétrole va monter. Achetez du pétrole maintenant !</div></div>
+        <div class="rule-block"><h3>💰 Revenus passifs (par unité / période)</h3><ul><li>🛢️ Pétrole : ×25 or</li><li>🏖️ Tourisme : ×25 or</li><li>🌿 Agriculture : ×20 or</li></ul><div class="rule-example">Ex : 100 unités de pétrole = +2 500 or automatiquement chaque période.</div></div>
+        <div class="rule-block"><h3>⚔️ Gardez 600 or pour la guerre</h3><p>Attaquer coûte 150 or (ou 200 pétrole / 300 nourriture). Sans or, vous ne pouvez pas attaquer.</p></div>
+        <div class="rule-block"><h3>📊 Puissance = comment c'est calculé</h3><p>Or×0.25 + Armée×10 + Pétrole×0.8 + Tourisme×0.6 + Agri×0.5 + Nourr×1.2 + ATK×8 + DEF×6. Tier B : ×1.15 sur tout.</p></div>
+        <div class="rule-block"><h3>🤝 Alliances (guerre uniquement)</h3><ul><li><span class="ally-type-badge ally-type-peace">NON-AGRESSION</span> Gratuit — attaques mutuelles interdites. Si vous êtes les 2 derniers → double victoire !</li><li><span class="ally-type-badge ally-type-offensive" style="margin-top:4px;display:inline-block">OFFENSIVE</span> 100 or — +15% en combat si même cible.</li></ul></div>
+        <div class="rule-block"><h3>↩️ Annuler un achat</h3><p>Le bouton "Annuler" (ou Ctrl+Z) revient sur votre dernier achat. Impossible en guerre.</p></div>
       </div>
     </div>
   </div>
@@ -685,8 +785,7 @@ let state={},myTeam=null,myCountryId=null,selectedDraft=null;
 let timerSec=600,soundEnabled=true;
 let currentWarTurn=null,choiceCdInterval=null,allyNotifInterval=null;
 let selectedPayment='gold',selectedAllyType='peace';
-let pendingAttackTarget=null,pendingAllianceProposal=null;
-let canUndo=false;
+let pendingAttackTarget=null,pendingAllianceProposal=null,canUndo=false;
 
 const ALL_COUNTRIES=[
   {id:'usa',flag:'🇺🇸',name:'États-Unis',tier:'S',gold:900,oil:200,food:400,tourism:200,agriculture:120,army:320,population:330},
@@ -707,11 +806,11 @@ const ALL_COUNTRIES=[
 ];
 
 const BASE_PRICES={oil:80,food:40,tourism:120,agriculture:60};
+const RES_INFO={oil:{icon:'🛢️',name:'Pétrole',color:'#60a5fa'},food:{icon:'🌾',name:'Nourriture',color:'#4ade80'},tourism:{icon:'🏖️',name:'Tourisme',color:'#f59e0b'},agriculture:{icon:'🌿',name:'Agriculture',color:'#22c55e'}};
 
 socket.on('state',s=>{state=s;onStateUpdate();});
 socket.on('timer',({seconds,running,ended})=>{timerSec=seconds;updateTimerDisplay();if(ended&&!state.gameOver){playAlarm();toast('⏰ Temps écoulé !');}});
 socket.on('attackAnimation',({attackerId,defenderId,success,scoreAtt,scoreDef})=>showAtkResult(attackerId,defenderId,success,scoreAtt,scoreDef));
-socket.on('defenseActivated',({countryId})=>{if(countryId===myCountryId){const f=document.getElementById('def-flash');f.classList.add('show');setTimeout(()=>f.classList.remove('show'),1600);toast('🛡️ Défense activée !');}});
 socket.on('warTurn',({team,seconds})=>{currentWarTurn=team;updateWarTurnUI(team,seconds);});
 socket.on('warTurnTimer',({seconds,team})=>{
   if(team===myTeam){const el=document.getElementById('my-turn-cd');if(el)el.textContent=seconds;}
@@ -725,34 +824,29 @@ socket.on('winner',({winners,type})=>showWinnerOverlay(winners,type));
 socket.on('actionFeedback',data=>showActionFlash(data));
 socket.on('actionUndone',()=>{canUndo=false;setUndoBtns(false);showActionFlash({type:'undo'});});
 socket.on('error',msg=>toast(msg));
-
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();if(canUndo)undoAction();}});
 
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
 function playAlarm(){if(!soundEnabled)return;try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[0,.3,.6].forEach(d=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;o.type='sine';g.gain.setValueAtTime(.4,ctx.currentTime+d);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+d+.4);o.start(ctx.currentTime+d);o.stop(ctx.currentTime+d+.4);});}catch(e){}}
 function toggleSound(){soundEnabled=!soundEnabled;document.getElementById('sound-btn').textContent=soundEnabled?'🔔':'🔕';}
+function setUndoBtns(e){['undo-btn-market','undo-btn-army'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=!e;});}
+function undoAction(){socket.emit('team:undoAction',{teamName:myTeam});}
+function hideWinnerOverlay(){document.getElementById('winner-overlay').classList.remove('show');}
 
 function showActionFlash(data){
   const cont=document.getElementById('action-flash-overlay');
   const div=document.createElement('div');
   let cls='buy',txt='';
-  if(data.type==='buy')    {cls='buy'; txt=`+${data.qty} ${data.resource} — −${data.total} or`;}
+  if(data.type==='buy'){cls='buy';txt=`+${data.qty} ${data.resource} — −${data.total} or`;}
   else if(data.type==='sell'){cls='sell';txt=`−${data.qty} ${data.resource} → +${data.total} or`;}
-  else if(data.type==='army'){cls='buy'; txt=data.qty>0?`+${data.qty} armée +${data.power} pts — −${data.total} or`:`+${data.power} pts tech — −${data.total} or`;}
-  else if(data.type==='atk'){cls='buy'; txt=`+${data.qty} ATK (⚔️ +${(data.qty*1.2).toFixed(1)}% attaque) — −${data.total} or`;}
-  else if(data.type==='def'){cls='buy'; txt=`+${data.qty} DEF (🛡️ +${(data.qty*1.2).toFixed(1)}% défense) — −${data.total} or`;}
-  else if(data.type==='defense'){cls='buy';txt=`🛡️ DEF +5 — −${data.total} or`;}
+  else if(data.type==='army'){cls='buy';txt=data.qty>0?`+${data.qty} soldats — −${data.total} or`:`+ATK — −${data.total} or`;}
+  else if(data.type==='atk'){cls='buy';txt=`+${data.qty} ATK (+${(data.qty*1.2).toFixed(1)}% attaque) — −${data.total} or`;}
+  else if(data.type==='def'){cls='buy';txt=`+${data.qty} DEF (+${(data.qty*1.2).toFixed(1)}% défense) — −${data.total} or`;}
   else if(data.type==='undo'){cls='undo';txt='↩️ Achat annulé !';}
   div.className=`action-flash ${cls}`;div.textContent=txt;
-  cont.appendChild(div);
-  setTimeout(()=>div.remove(),2500);
+  cont.appendChild(div);setTimeout(()=>div.remove(),2500);
 }
-
-function setUndoBtns(enabled){['undo-btn-market','undo-btn-army'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=!enabled;});}
-function undoAction(){socket.emit('team:undoAction',{teamName:myTeam});}
-
-function hideWinnerOverlay(){document.getElementById('winner-overlay').classList.remove('show');}
 
 function showWinnerOverlay(winners,type){
   const ov=document.getElementById('winner-overlay');
@@ -770,18 +864,16 @@ function showWinnerOverlay(winners,type){
 function showAtkResult(attId,defId,success,scoreAtt,scoreDef){
   const fl=document.getElementById('atk-flash');fl.className='atk-flash go';setTimeout(()=>fl.className='atk-flash',2000);
   const att=state.countries&&state.countries[attId];const def=state.countries&&state.countries[defId];if(!att||!def)return;
-  const p=document.getElementById('atk-popup');
   document.getElementById('ap-icon').textContent=success?'💥':'🛡️';
   document.getElementById('ap-title').textContent=success?`${att.flag} VICTOIRE !`:`${def.flag} repousse !`;
   document.getElementById('ap-detail').innerHTML=`${att.flag}: ${scoreAtt.toLocaleString()} pts<br>${def.flag}: ${scoreDef.toLocaleString()} pts<br><br>${success?'<span style="color:#4ade80">Toutes ressources pillées !</span>':'<span style="color:#60a5fa">La défense a tenu !</span>'}`;
-  p.classList.add('show');setTimeout(()=>p.classList.remove('show'),6000);
+  document.getElementById('atk-popup').classList.add('show');setTimeout(()=>document.getElementById('atk-popup').classList.remove('show'),6000);
   document.getElementById('conf-modal').classList.remove('show');
 }
 
 function estimateProbability(att,def){
   const tA=att.tier==='B'?1.15:1.0,tD=def.tier==='B'?1.15:1.0;
-  const atkMult=1+(att.atk||0)*0.012;
-  const defMult=1+(def.def||0)*0.012;
+  const atkMult=1+(att.atk||0)*0.012,defMult=1+(def.def||0)*0.012;
   const cA=1+(att.combatBonus||0);
   const sA=att.army*atkMult*1.18*tA*cA+(att.food||0)*0.06;
   const sD=def.army*defMult*1.18*tD*1.10+(def.food||0)*0.06;
@@ -796,24 +888,24 @@ function updateConfrontation(){
 }
 
 function openConfrontation(){
-  if(currentWarTurn!==myTeam){toast("Ce n'est pas votre tour !");return;}
+  if(currentWarTurn!==myTeam){toast("Ce n\'est pas votre tour !");return;}
   const targetId=document.getElementById('attack-target').value;if(!targetId){toast('Choisissez une cible !');return;}
   const att=state.countries[myCountryId];const def=state.countries[targetId];if(!att||!def)return;
   pendingAttackTarget=targetId;
   document.getElementById('conf-att-flag').textContent=att.flag;
   document.getElementById('conf-att-name').textContent=att.name;
   document.getElementById('conf-att-power').textContent=att.power.toLocaleString();
-  document.getElementById('conf-att-stats').textContent=`Armée: ${att.army} · ATK: ${att.atk||0} (+${((att.atk||0)*1.2).toFixed(0)}%)`;
+  document.getElementById('conf-att-stats').textContent=`Armée: ${att.army} · ATK: ${att.atk||0}`;
   document.getElementById('conf-def-flag').textContent=def.flag;
   document.getElementById('conf-def-name').textContent=def.name;
   document.getElementById('conf-def-power').textContent=def.power.toLocaleString();
-  document.getElementById('conf-def-stats').textContent=`Armée: ${def.army} · DEF: ${def.def||0} (+${((def.def||0)*1.2).toFixed(0)}%)`;
+  document.getElementById('conf-def-stats').textContent=`Armée: ${def.army} · DEF: ${def.def||0}`;
   const pct=estimateProbability(att,def);
   document.getElementById('prob-fill').style.width=pct+'%';
   document.getElementById('prob-att-label').textContent=`${att.flag} ${pct}%`;
   document.getElementById('prob-def-label').textContent=`${100-pct}% ${def.flag}`;
-  document.getElementById('conf-att-pct').textContent=pct+'% victoire';
-  document.getElementById('conf-def-pct').textContent=(100-pct)+'% victoire';
+  document.getElementById('conf-att-pct').textContent=pct+'% de victoire estimé';
+  document.getElementById('conf-def-pct').textContent=(100-pct)+'% de victoire estimé';
   document.getElementById('conf-modal').classList.add('show');
 }
 
@@ -836,7 +928,7 @@ function showAllyNotif(proposal){
   pendingAllianceProposal=proposal;
   const fromName=proposal.fromCountry?`${proposal.fromCountry.flag} ${proposal.fromCountry.name}`:proposal.from;
   document.getElementById('ally-notif-from').textContent=fromName+' vous propose';
-  document.getElementById('ally-notif-type').innerHTML=proposal.type==='offensive'?`<span class="ally-type-badge ally-type-offensive">ALLIANCE OFFENSIVE</span> +15% combat, 100 or pour eux`:`<span class="ally-type-badge ally-type-peace">NON-AGRESSION</span> Gratuit — double victoire si 2 derniers !`;
+  document.getElementById('ally-notif-type').innerHTML=proposal.type==='offensive'?`<span class="ally-type-badge ally-type-offensive">OFFENSIVE</span> +15% combat, 100 or pour eux`:`<span class="ally-type-badge ally-type-peace">NON-AGRESSION</span> Gratuit — double victoire si 2 derniers !`;
   let secs=30;document.getElementById('ally-notif-cd').textContent=secs;
   document.getElementById('ally-notif').classList.add('show');
   if(allyNotifInterval)clearInterval(allyNotifInterval);
@@ -848,9 +940,7 @@ function respondAllianceNotif(accepted){if(!pendingAllianceProposal)return;socke
 function selectPayment(type){selectedPayment=type;['gold','oil','food'].forEach(t=>{const el=document.getElementById('pay-'+t);if(el)el.classList.toggle('selected',t===type);});}
 function selectAllyType(type){
   selectedAllyType=type;
-  ['peace','off'].forEach(t=>{
-    ['ally-'+t+'-opt','na-'+t+'-opt'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('selected',t===type);});
-  });
+  ['peace','off'].forEach(t=>{['ally-'+t+'-opt','na-'+t+'-opt'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('selected',t===type);});});
 }
 
 function openAllyModal(){
@@ -859,39 +949,38 @@ function openAllyModal(){
   if(state.countries)Object.values(state.countries).forEach(c=>{if(c.id!==myCountryId&&!c.eliminated&&c.team){const o=document.createElement('option');o.value=c.team;o.textContent=`${c.flag} ${c.name} — ${c.power.toLocaleString()} pts`;sel.appendChild(o);}});
   document.getElementById('ally-modal').style.display='flex';
 }
-function sendAllianceProposal(){
-  const toTeam=document.getElementById('ally-target').value;if(!toTeam){toast('Choisissez une nation !');return;}
-  socket.emit('team:proposeAlliance',{fromTeam:myTeam,toTeam,allianceType:selectedAllyType});
-  document.getElementById('ally-modal').style.display='none';toast('Alliance proposée — 30 sec pour répondre !');
-}
-function sendNegocAllianceProposal(){
-  const toTeam=document.getElementById('negoc-ally-target').value;if(!toTeam){toast('Choisissez une nation !');return;}
-  socket.emit('team:proposeAlliance',{fromTeam:myTeam,toTeam,allianceType:selectedAllyType});
-  toast('Alliance proposée — 30 sec pour répondre !');
-}
-
+function sendAllianceProposal(){const toTeam=document.getElementById('ally-target').value;if(!toTeam){toast('Choisissez une nation !');return;}socket.emit('team:proposeAlliance',{fromTeam:myTeam,toTeam,allianceType:selectedAllyType});document.getElementById('ally-modal').style.display='none';toast('Alliance proposée — 30 sec pour répondre !');}
+function sendNegocAllianceProposal(){const toTeam=document.getElementById('negoc-ally-target').value;if(!toTeam){toast('Choisissez une nation !');return;}socket.emit('team:proposeAlliance',{fromTeam:myTeam,toTeam,allianceType:selectedAllyType});toast('Alliance proposée !');}
 function buyAtk(){const qty=parseInt(document.getElementById('atk-qty').value)||1;socket.emit('team:buyAtk',{teamName:myTeam,qty});}
 function buyDef(){const qty=parseInt(document.getElementById('def-qty').value)||1;socket.emit('team:buyDef',{teamName:myTeam,qty});}
 
 function updateWarTurnUI(team,seconds){
   const banner=document.getElementById('turn-banner');
-  const txt=document.getElementById('turn-banner-text');
-  const d=document.getElementById('turn-timer-d');
-  banner.classList.add('active');d.textContent=seconds;
+  banner.classList.add('active');
+  document.getElementById('turn-timer-d').textContent=seconds;
   const mj=document.getElementById('mj-turn-team');if(mj)mj.textContent=team;
   const teamCountry=Object.values(state.countries||{}).find(c=>c.team===team);
   const ab=document.getElementById('attack-btn');
   if(team===myTeam){
-    banner.className='turn-banner my-turn active';txt.textContent="⚔️ Votre tour !";txt.style.color='#0a0c10';d.style.color='#0a0c10';
-    document.getElementById('turn-skip-btn').style.display='block';document.getElementById('turn-ally-btn').style.display='block';
-    document.getElementById('my-turn-box').style.display='block';document.getElementById('other-turn-box').style.display='none';
+    banner.className='turn-banner my-turn active';
+    document.getElementById('turn-banner-text').textContent='⚔️ Votre tour !';
+    document.getElementById('turn-banner-text').style.color='#0a0c10';
+    document.getElementById('turn-timer-d').style.color='#0a0c10';
+    document.getElementById('turn-skip-btn').style.display='block';
+    document.getElementById('turn-ally-btn').style.display='block';
+    document.getElementById('my-turn-box').style.display='block';
+    document.getElementById('other-turn-box').style.display='none';
     if(ab){ab.disabled=false;ab.style.opacity='1';}
   } else {
     banner.className='turn-banner other-turn active';
-    txt.textContent=`${teamCountry?teamCountry.flag+' '+teamCountry.name:team}`;txt.style.color='var(--text2)';d.style.color='var(--text2)';
-    document.getElementById('turn-skip-btn').style.display='none';document.getElementById('turn-ally-btn').style.display='none';
+    document.getElementById('turn-banner-text').textContent=teamCountry?teamCountry.flag+' '+teamCountry.name:team;
+    document.getElementById('turn-banner-text').style.color='var(--text2)';
+    document.getElementById('turn-timer-d').style.color='var(--text2)';
+    document.getElementById('turn-skip-btn').style.display='none';
+    document.getElementById('turn-ally-btn').style.display='none';
     document.getElementById('my-turn-box').style.display='none';
-    const ob=document.getElementById('other-turn-box');if(ob){ob.style.display='block';document.getElementById('other-turn-name').textContent=teamCountry?teamCountry.flag+' '+teamCountry.name:team;}
+    const ob=document.getElementById('other-turn-box');
+    if(ob){ob.style.display='block';document.getElementById('other-turn-name').textContent=teamCountry?teamCountry.flag+' '+teamCountry.name:team;}
     if(ab){ab.disabled=true;ab.style.opacity='0.5';}
   }
 }
@@ -910,7 +999,7 @@ function renderDraftGrid(){
   ALL_COUNTRIES.forEach(c=>{
     const taken=state.takenCountries&&state.takenCountries[c.id];const isSel=selectedDraft===c.id;
     const div=document.createElement('div');div.className='dc'+(taken?' taken':'')+(isSel?' selected':'');
-    div.innerHTML=`<div class="dc-flag">${c.flag}</div><div class="dc-name">${c.name}</div><span class="tier-${c.tier}">${c.tier}</span><div class="dc-stats">Or:${c.gold} · Pét:${c.oil} · Tour:${c.tourism}<br>Agri:${c.agriculture} · Nourr:${c.food} · Arm:${c.army}<br>Pop:${c.population}M</div>${taken?`<div style="font-size:9px;color:var(--text3);margin-top:2px;font-style:italic">→ ${taken}</div>`:''}`;
+    div.innerHTML=`<div class="dc-flag">${c.flag}</div><div class="dc-name">${c.name}</div><span class="tier-${c.tier}">${c.tier}</span><div class="dc-stats">Or: ${c.gold} · Pétrole: ${c.oil} · Tourisme: ${c.tourism}<br>Agri: ${c.agriculture} · Nourr: ${c.food} · Armée: ${c.army}</div>${taken?`<div style="font-size:9px;color:var(--text3);margin-top:2px;font-style:italic">→ ${taken}</div>`:''}`;
     if(!taken)div.onclick=()=>{selectedDraft=c.id;document.getElementById('confirm-draft-btn').disabled=false;renderDraftGrid();};
     grid.appendChild(div);
   });
@@ -939,168 +1028,218 @@ function calcEstIncome(c){
   return Math.round((c.oil||0)*25*(mod.oilMultiplier||1)+(c.tourism||0)*25*(mod.tourismMultiplier||1)+(c.agriculture||0)*20*(mod.agriMultiplier||1)+(100+c.population*0.04)*(mod.baseMultiplier||1));
 }
 
-function renderPricePill(resource, price, prevPrice) {
-  const diff = price - prevPrice;
-  const diffPct = Math.round(diff/prevPrice*100);
-  const cls = price < prevPrice*0.95 ? 'cheap' : price > prevPrice*1.05 ? 'expensive' : '';
-  const arrow = diff > prevPrice*0.05 ? `<span class="price-change up">↑${diffPct}%</span>` : diff < -prevPrice*0.05 ? `<span class="price-change down">↓${Math.abs(diffPct)}%</span>` : '';
-  const icons = {oil:'🛢️',food:'🌾',tourism:'🏖️',agriculture:'🌿'};
-  return `<div class="price-pill ${cls}">${icons[resource]||''} ${price} or${arrow}</div>`;
+function canBuyQty(treasury, price){
+  if(!price||price<=0)return 0;
+  return Math.floor(treasury/price);
+}
+
+function pricePillHtml(resource, newPrice, oldPrice){
+  const info=RES_INFO[resource];
+  const diff=newPrice-oldPrice;
+  const pct=Math.round(Math.abs(diff)/Math.max(oldPrice,1)*100);
+  let cls='flat',arrow='→';
+  if(diff>oldPrice*0.05){cls='up';arrow=`↑${pct}%`;}
+  else if(diff<-oldPrice*0.05){cls='down';arrow=`↓${pct}%`;}
+  return `<div class="hnp ${cls}">${info.icon} ${Math.round(newPrice)} or <span style="font-size:9px">${arrow}</span></div>`;
 }
 
 function updateTeamUI(){
   if(!myCountryId||!state.countries)return;
   const c=state.countries[myCountryId];if(!c)return;
-  document.getElementById('t-gold').textContent=c.treasury.toLocaleString();
-  document.getElementById('t-oil').textContent=c.oil||0;
-  document.getElementById('t-food').textContent=c.food||0;
-  document.getElementById('t-army').textContent=c.army||0;
-  document.getElementById('t-tourism').textContent=c.tourism||0;
-  document.getElementById('t-agriculture').textContent=c.agriculture||0;
+  const prices=state.prices||BASE_PRICES;
+  const prev=state.prevPrices||BASE_PRICES;
+  const treasury=c.treasury||0;
+
+  // OR + PUISSANCE
+  document.getElementById('t-gold').textContent=treasury.toLocaleString();
   document.getElementById('t-power').textContent=c.power.toLocaleString();
-  document.getElementById('t-round').textContent=state.currentPeriod===0?'Tutorial':state.currentPeriod||'—';
+  document.getElementById('t-income').textContent='+'+calcEstIncome(c).toLocaleString();
   document.getElementById('team-country-header').textContent=c.flag+' '+c.name;
-  // ATK / DEF
-  const atk=c.atk||0,def=c.def||0;
-  document.getElementById('t-atk').textContent=atk;
-  document.getElementById('t-def').textContent=def;
-  document.getElementById('t-atk-pct').textContent=(atk*1.2).toFixed(0);
-  document.getElementById('t-def-pct').textContent=(def*1.2).toFixed(0);
-  document.getElementById('t-atk-bar').style.width=Math.min(100,atk*2)+'%';
-  document.getElementById('t-def-bar').style.width=Math.min(100,def*2)+'%';
-  // Army availability
-  const armyAvail=state.currentPeriod>=5||state.isTutorial;
-  document.getElementById('t-army-status').textContent=armyAvail?'✓ Disponible':'🔒 Manche 4+';
-  document.getElementById('t-army-status').style.color=armyAvail?'#4ade80':'#f59e0b';
-  document.getElementById('army-locked-msg').style.display=armyAvail?'none':'block';
-  document.getElementById('army-content').style.display=armyAvail?'block':'none';
-  document.getElementById('t-income').textContent='+~'+calcEstIncome(c).toLocaleString();
-  const foodNeeded=Math.max(2,Math.round(c.population/8));
-  document.getElementById('food-warn').style.display=c.food<foodNeeded*1.5&&state.phase==='prosperity'?'block':'none';
-  document.getElementById('tutorial-banner').style.display=state.isTutorial?'block':'none';
-  document.getElementById('negoc-banner').style.display=state.phase==='negotiation'?'block':'none';
-  // War reserve
-  const wr=document.getElementById('war-reserve');
-  if((state.phase==='prosperity'||state.phase==='negotiation')&&!state.isTutorial){
-    wr.style.display='flex';const v=c.treasury;document.getElementById('war-reserve-val').textContent=v.toLocaleString()+' or';
-    wr.style.background=v<600?'rgba(192,57,43,.12)':'rgba(26,122,74,.12)';
-    wr.style.border=`1px solid ${v<600?'rgba(192,57,43,.3)':'rgba(26,122,74,.3)'}`;
-    wr.style.color=v<600?'#f87171':'#4ade80';
-  } else wr.style.display='none';
-  // Power compare
+
+  // Rang
   const alive=Object.values(state.countries||{}).filter(cc=>cc.team&&!cc.eliminated);
   const sorted=[...alive].sort((a,b)=>b.power-a.power);
   const maxP=sorted[0]?.power||1;
   const myRank=sorted.findIndex(cc=>cc.id===myCountryId)+1;
-  document.getElementById('pc-my-power').textContent=c.power.toLocaleString();
-  document.getElementById('pc-max-power').textContent=maxP.toLocaleString();
+  document.getElementById('t-rank').textContent=`Rang ${myRank} / ${alive.length}`;
   document.getElementById('pc-bar').style.width=Math.round(c.power/maxP*100)+'%';
-  document.getElementById('pc-rank').textContent=myRank+'/'+alive.length;
+
+  // War reserve
+  const wr=document.getElementById('war-reserve');
+  if((state.phase==='prosperity'||state.phase==='negotiation')&&!state.isTutorial){
+    wr.style.display='flex';
+    const v=treasury;
+    document.getElementById('war-reserve-val').textContent=v.toLocaleString()+' or';
+    document.getElementById('war-reserve-hint').textContent=v<600?'— insuffisant ! (minimum 600)':'— suffisant pour la guerre';
+    wr.className='war-reserve-strip '+(v<600?'warn':'ok');
+  } else wr.style.display='none';
+
+  // RESSOURCES avec "vous pouvez acheter X"
+  const foodNeeded=Math.max(2,Math.round(c.population/8));
+  const resourceItems=[
+    {id:'oil',val:c.oil||0,price:prices.oil,hint:`Rev: +${Math.round((c.oil||0)*25)} or/période`},
+    {id:'food',val:c.food||0,price:prices.food,hint:`Consommation: ~${foodNeeded}/période`},
+    {id:'tourism',val:c.tourism||0,price:prices.tourism,hint:`Rev: +${Math.round((c.tourism||0)*25)} or/période`},
+    {id:'agriculture',val:c.agriculture||0,price:prices.agriculture,hint:`Rev: +${Math.round((c.agriculture||0)*20)} or/période`},
+  ];
+  resourceItems.forEach(r=>{
+    const el=document.getElementById('t-'+r.id);if(el)el.textContent=(r.val).toLocaleString();
+    const sub=document.getElementById('t-'+r.id+'-sub');
+    if(sub){
+      const can=canBuyQty(treasury,r.price);
+      const canHtml=can>0?`<span class="can-buy">Achetable : ${can} unités à ${r.price} or</span>`:`<span class="can-buy-zero">Pas assez d\'or (${r.price} or/unité)</span>`;
+      sub.innerHTML=`${r.hint}<br>${state.phase!=='war'?canHtml:''}`;
+    }
+  });
+
+  // ARMÉE
+  document.getElementById('t-army').textContent=(c.army||0).toLocaleString();
+  const atk=c.atk||0,def=c.def||0;
+  document.getElementById('t-atk').textContent=atk;
+  document.getElementById('t-def').textContent=def;
+  document.getElementById('t-atk-bar').style.width=Math.min(100,atk*2)+'%';
+  document.getElementById('t-def-bar').style.width=Math.min(100,def*2)+'%';
+
+  // Armée disponible ?
+  const armyAvail=state.currentPeriod>=5||state.isTutorial;
+  const lockedBadge=document.getElementById('army-locked-badge');
+  const availBadge=document.getElementById('army-available-badge');
+  if(lockedBadge)lockedBadge.style.display=armyAvail?'none':'inline-flex';
+  if(lockedBadge&&!armyAvail)lockedBadge.textContent=`Disponible manche 5 (${5-state.currentPeriod} manche${5-state.currentPeriod>1?'s':''} restante${5-state.currentPeriod>1?'s':''})`;
+  if(availBadge)availBadge.style.display=armyAvail?'inline-flex':'none';
+  document.getElementById('army-locked-panel').style.display=armyAvail?'none':'flex';
+  document.getElementById('army-panel-content').style.display=armyAvail?'block':'none';
+
+  // Can-buy dans army panel
+  if(armyAvail){
+    const canArmy=canBuyQty(treasury,150);
+    const canAtk=canBuyQty(treasury,200);
+    const canDef=canBuyQty(treasury,200);
+    const cab=document.getElementById('can-buy-army');if(cab)cab.textContent=canArmy>0?`vous pouvez recruter ${canArmy} soldats`:'pas assez d\'or';
+    const cat=document.getElementById('can-buy-atk');if(cat)cat.textContent=canAtk>0?`vous pouvez acheter ${canAtk} points ATK`:'pas assez d\'or';
+    const cad=document.getElementById('can-buy-def');if(cad)cad.textContent=canDef>0?`vous pouvez acheter ${canDef} points DEF`:'pas assez d\'or';
+  }
+
+  // INDICE — affiché en PREMIER et mis en valeur
+  const ev=state.currentEvent;
+  const hintCard=document.getElementById('hint-card');
+  if(ev&&ev.nextHint){
+    hintCard.style.display='block';
+    document.getElementById('hint-card-text').textContent=ev.nextHint;
+    const effEl=document.getElementById('hint-card-effect');
+    if(ev.effect){effEl.style.display='block';effEl.textContent='Effet attendu : '+ev.effect;}
+    else effEl.style.display='none';
+    // Prix prochaine période
+    const npEl=document.getElementById('hint-next-prices');
+    if(ev.nextPrices&&npEl){
+      npEl.innerHTML=Object.entries(ev.nextPrices).map(([r,np])=>pricePillHtml(r,np,prices[r]||BASE_PRICES[r])).join('');
+    }
+  } else hintCard.style.display='none';
+
+  // PÉRIODE INFO (compacte)
+  if(ev){
+    document.getElementById('team-period').style.display='block';
+    document.getElementById('tp-num').textContent=`Période ${ev.periodNumber||0} · ${ev.periodSubtitle||''}`;
+    document.getElementById('tp-name').textContent=ev.periodName||'';
+    document.getElementById('tp-desc').textContent=ev.periodDesc||'';
+  } else document.getElementById('team-period').style.display='none';
+
+  // Banners
+  document.getElementById('tutorial-banner').style.display=state.isTutorial?'block':'none';
+  document.getElementById('negoc-banner').style.display=state.phase==='negotiation'?'block':'none';
+  document.getElementById('elim-banner').style.display=c.eliminated?'block':'none';
+  document.getElementById('food-warn').style.display=c.food<foodNeeded*1.5&&state.phase==='prosperity'?'block':'none';
+
   // Phase badge
   const pb=document.getElementById('team-phase-badge');
   const pmap={prosperity:state.isTutorial?'ph-t':'ph-p',war:'ph-w',draft:'ph-d',setup:'ph-s',negotiation:'ph-n'};
   const plbl={prosperity:state.isTutorial?'Manche Test':'Prospérité',war:'Guerre ⚔️',draft:'Draft',setup:'En attente',negotiation:'💬 Négociation'};
   pb.className='phase-badge '+(pmap[state.phase]||'ph-s');pb.textContent=plbl[state.phase]||'En attente';
-  document.getElementById('elim-banner').style.display=c.eliminated?'block':'none';
-  // Actions + undo
+
+  // Actions
   const used=(state.teamActionsThisPeriod&&state.teamActionsThisPeriod[myTeam])||0;
-  const lastAct=state.lastActionByTeam&&state.lastActionByTeam[myTeam];
   const isWar=state.phase==='war';const isTut=state.isTutorial;
   const rem=Math.max(0,2-used);
-  canUndo=!!lastAct&&!isWar&&!isTut;
+  canUndo=!!(state.lastActionByTeam&&state.lastActionByTeam[myTeam])&&!isWar&&!isTut;
   setUndoBtns(canUndo);
-  const actionText=isTut?'🎮 Tutorial — illimité':isWar?'⚔️ Guerre — aucun achat':rem===2?'✓ 2 actions disponibles':rem===1?'⚠️ 1 action restante':'✗ Actions épuisées';
-  const actionClass=isTut?'action-bar tutorial':isWar?'action-bar war':rem===2?'action-bar free':rem===1?'action-bar one':'action-bar used';
-  ['action-bar-market','action-bar-army'].forEach(id=>{const el=document.getElementById(id);if(el){el.className=actionClass;const span=el.querySelector('span');if(span)span.textContent=actionText;}});
-  document.getElementById('action-summary').textContent=isTut?'🎮 Tutorial':isWar?'⚔️ Guerre':rem===2?'✓ 2 dispo':rem===1?'⚠️ 1 restante':'✗ Épuisé';
-  document.getElementById('action-summary').style.color=isTut?'var(--gold)':isWar||rem===0?'#f87171':rem===1?'#fbbf24':'#4ade80';
-  // Attack / negotiation forms
+  const actionText=isTut?'🎮 Tutorial — illimité':isWar?'⚔️ Guerre — aucun achat':rem===2?'✓ 2 actions disponibles':rem===1?'⚠️ 1 action restante':'✗ Plus d\'actions cette période';
+  const actionClass=isTut?'tutorial':isWar?'war':rem===2?'free':rem===1?'one':'used';
+  ['market','army'].forEach(p=>{
+    const bar=document.getElementById(`action-bar-${p}`);const txt=document.getElementById(`action-bar-${p}-text`);
+    if(bar){bar.className=`action-bar ${actionClass}`;}if(txt)txt.textContent=actionText;
+  });
+
+  // Attack form
   const isNegoc=state.phase==='negotiation';
   document.getElementById('attack-warning').style.display=(isWar||isNegoc)?'none':'block';
   document.getElementById('attack-form').style.display=isWar?'block':'none';
   document.getElementById('negoc-ally-box').style.display=isNegoc?'block':'none';
-  // Populate negotiation ally targets
   if(isNegoc){
     const sel=document.getElementById('negoc-ally-target');
-    const cur=sel.value;sel.innerHTML='<option value="">Choisir la nation...</option>';
+    sel.innerHTML='<option value="">Choisir la nation...</option>';
     if(state.countries)Object.values(state.countries).forEach(cc=>{if(cc.id!==myCountryId&&!cc.eliminated&&cc.team){const o=document.createElement('option');o.value=cc.team;o.textContent=`${cc.flag} ${cc.name} — ${cc.power.toLocaleString()} pts`;sel.appendChild(o);}});
-    if(cur)sel.value=cur;
   }
   const ab=document.getElementById('attack-btn');if(ab){ab.disabled=currentWarTurn!==myTeam;ab.style.opacity=currentWarTurn===myTeam?'1':'0.5';}
+
   // Alliance status
   const myAlliance=state.alliances&&state.alliances[myTeam];
   const allyBox=document.getElementById('ally-status-box');
   if(myAlliance&&allyBox){allyBox.style.display='block';document.getElementById('ally-status-text').innerHTML=`<span class="ally-type-badge ally-type-${myAlliance.type==='offensive'?'offensive':'peace'}">${myAlliance.type==='offensive'?'OFFENSIVE':'NON-AGRESSION'}</span> avec ${myAlliance.withCountryFlag||''} ${myAlliance.withCountryName||myAlliance.with}`;}
   else if(allyBox)allyBox.style.display='none';
+
   // Coalition
   const coal=state.coalition;const isMG=myCountryId==='morocco'||myCountryId==='southafrica';
   const cb=document.getElementById('coal-box');
-  if(coal&&coal.proposed&&isMG&&!coal.active){cb.style.display='block';const myAcc=(myCountryId==='morocco'&&coal.moroccoAccepted)||(myCountryId==='southafrica'&&coal.guineaAccepted);document.getElementById('coal-status').textContent=myAcc?"✅ Accepté — en attente...":'';document.getElementById('coal-btns').style.display=myAcc?'none':'flex';}
-  else if(coal&&coal.active&&isMG){cb.style.display='block';cb.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--gold);font-family:Cinzel,serif">🤝 Coalition Afrique Active (+25%)</div>';}
+  if(coal&&coal.proposed&&isMG&&!coal.active){cb.style.display='block';const myAcc=(myCountryId==='morocco'&&coal.moroccoAccepted)||(myCountryId==='southafrica'&&coal.guineaAccepted);document.getElementById('coal-status').textContent=myAcc?"✅ Accepté — en attente de l\'autre pays...":'';document.getElementById('coal-btns').style.display=myAcc?'none':'flex';}
+  else if(coal&&coal.active&&isMG){cb.style.display='block';cb.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--gold);font-family:Cinzel,serif">🤝 Coalition Africaine Active (+25%)</div>';}
   else cb.style.display='none';
-  // Period + hint + next prices
-  if(state.currentEvent){
-    document.getElementById('team-period').style.display='block';
-    const ev=state.currentEvent;
-    const tl={market:'MARCHÉ',choice:'CHOIX',targeted:'CIBLÉ'};
-    document.getElementById('tp-num').textContent=`Période ${ev.periodNumber||0} · ${ev.periodSubtitle||''} · ${tl[ev.type]||''}`;
-    document.getElementById('tp-name').textContent=ev.periodName||'';
-    document.getElementById('tp-desc').textContent=ev.periodDesc||'';
-    document.getElementById('tp-event').textContent='⚡ '+ev.title+' — '+ev.effect;
-    if(ev.nextHint){document.getElementById('tp-hint-box').style.display='block';document.getElementById('tp-hint-text').textContent=ev.nextHint;}
-    else document.getElementById('tp-hint-box').style.display='none';
-    // Next period prices
-    if(ev.nextPrices){
-      const np=ev.nextPrices;const cp=state.prices||BASE_PRICES;
-      document.getElementById('tp-next-prices').style.display='block';
-      document.getElementById('tp-next-prices-content').innerHTML=
-        renderPricePill('oil',np.oil,cp.oil)+
-        renderPricePill('food',np.food,cp.food)+
-        renderPricePill('tourism',np.tourism,cp.tourism)+
-        renderPricePill('agriculture',np.agriculture,cp.agriculture);
-    } else document.getElementById('tp-next-prices').style.display='none';
-  } else document.getElementById('team-period').style.display='none';
+
   if(state.phase!=='war'){document.getElementById('my-turn-box').style.display='none';document.getElementById('other-turn-box').style.display='none';}
-  renderMarket();renderAttackTargets();renderNews();renderPrices();
+  renderMarket();renderAttackTargets();renderNews();
 }
 
 function respondCoalition(a){if(a)socket.emit('team:acceptCoalition',{teamName:myTeam});else socket.emit('team:refuseCoalition',{teamName:myTeam});}
 
-function renderPrices(){
-  const div=document.getElementById('price-row');if(!div)return;
-  const prices=state.prices||BASE_PRICES;const prev=state.prevPrices||BASE_PRICES;
-  const resources=[{id:'oil',icon:'🛢️'},{id:'food',icon:'🌾'},{id:'tourism',icon:'🏖️'},{id:'agriculture',icon:'🌿'}];
-  div.innerHTML=resources.map(r=>renderPricePill(r.id,prices[r.id]||BASE_PRICES[r.id],prev[r.id]||BASE_PRICES[r.id])).join('');
-}
-
 function renderMarket(){
-  const div=document.getElementById('market-rows');
+  const div=document.getElementById('market-rows');if(!div)return;
   const isWar=state.phase==='war';const isTut=state.isTutorial;
   const used=(state.teamActionsThisPeriod&&state.teamActionsThisPeriod[myTeam])||0;
-  const c=state.countries&&state.countries[myCountryId];
   const actionsLeft=isTut?99:Math.max(0,2-used);
   const prices=state.prices||BASE_PRICES;const prev=state.prevPrices||BASE_PRICES;
-  const resources=[
-    {id:'oil',name:'Pétrole',icon:'🛢️',hint:'Rev: ×25/u/période'},
-    {id:'food',name:'Nourriture',icon:'🌾',hint:'Consommée selon population'},
-    {id:'tourism',name:'Tourisme',icon:'🏖️',hint:'Rev: ×25/u/période'},
-    {id:'agriculture',name:'Agriculture',icon:'🌿',hint:'Rev: ×20/u/période'},
-  ];
+  const c=state.countries&&state.countries[myCountryId];
+  const treasury=c?.treasury||0;
   div.innerHTML='';
+  const resources=[
+    {id:'oil',name:'Pétrole',icon:'🛢️',hint:'Revenus : ×25 or / unité / période'},
+    {id:'food',name:'Nourriture',icon:'🌾',hint:'Consommée par votre population chaque période'},
+    {id:'tourism',name:'Tourisme',icon:'🏖️',hint:'Revenus : ×25 or / unité / période'},
+    {id:'agriculture',name:'Agriculture',icon:'🌿',hint:'Revenus : ×20 or / unité / période'},
+  ];
   resources.forEach(r=>{
     const price=Math.round(prices[r.id]||BASE_PRICES[r.id]);
     const prevPrice=Math.round(prev[r.id]||BASE_PRICES[r.id]);
     const diff=price-prevPrice;
     const oilBlocked=r.id==='oil'&&!isTut&&(state.eventMod?.blockOilBelowPower||0)>0&&c&&c.power<state.eventMod.blockOilBelowPower;
     const buyBlocked=isWar||actionsLeft<=0||oilBlocked;
-    const arrow=diff>prevPrice*0.05?'↑':diff<-prevPrice*0.05?'↓':'';
-    const arrowColor=diff>0?'#f87171':diff<0?'#4ade80':'';
-    const row=document.createElement('div');row.className='mrow'+(oilBlocked?' blocked':'');
-    row.innerHTML=`<div><div class="mn">${r.icon} ${r.name} <span style="font-size:10px;color:${arrowColor};font-weight:700">${arrow}</span></div><div class="mp">${price} or · ${r.hint}${oilBlocked?' · 🚫 Boom actif':''}</div></div>
-      <div class="mcontrols">
-        <input type="number" class="qty-input" id="${r.id}-qty" value="1" min="1" max="9999" ${oilBlocked?'disabled':''}>
+    const can=canBuyQty(treasury,price);
+    const arrowTxt=diff>prevPrice*0.05?`<span class="mr-price-change up">↑</span>`:diff<-prevPrice*0.05?`<span class="mr-price-change down">↓</span>`:'';
+    const stock=c?c[r.id]||0:0;
+
+    const row=document.createElement('div');
+    row.className='market-resource'+(oilBlocked?' blocked':'');
+    row.innerHTML=`
+      <div class="mr-top">
+        <div class="mr-name">${r.icon} ${r.name}${oilBlocked?' <span style="font-size:9px;color:#f87171">🚫 boom actif</span>':''}</div>
+        <div class="mr-price-block">
+          <div class="mr-price">${price.toLocaleString()} or ${arrowTxt}</div>
+          <div class="mr-capacity">${can>0?`<span class="cap-val">≤ ${can} unités achetables</span>`:`<span class="cap-zero">Pas assez d'or</span>`}</div>
+        </div>
+      </div>
+      <div class="mr-controls">
+        <div class="mr-stock">Stock actuel : ${stock.toLocaleString()}</div>
+        <input type="number" class="qty-input" id="${r.id}-qty" value="1" min="1" max="9999" ${oilBlocked?'disabled':''}/>
         <button class="buybtn" ${buyBlocked?'disabled':''} onclick="socket.emit('team:buyResource',{teamName:myTeam,resource:'${r.id}',qty:parseInt(document.getElementById('${r.id}-qty').value)||1})">Acheter</button>
-        <button class="sellbtn" ${isWar?'disabled':''} onclick="socket.emit('team:sellResource',{teamName:myTeam,resource:'${r.id}',qty:parseInt(document.getElementById('${r.id}-qty').value)||1})">Vendre</button>
+        <button class="sellbtn" ${isWar||stock===0?'disabled':''} onclick="socket.emit('team:sellResource',{teamName:myTeam,resource:'${r.id}',qty:parseInt(document.getElementById('${r.id}-qty').value)||1})">Vendre</button>
       </div>`;
     div.appendChild(row);
   });
@@ -1110,7 +1249,7 @@ function renderAttackTargets(){
   const sel=document.getElementById('attack-target');if(!sel)return;
   const cur=sel.value;sel.innerHTML='<option value="">🎯 Choisir la nation cible...</option>';
   if(!state.countries)return;
-  Object.values(state.countries).forEach(c=>{if(c.id!==myCountryId&&!c.eliminated&&c.team){const o=document.createElement('option');o.value=c.id;o.textContent=`${c.flag} ${c.name} — ${c.power.toLocaleString()} pts (DEF:${c.def||0})`;sel.appendChild(o);}});
+  Object.values(state.countries).forEach(c=>{if(c.id!==myCountryId&&!c.eliminated&&c.team){const o=document.createElement('option');o.value=c.id;o.textContent=`${c.flag} ${c.name} — ${c.power.toLocaleString()} pts (DEF: ${c.def||0})`;sel.appendChild(o);}});
   if(cur)sel.value=cur;updateConfrontation();
 }
 
@@ -1118,7 +1257,7 @@ function renderNews(){
   if(!myTeam||!state.teams||!state.teams[myTeam])return;
   const news=[...(state.teams[myTeam].news||[])].reverse();
   const div=document.getElementById('news-log');
-  div.innerHTML=news.length?news.map(n=>`<div class="ne n${(n.type||'n')[0]}"><div class="nt">${n.time||''}</div><div class="nm">${n.text}</div></div>`).join(''):'<div style="font-size:11px;color:var(--text3);padding:8px">Aucune actualité.</div>';
+  div.innerHTML=news.length?news.map(n=>`<div class="ne n${(n.type||'n')[0]}"><div class="nt">${n.time||''}</div><div class="nm">${n.text}</div></div>`).join(''):'<div style="font-size:11px;color:var(--text3);padding:8px">Aucune actualité pour l\'instant.</div>';
 }
 
 function recruitArmy(type){const qty=parseInt(document.getElementById(type==='tech'?'tech-qty':'army-qty').value)||1;socket.emit('team:recruitArmy',{teamName:myTeam,qty,type});}
@@ -1141,15 +1280,14 @@ function renderMJ(){
   const wtm=document.getElementById('war-turn-mj'),pc=document.getElementById('period-card');
   if(state.phase==='setup'){pbtns.innerHTML='<button class="btn-sm bg" onclick="socket.emit(\'mj:startDraft\')">Lancer le Draft →</button>';pdesc.textContent='Attendez que les équipes rejoignent.';pc.style.display='none';wtm.style.display='none';}
   else if(state.phase==='draft'){pbtns.innerHTML='<button class="btn-sm" onclick="socket.emit(\'mj:startTutorial\')">Manche Test (opt.)</button><button class="btn-sm bg" onclick="socket.emit(\'mj:startProsperity\')" style="margin-left:5px">Lancer Période 1 →</button>';pdesc.textContent='Tutorial optionnel ou lancez directement.';pc.style.display='none';wtm.style.display='none';}
-  else if(state.phase==='prosperity'&&isTut){pbtns.innerHTML='<button class="btn-sm bg" onclick="socket.emit(\'mj:endTutorial\')">Terminer Tutorial</button><button class="btn-sm bo" onclick="socket.emit(\'mj:startProsperity\')" style="margin-left:5px">Lancer Période 1 →</button>';pdesc.textContent='Tutorial — ressources remises à zéro après.';pc.style.display='block';wtm.style.display='none';}
+  else if(state.phase==='prosperity'&&isTut){pbtns.innerHTML='<button class="btn-sm bg" onclick="socket.emit(\'mj:endTutorial\')">Terminer Tutorial</button><button class="btn-sm bo" onclick="socket.emit(\'mj:startProsperity\')" style="margin-left:5px">Lancer Période 1 →</button>';pdesc.textContent='Tutorial en cours — ressources remises à zéro après.';pc.style.display='block';wtm.style.display='none';}
   else if(state.phase==='prosperity'){
     const canWar=state.currentPeriod>=6;
-    pbtns.innerHTML=(state.currentPeriod<6?'<button class="btn-sm bo" onclick="socket.emit(\'mj:nextPeriod\')">Période suivante →</button>':'')+(canWar?'<button class="btn-sm bb" onclick="socket.emit(\'mj:startNegotiation\')" style="margin-left:5px">Phase de Négociation →</button>':'');
-    pdesc.textContent=`Période ${state.currentPeriod}/6 — 2 actions/équipe. Armée dispo manche 5+.`;
-    pc.style.display='block';wtm.style.display='none';
+    pbtns.innerHTML=(state.currentPeriod<6?'<button class="btn-sm bo" onclick="socket.emit(\'mj:nextPeriod\')">Période suivante →</button>':'')+(canWar?'<button class="btn-sm bb" onclick="socket.emit(\'mj:startNegotiation\')" style="margin-left:5px">Négociation →</button>':'');
+    pdesc.textContent=`Période ${state.currentPeriod}/6 — 2 actions/équipe. Armée dispo manche 5+.`;pc.style.display='block';wtm.style.display='none';
   }
-  else if(state.phase==='negotiation'){pbtns.innerHTML='<button class="btn-sm br" onclick="socket.emit(\'mj:startWar\')">Démarrer la Guerre ⚔️</button>';pdesc.textContent='Phase de négociation — les équipes proposent des alliances. Lancez la guerre quand prêt.';pc.style.display='none';wtm.style.display='none';}
-  else if(state.phase==='war'){pbtns.innerHTML=state.gameOver?'<button class="btn-sm" onclick="document.getElementById(\'winner-overlay\').classList.add(\'show\')">Voir le vainqueur 🏆</button>':'';pdesc.textContent=state.gameOver?'Partie terminée.':'Guerre — tours 30 sec.';pc.style.display='none';wtm.style.display=state.gameOver?'none':'block';}
+  else if(state.phase==='negotiation'){pbtns.innerHTML='<button class="btn-sm br" onclick="socket.emit(\'mj:startWar\')">Démarrer la Guerre ⚔️</button>';pdesc.textContent='Négociation en cours — lancez la guerre quand prêt.';pc.style.display='none';wtm.style.display='none';}
+  else if(state.phase==='war'){pbtns.innerHTML=state.gameOver?'<button class="btn-sm" onclick="document.getElementById(\'winner-overlay\').classList.add(\'show\')">Voir le vainqueur 🏆</button>':'';pdesc.textContent=state.gameOver?'Partie terminée.':'Tours de 30 sec.';pc.style.display='none';wtm.style.display=state.gameOver?'none':'block';}
   if(state.currentEvent){
     const ev=state.currentEvent;
     const tl={market:'MARCHÉ',choice:'CHOIX',targeted:'CIBLÉ'};
@@ -1160,18 +1298,15 @@ function renderMJ(){
     document.getElementById('pc-event').textContent='⚡ '+ev.title+' — '+ev.effect;
     if(ev.nextHint){document.getElementById('pc-hint-box').style.display='block';document.getElementById('pc-hint-text').textContent=ev.nextHint;}
     else document.getElementById('pc-hint-box').style.display='none';
-    // Next prices on MJ view
     if(ev.nextPrices){
-      const np=ev.nextPrices;const cp=state.prices||BASE_PRICES;
+      const prices=state.prices||BASE_PRICES;
       document.getElementById('pc-next-prices').style.display='block';
-      document.getElementById('pc-next-prices-content').innerHTML=
-        renderPricePill('oil',np.oil,cp.oil)+renderPricePill('food',np.food,cp.food)+
-        renderPricePill('tourism',np.tourism,cp.tourism)+renderPricePill('agriculture',np.agriculture,cp.agriculture);
+      document.getElementById('pc-next-prices-content').innerHTML=Object.entries(ev.nextPrices).map(([r,np])=>pricePillHtml(r,np,prices[r]||BASE_PRICES[r])).join('');
     } else document.getElementById('pc-next-prices').style.display='none';
   }
   document.getElementById('mj-lb').innerHTML=sorted.map((c,i)=>`<div class="lbr ${i===0?'first':''}"><div class="lbr-rank">${i+1}</div><div style="font-size:13px">${c.flag}</div><div class="lbr-name">${c.name} <span style="font-size:9px;color:var(--text3)">· ${c.team}</span></div><div class="lbr-pts">${c.power.toLocaleString()}</div></div>`).join('');
   document.getElementById('mj-grid').innerHTML=teams.map(c=>{
-    const pct=Math.min(100,Math.round(c.power/maxP*100));const cls=pct<30?'pl':pct<60?'pm':'ph';
+    const pct=Math.min(100,Math.round(c.power/maxP*100));const cls=pct<30?'pl':pct<60?'pm':'ph_';
     const fN=Math.max(2,Math.round(c.population/8));
     const alertT=c.treasury<400&&!c.eliminated;const alertF=c.food<fN*1.5&&!c.eliminated;
     return `<div class="cc ${c.eliminated?'eliminated':''} ${alertT?'alert-t':alertF?'alert-f':''}"><div class="cc-alerts">${alertT?'🚨':''} ${alertF?'🍞':''} ${(c.atk||0)>5?'⚔️':''} ${(c.def||0)>5?'🛡️':''}</div><div class="cc-flag">${c.flag}</div><div class="cc-name">${c.name}</div><div class="cc-stats">Or:${c.treasury} · Arm:${c.army}<br>ATK:${c.atk||0} · DEF:${c.def||0}${c.eliminated?' ☠️':''}</div><div class="pbar"><div class="pfill ${cls}" style="width:${pct}%"></div></div><div style="font-size:9px;color:var(--text3);margin-top:2px">${c.power.toLocaleString()} pts</div></div>`;
