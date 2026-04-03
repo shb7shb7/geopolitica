@@ -56,7 +56,7 @@ const COUNTRIES = [
   { id:'southafrica',flag:'🇿🇦',name:'Afrique S.', tier:'B', gold:320, oil:80,  food:350, tourism:140, agriculture:170, army:140, atk:0, def:0, militarySpent:0, population:60 },
 ];
 
-function getFoodConsumption(c) { return Math.max(2, Math.round(c.population / 8)); }
+function getFoodConsumption(c) { return Math.max(3, Math.round(c.population / 6)); }
 
 const BASE_PRICES = { oil:80, food:40, tourism:120, agriculture:60 };
 const MEAN_REVERT_STRENGTH = 1/3; // each period, price moves 1/3 back toward base
@@ -612,8 +612,8 @@ io.on('connection',(socket)=>{
   });
 
   socket.on('mj:startProsperity',()=>{
-    // Always restore tutorial snapshot if it exists (fixes: tutorial purchases persisting into period 1)
-    if(gameState.isTutorial && Object.keys(gameState.tutorialSnapshot).length>0){
+    // Restore snapshot: year 1 starts clean as if tutorial never happened
+    if(Object.keys(gameState.tutorialSnapshot).length>0){
       Object.values(gameState.countries).forEach(c=>{
         if(gameState.tutorialSnapshot[c.id]){
           const s=gameState.tutorialSnapshot[c.id];
@@ -623,6 +623,12 @@ io.on('connection',(socket)=>{
         }
       });
     }
+    // Year 1: use BASE_PRICES (no event has happened yet, no price variation)
+    gameState.prices={...BASE_PRICES};
+    gameState.prevPrices={...BASE_PRICES};
+    gameState.currentPrices={...BASE_PRICES};
+    gameState.prevEvent=null; // no causal explanation for year 1
+    gameState.eventMod={}; // no revenue multipliers carry over from tutorial
     gameState.phase='prosperity';gameState.currentPeriod=1;gameState.isTutorial=false;
     gameState.teamActionsThisPeriod={};gameState.lastActionByTeam={};
     const p=PERIODS[0];const ev=gameState.periodSequence[0]||weightedRandom(EVENTS);
@@ -761,7 +767,7 @@ io.on('connection',(socket)=>{
     socket.emit('actionUndone');broadcast();
   });
 
-  socket.on('team:proposeAlliance',({fromTeam,toTeam,allianceType})=>{
+  socket.on('team:proposeAlliance',({fromTeam,toTeam,allianceType,targetId})=>{
     if(gameState.phase!=='war'&&gameState.phase!=='negotiation'){socket.emit('error','Alliances disponibles en phase de négociation ou guerre !');return;}
     const cost=allianceType==='offensive'?100:0;
     const team=gameState.teams[fromTeam];if(!team||!team.country)return;
@@ -779,7 +785,7 @@ io.on('connection',(socket)=>{
       }
     }
     if(cost>0&&c.treasury<cost){socket.emit('error','Pas assez d\'or !');return;}
-    const proposal={from:fromTeam,fromCountry:fromCountry?{flag:fromCountry.flag,name:fromCountry.name}:null,to:toTeam,type:allianceType,cost,expires:Date.now()+30000};
+    const proposal={from:fromTeam,fromCountry:fromCountry?{flag:fromCountry.flag,name:fromCountry.name}:null,to:toTeam,type:allianceType,cost,targetId:targetId||null,expires:Date.now()+30000};
     gameState.pendingAllianceProposals[toTeam]=proposal;
     io.emit('allianceProposal',proposal);
     const toCountry=Object.values(gameState.countries).find(cc=>cc.team===toTeam);
@@ -791,12 +797,23 @@ io.on('connection',(socket)=>{
     delete gameState.pendingAllianceProposals[toTeam];
     const fromCountry=Object.values(gameState.countries).find(c=>c.team===fromTeam);
     const toCountry=Object.values(gameState.countries).find(c=>c.team===toTeam);
-    if(!accepted){addTeamNews(fromTeam,`❌ Alliance refusée par ${toCountry?.flag||''} ${toCountry?.name||toTeam}`,'bad');io.emit('allianceExpired',{to:toTeam});broadcast();return;}
+    if(!accepted){
+      addTeamNews(fromTeam,`❌ Alliance refusée par ${toCountry?.flag||''} ${toCountry?.name||toTeam}`,'bad');
+      io.emit('allianceExpired',{to:toTeam});broadcast();return;
+    }
+    // Notify proposer that alliance was accepted
+    const fromSocket=teamSockets.get(fromTeam);
+    const fromSock=fromSocket?io.sockets.sockets.get(fromSocket):null;
+    if(fromSock)fromSock.emit('allianceAccepted',{by:toTeam,byCountry:toCountry?{flag:toCountry.flag,name:toCountry.name}:null,type:allianceType});
+    addTeamNews(fromTeam,`✅ Alliance ${allianceType==='offensive'?'offensive':'de non-agression'} ACCEPTÉE par ${toCountry?.flag||''} ${toCountry?.name||toTeam} !`,'good');
+    addTeamNews(toTeam,`✅ Alliance ${allianceType==='offensive'?'offensive':'de non-agression'} confirmée avec ${fromCountry?.flag||''} ${fromCountry?.name||fromTeam}`,'good');
     const cost=allianceType==='offensive'?100:0;
     const propTeam=gameState.teams[fromTeam];if(propTeam?.country){const pc=gameState.countries[propTeam.country];if(cost>0)pc.treasury=Math.max(0,pc.treasury-cost);}
     const turnIdx=gameState.warCurrentTurn;
-    gameState.alliances[fromTeam]={type:allianceType,with:toTeam,withCountryName:toCountry?.name||toTeam,withCountryFlag:toCountry?.flag||'',expires:turnIdx+(gameState.warTurnOrder.length||10)};
-    gameState.alliances[toTeam]  ={type:allianceType,with:fromTeam,withCountryName:fromCountry?.name||fromTeam,withCountryFlag:fromCountry?.flag||'',expires:turnIdx+(gameState.warTurnOrder.length||10)};
+    const pendingProp=gameState.pendingAllianceProposals[toTeam];
+    const agreedTarget=pendingProp?.targetId||null;
+    gameState.alliances[fromTeam]={type:allianceType,with:toTeam,withCountryName:toCountry?.name||toTeam,withCountryFlag:toCountry?.flag||'',targetId:agreedTarget,expires:turnIdx+(gameState.warTurnOrder.length||10)};
+    gameState.alliances[toTeam]  ={type:allianceType,with:fromTeam,withCountryName:fromCountry?.name||fromTeam,withCountryFlag:fromCountry?.flag||'',targetId:agreedTarget,expires:turnIdx+(gameState.warTurnOrder.length||10)};
     addTeamNews(fromTeam,`✅ Alliance ${allianceType} avec ${toCountry?.flag||''} ${toCountry?.name||toTeam} !`,'good');
     addTeamNews(toTeam,`✅ Alliance ${allianceType} avec ${fromCountry?.flag||''} ${fromCountry?.name||fromTeam} !`,'good');
     addLog(`🤝 Alliance ${allianceType}: ${fromCountry?.flag||''} ${fromCountry?.name} & ${toCountry?.flag||''} ${toCountry?.name}`,'event');
@@ -827,9 +844,17 @@ io.on('connection',(socket)=>{
     if(myAlliance&&myAlliance.type==='peace'&&myAlliance.with===def.team){socket.emit('error','Pacte de non-agression actif — attaque impossible !');return;}
     const costs={gold:150,oil:200,food:300};const pr=payWith||'gold';
     const cost=costs[pr]||150;const rk=pr==='gold'?'treasury':pr;
-    if(att[rk]<cost){socket.emit('error',`Pas assez de ${pr==='gold'?'or':pr} ! (${cost} requis)`);return;}
-    att[rk]-=cost;att.power=calcPower(att);
-    if(myAlliance&&myAlliance.type==='offensive')att.combatBonus=(att.combatBonus||0)+0.15;
+    let armyPenalty=0;
+    if(att[rk]<cost){
+      if(pr!=='gold'){socket.emit('error',`Pas assez de ${pr} ! (${cost} requis)`);return;}
+      armyPenalty=Math.max(5,Math.round((att.army||0)*0.10));
+      if((att.army||0)<5){socket.emit('error','Pas assez de ressources pour attaquer !');return;}
+      addTeamNews(teamName,'Attaque sans or — sacrifice de '+armyPenalty+' soldats','bad');
+    } else { att[rk]-=cost; }
+    if(armyPenalty>0){att.army=Math.max(0,(att.army||0)-armyPenalty);}
+    att.power=calcPower(att);
+    const offBonus=(myAlliance&&myAlliance.type==='offensive'&&(!myAlliance.targetId||myAlliance.targetId===targetId))?0.15:0;
+    if(offBonus>0)att.combatBonus=(att.combatBonus||0)+offBonus;
     const result=resolveCombat(att,def);
     const lA=Math.round(att.army*(result.attackerWins?0.12:0.28));
     const lD=Math.round(def.army*(result.attackerWins?0.35:0.10));
