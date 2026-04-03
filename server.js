@@ -106,9 +106,9 @@ function calcPower(c) {
 const EVENTS = [
   // ── MANCHE 1 — MARCHÉ uniquement ────────────────────────────────────────
   { id:'oil_boom',     type:'market', period:1,
-    hint:'Les grandes puissances pétrolières réduisent leurs quotas de production. Les marchés à terme s'emballent.',
+    hint:'Les grandes puissances pétrolières réduisent leurs quotas de production. Les marchés à terme s\'emballent.',
     title:'Choc pétrolier',
-    desc:'La production mondiale se contracte. Le baril s'envole.',
+    desc:'La production mondiale se contracte. Le baril s\'envole.',
     effect:'N+1 — revenus pétrole ×5 · prix pétrole ↑×4 · achat pétrole bloqué si < 6 000 pts',
     oilMultiplier:5, priceOil:4.0, blockOilBelowPower:6000 },
 
@@ -122,7 +122,7 @@ const EVENTS = [
   { id:'gold_rush',    type:'market', period:1,
     hint:'Des gisements exceptionnels sont confirmés sur trois continents. Les banques centrales injectent massivement des liquidités.',
     title:'Découverte aurifère massive',
-    desc:'L'or afflue. Les liquidités mondiales explosent.',
+    desc:'L\'or afflue. Les liquidités mondiales explosent.',
     effect:'N+1 — revenus de base ×3 · toutes ressources ↑+20% (inflation)',
     baseMultiplier:3, priceOil:1.2, priceFood:1.2, priceTourism:1.2, priceAgri:1.2 },
 
@@ -130,22 +130,22 @@ const EVENTS = [
   { id:'agri_boom',    type:'market', period:2,
     hint:'Des conditions météo exceptionnelles sur trois continents laissent présager des récoltes records cette saison.',
     title:'Superproduction agricole',
-    desc:'Récoltes records. L'agriculture devient une ressource rare et convoitée.',
+    desc:'Récoltes records. L\'agriculture devient une ressource rare et convoitée.',
     effect:'N+1 — revenus agri ×5 · nourriture +25% à tous · prix agri ↑+80%',
     agriMultiplier:5, priceAgri:1.8, special:'agriBoost' },
 
   { id:'free_trade',   type:'market', period:2,
-    hint:'Les grandes économies signent un traité historique. Les barrières douanières tombent, les échanges commerciaux s'accélèrent.',
+    hint:'Les grandes économies signent un traité historique. Les barrières douanières tombent, les échanges commerciaux s\'accélèrent.',
     title:'Accord de libre-échange mondial',
-    desc:'Les frontières commerciales s'ouvrent. Tout devient accessible.',
+    desc:'Les frontières commerciales s\'ouvrent. Tout devient accessible.',
     effect:'N+1 — toutes ressources ↓−30% · revenus passifs +15%',
     priceOil:0.7, priceFood:0.7, priceTourism:0.7, priceAgri:0.7,
     oilMultiplier:1.15, tourismMultiplier:1.15, agriMultiplier:1.15, baseMultiplier:1.15 },
 
   { id:'speculation',  type:'market', period:2,
-    hint:'Une spéculation massive s'empare des marchés des matières premières. Les investisseurs cherchent des valeurs refuges.',
-    title:'Ruée vers l'or',
-    desc:'Les marchés s'emballent. Les prix grimpent partout.',
+    hint:'Une spéculation massive s\'empare des marchés des matières premières. Les investisseurs cherchent des valeurs refuges.',
+    title:'Ruée vers l\'or',
+    desc:'Les marchés s\'emballent. Les prix grimpent partout.',
     effect:'N+1 — revenus de base ×2 · toutes ressources ↑+40%',
     baseMultiplier:2, priceOil:1.4, priceFood:1.4, priceTourism:1.4, priceAgri:1.4 },
 
@@ -158,9 +158,9 @@ const EVENTS = [
     agriMultiplier:4, priceFood:4.0, special:'foodCrisisPenalty' },
 
   { id:'energy_shift', type:'market', period:3,
-    hint:'Plusieurs constructeurs automobiles annoncent l'abandon du moteur thermique d'ici 5 ans. Les marchés pétroliers réagissent nerveusement.',
+    hint:'Plusieurs constructeurs automobiles annoncent l\'abandon du moteur thermique d\'ici 5 ans. Les marchés pétroliers réagissent nerveusement.',
     title:'Transition énergétique',
-    desc:'Le pétrole perd sa valeur stratégique. Les marchés pétroliers s'effondrent.',
+    desc:'Le pétrole perd sa valeur stratégique. Les marchés pétroliers s\'effondrent.',
     effect:'N+1 — pays pétrole > 200 → −900 or · revenus pétrole ×0 · prix pétrole ↓−70%',
     oilMultiplier:0, priceOil:0.3, special:'oilCrash' },
 
@@ -182,11 +182,11 @@ const EVENTS = [
     choiceB:{label:'Payer 1 000 or + risque 50% de −500 pts supplémentaires',cost:{treasury:1000},gain:{gamble:true,powerLoss:500}} },
 
   { id:'arms_race',    type:'choice', period:4,
-    hint:'Des mouvements de troupes inhabituels sont signalés aux frontières de plusieurs régions. Les états-majors renforcent leur état d'alerte.',
+    hint:'Des mouvements de troupes inhabituels sont signalés aux frontières de plusieurs régions. Les états-majors renforcent leur état d\'alerte.',
     title:'Mobilisation militaire',
-    desc:'Les frontières s'embrasent. Temps de choisir votre stratégie.',
+    desc:'Les frontières s\'embrasent. Temps de choisir votre stratégie.',
     effect:'N+1 — A: −600 or → +150 armée, −200 pts · B: −500 nourr → +100 armée, +25% combat',
-    choiceA:{label:'Achat d'armement (−600 or → +150 armée, −200 pts popularité)',cost:{treasury:600},gain:{army:150,powerLoss:200}},
+    choiceA:{label:'Achat d\'armement (−600 or → +150 armée, −200 pts popularité)',cost:{treasury:600},gain:{army:150,powerLoss:200}},
     choiceB:{label:'Mobilisation populaire (−500 nourr → +100 armée, +25% bonus combat)',cost:{food:500},gain:{army:100,combatBonus:0.25}} },
 
   { id:'scandal',      type:'choice', period:4,
@@ -199,15 +199,15 @@ const EVENTS = [
     choiceB:{label:'Démentir (50%: rien / 50%: −1 200 or et −400 pts)',cost:{},gain:{gamble:true,powerLoss:400,goldLoss:1200}} },
 
   { id:'war_prep',     type:'choice', period:4,
-    hint:'Les services de renseignement font circuler des évaluations alarmantes sur l'instabilité régionale. Les budgets de défense sont sous pression.',
+    hint:'Les services de renseignement font circuler des évaluations alarmantes sur l\'instabilité régionale. Les budgets de défense sont sous pression.',
     title:'Alerte stratégique',
-    desc:'La guerre est dans l'air. Deux stratégies s'affrontent.',
+    desc:'La guerre est dans l\'air. Deux stratégies s\'affrontent.',
     effect:'N+1 — A: −300 or → +150 pts puissance · B: −800 or → +250 armée, −25% or restant',
     choiceA:{label:'Renforcement défensif (−300 or → +150 pts puissance)',cost:{treasury:300},gain:{power:150}},
     choiceB:{label:'Frappe préventive (−800 or → +250 armée, −25% or restant)',cost:{treasury:800},gain:{army:250,goldPenalty:0.25}} },
 
   { id:'refugees',     type:'choice', period:4,
-    hint:'Une instabilité régionale génère des déplacements de population massifs. Les organisations internationales pressent les gouvernements d'agir.',
+    hint:'Une instabilité régionale génère des déplacements de population massifs. Les organisations internationales pressent les gouvernements d\'agir.',
     title:'Crise humanitaire',
     desc:'Des millions de personnes fuient. Accueillir ou fermer les frontières ?',
     effect:'N+1 — A: −400 nourr → +400 pts, +60 armée · B: −300 pts · prix nourriture ↑+50%',
@@ -224,7 +224,7 @@ const EVENTS = [
     priceTourism:0.8, special:'revolution' },
 
   { id:'imf',          type:'targeted', period:5,
-    hint:'Le FMI tient une réunion d'urgence. Des plans de soutien massifs aux économies vulnérables sont en cours d'élaboration.',
+    hint:'Le FMI tient une réunion d\'urgence. Des plans de soutien massifs aux économies vulnérables sont en cours d\'élaboration.',
     title:'Plan FMI',
     desc:'Le Fonds Monétaire International injecte des milliards dans les pays fragiles.',
     effect:'N+1 — 4 nations les plus faibles → +350 or, +70 armée · prix ressources ↓−15%',
@@ -233,7 +233,7 @@ const EVENTS = [
   { id:'uprising',     type:'targeted', period:5,
     hint:'Des grèves générales paralysent plusieurs secteurs dans les grandes puissances. Les pays émergents profitent du chaos social pour accélérer leur développement.',
     title:'Grèves et soulèvements',
-    desc:'Les pays émergents s'arment. Les superpuissances désertent.',
+    desc:'Les pays émergents s\'arment. Les superpuissances désertent.',
     effect:'N+1 — Tier B → +90 armée · Tier S → −180 armée · prix tourisme ↓−25%',
     priceTourism:0.75, special:'uprising' },
 
@@ -246,14 +246,14 @@ const EVENTS = [
     priceAgri:1.6, targetCount:1, effects:{foodLoss:0.55,powerLoss:500} },
 
   { id:'typhoon',      type:'targeted', period:6,
-    hint:'Des formations tropicales d'intensité exceptionnelle sont signalées simultanément dans l'Atlantique et le Pacifique. Trajectoires encore imprévisibles.',
+    hint:'Des formations tropicales d\'intensité exceptionnelle sont signalées simultanément dans l\'Atlantique et le Pacifique. Trajectoires encore imprévisibles.',
     title:'Typhons dévastateurs',
-    desc:'Deux super-tempêtes frappent les côtes. Personne n'est à l'abri.',
+    desc:'Deux super-tempêtes frappent les côtes. Personne n\'est à l\'abri.',
     effect:'Guerre — 2 pays aléatoires → −60% nourriture, −300 pts · prix nourriture ↑+40%',
     priceFood:1.4, targetCount:2, effects:{foodLoss:0.60,powerLoss:300} },
 
   { id:'tourism_crisis',type:'targeted', period:6,
-    hint:'Une série d'incidents sécuritaires dans des sites très fréquentés génère des avis de voyage restrictifs dans plusieurs pays majeurs.',
+    hint:'Une série d\'incidents sécuritaires dans des sites très fréquentés génère des avis de voyage restrictifs dans plusieurs pays majeurs.',
     title:'Crise du tourisme',
     desc:'Les touristes fuient. Les pays très touristiques perdent, les autres gagnent.',
     effect:'Guerre — tourisme > 200 → −500 or · tourisme < 70 → +250 or · prix tourisme ↑×2',
@@ -663,7 +663,7 @@ io.on('connection',(socket)=>{
   socket.on('team:declareAttack',({teamName,targetId,payWith})=>{
     if(gameState.phase!=='war'){socket.emit('error',"Pas encore en guerre !");return;}
     if(gameState.gameOver){socket.emit('error','La partie est terminée !');return;}
-    if(gameState.warTurnOrder[gameState.warCurrentTurn]!==teamName){socket.emit('error',"Ce n'est pas votre tour !");return;}
+    if(gameState.warTurnOrder[gameState.warCurrentTurn]!==teamName){socket.emit('error',"Ce n\'est pas votre tour !");return;}
     const team=gameState.teams[teamName];if(!team||!team.country)return;
     const att=gameState.countries[team.country];const def=gameState.countries[targetId];
     if(!att||!def||att.eliminated||def.eliminated)return;
