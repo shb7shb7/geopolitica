@@ -132,157 +132,177 @@ function calcPower(c) {
 // EVENTS — moderate hints, effects primarily via price multipliers
 const EVENTS = [
   // ── MANCHE 1 — MARCHÉ uniquement ────────────────────────────────────────
-  { id:'oil_boom',     type:'market', period:1,
+  { id:'oil_boom', type:'market', period:1,
     hint:'Les grandes puissances pétrolières réduisent leurs quotas de production. Les marchés à terme s\'emballent.',
-    title:'Choc pétrolier',
-    desc:'La production mondiale se contracte. Le baril s\'envole.',
+    causalExplanation:'Les quotas ont été réduits → le pétrole se raréfie → les revenus pétroliers explosent.',
+    priceJustification:{oil:'Offre mondiale réduite → pétrole plus rare → prix ↑'},
+    title:'Choc pétrolier', desc:'La production mondiale se contracte. Le baril s\'envole.',
     effect:'N+1 — revenus pétrole ×5 · prix pétrole ↑×4 · achat pétrole bloqué si < 6 000 pts',
     oilMultiplier:5, priceOil:4.0, blockOilBelowPower:6000 },
 
   { id:'tourism_boom', type:'market', period:1,
     hint:'Les restrictions de voyage sont levées. Les aéroports enregistrent un afflux record de voyageurs internationaux.',
-    title:'Boom du tourisme',
-    desc:'Les voyages explosent. Le tourisme devient une ressource très prisée.',
+    causalExplanation:'Les restrictions levées → voyageurs affluent massivement → le tourisme devient une ressource très prisée.',
+    priceJustification:{tourism:'Forte demande de voyages → tourisme rare et prisé → prix ↑'},
+    title:'Boom du tourisme', desc:'Les voyages explosent. Le tourisme devient une ressource très prisée.',
     effect:'N+1 — revenus tourisme ×5 · prix tourisme ↑×2 (forte demande)',
     tourismMultiplier:5, priceTourism:2.0 },
 
-  { id:'gold_rush',    type:'market', period:1,
+  { id:'gold_rush', type:'market', period:1,
     hint:'Des gisements exceptionnels sont confirmés sur trois continents. Les banques centrales injectent massivement des liquidités.',
-    title:'Découverte aurifère massive',
-    desc:'L\'or afflue. Les liquidités mondiales explosent.',
-    effect:'N+1 — revenus de base ×3 · toutes ressources ↑+20% (inflation)',
+    causalExplanation:'L\'injection massive de liquidités crée de l\'inflation → toutes les ressources coûtent plus cher, les revenus de base triplent.',
+    priceJustification:{oil:'Inflation mondiale → prix ↑', food:'Inflation mondiale → prix ↑', tourism:'Inflation mondiale → prix ↑', agriculture:'Inflation mondiale → prix ↑'},
+    title:'Découverte aurifère massive', desc:'L\'or afflue. Les liquidités mondiales explosent.',
+    effect:'N+1 — revenus de base ×3 · toutes ressources ↑+20%',
     baseMultiplier:3, priceOil:1.2, priceFood:1.2, priceTourism:1.2, priceAgri:1.2 },
 
   // ── MANCHE 2 — MARCHÉ uniquement ────────────────────────────────────────
-  { id:'agri_boom',    type:'market', period:2,
+  { id:'agri_boom', type:'market', period:2,
     hint:'Des conditions météo exceptionnelles sur trois continents laissent présager des récoltes records cette saison.',
-    title:'Superproduction agricole',
-    desc:'Récoltes records. L\'agriculture devient une ressource rare et convoitée.',
+    causalExplanation:'Récoltes records → stocks agricoles abondants → l\'agriculture rapporte énormément et sa valeur monte.',
+    priceJustification:{agriculture:'Récoltes records → denrée abondante mais très prisée → prix ↑'},
+    title:'Superproduction agricole', desc:'Récoltes records. L\'agriculture devient une ressource convoitée.',
     effect:'N+1 — revenus agri ×5 · nourriture +25% à tous · prix agri ↑+80%',
     agriMultiplier:5, priceAgri:1.8, special:'agriBoost' },
 
-  { id:'free_trade',   type:'market', period:2,
+  { id:'free_trade', type:'market', period:2,
     hint:'Les grandes économies signent un traité historique. Les barrières douanières tombent, les échanges commerciaux s\'accélèrent.',
-    title:'Accord de libre-échange mondial',
-    desc:'Les frontières commerciales s\'ouvrent. Tout devient accessible.',
+    causalExplanation:'Suppression des barrières douanières → marchés inondés de produits → concurrence accrue → toutes les ressources moins chères.',
+    priceJustification:{oil:'Libre-échange → concurrence accrue → prix ↓', food:'Libre-échange → surplus alimentaires libres → prix ↓', tourism:'Frontières ouvertes → offre touristique abondante → prix ↓', agriculture:'Marchés agricoles mondiaux ouverts → prix ↓'},
+    title:'Accord de libre-échange mondial', desc:'Les frontières commerciales s\'ouvrent. Tout devient accessible.',
     effect:'N+1 — toutes ressources ↓−30% · revenus passifs +15%',
     priceOil:0.7, priceFood:0.7, priceTourism:0.7, priceAgri:0.7,
     oilMultiplier:1.15, tourismMultiplier:1.15, agriMultiplier:1.15, baseMultiplier:1.15 },
 
-  { id:'speculation',  type:'market', period:2,
+  { id:'speculation', type:'market', period:2,
     hint:'Une spéculation massive s\'empare des marchés des matières premières. Les investisseurs cherchent des valeurs refuges.',
-    title:'Ruée vers l\'or',
-    desc:'Les marchés s\'emballent. Les prix grimpent partout.',
+    causalExplanation:'Spéculation massive → les investisseurs achètent toutes les matières premières → demande artificielle → prix en hausse partout.',
+    priceJustification:{oil:'Spéculation → demande artificielle → prix ↑', food:'Spéculation → ruée vers les valeurs refuges → prix ↑', tourism:'Investissements dans le secteur → prix ↑', agriculture:'Demande spéculative → prix ↑'},
+    title:'Ruée vers l\'or', desc:'Les marchés s\'emballent. Les prix grimpent partout.',
     effect:'N+1 — revenus de base ×2 · toutes ressources ↑+40%',
     baseMultiplier:2, priceOil:1.4, priceFood:1.4, priceTourism:1.4, priceAgri:1.4 },
 
   // ── MANCHE 3 — MARCHÉ uniquement ────────────────────────────────────────
-  { id:'food_crisis',  type:'market', period:3,
+  { id:'food_crisis', type:'market', period:3,
     hint:'Les satellites agricoles confirment une sécheresse étendue dans plusieurs zones céréalières. Les stocks mondiaux sont au plus bas.',
-    title:'Crise alimentaire mondiale',
-    desc:'Les greniers mondiaux se vident. La nourriture devient un luxe.',
+    causalExplanation:'La sécheresse a vidé les greniers mondiaux → nourriture rare et chère → l\'agriculture est très rentable cette période.',
+    priceJustification:{food:'Sécheresse → stocks épuisés → nourriture rare → prix ↑'},
+    title:'Crise alimentaire mondiale', desc:'Les greniers mondiaux se vident. La nourriture devient un luxe.',
     effect:'N+1 — revenus agri ×4 · pays < 200 nourr → −35% puissance · prix nourriture ↑×4',
     agriMultiplier:4, priceFood:4.0, special:'foodCrisisPenalty' },
 
   { id:'energy_shift', type:'market', period:3,
     hint:'Plusieurs constructeurs automobiles annoncent l\'abandon du moteur thermique d\'ici 5 ans. Les marchés pétroliers réagissent nerveusement.',
-    title:'Transition énergétique',
-    desc:'Le pétrole perd sa valeur stratégique. Les marchés pétroliers s\'effondrent.',
+    causalExplanation:'L\'abandon massif du thermique annoncé → demande de pétrole s\'effondre → sa valeur chute drastiquement.',
+    priceJustification:{oil:'Abandon du thermique → demande pétrole effondrée → prix ↓'},
+    title:'Transition énergétique', desc:'Le pétrole perd sa valeur stratégique. Les marchés s\'effondrent.',
     effect:'N+1 — pays pétrole > 200 → −900 or · revenus pétrole ×0 · prix pétrole ↓−70%',
     oilMultiplier:0, priceOil:0.3, special:'oilCrash' },
 
-  { id:'sanctions',    type:'market', period:3,
+  { id:'sanctions', type:'market', period:3,
     hint:'Une coalition diplomatique inédite prépare des mesures contre les économies dominantes. Les ambassadeurs multiplient les consultations discrètes.',
-    title:'Sanctions coordonnées',
-    desc:'Le G20 frappe fort les grandes puissances. Les petits en profitent.',
+    causalExplanation:'Les sanctions perturbent les chaînes d\'approvisionnement mondiales → tout coûte plus cher à importer ou exporter.',
+    priceJustification:{oil:'Perturbations commerciales → prix ↑', food:'Chaînes alimentaires perturbées → prix ↑', tourism:'Tensions → avis de voyage négatifs → prix ↑', agriculture:'Échanges bloqués → prix ↑'},
+    title:'Sanctions coordonnées', desc:'Le G20 frappe fort les grandes puissances. Les petits en profitent.',
     effect:'N+1 — Tier S/A → −1 200 or · 4 nations les plus faibles → +400 or · toutes ressources ↑+30%',
     priceOil:1.3, priceFood:1.3, priceTourism:1.3, priceAgri:1.3, special:'sanctionsSA' },
 
   // ── MANCHE 4 — CHOIX uniquement (1 parmi ces 5) ────────────────────────
-  { id:'embargo',      type:'choice', period:4,
+  { id:'embargo', type:'choice', period:4,
     hint:'Des tensions maritimes bloquent plusieurs routes commerciales stratégiques. Les nations exportatrices préparent des mesures de rétorsion.',
-    title:'Embargo commercial',
-    desc:'Les routes maritimes sont coupées. Chaque nation doit choisir son camp.',
+    causalExplanation:'Le blocus des routes maritimes réduit l\'offre de pétrole disponible → sa rareté fait monter le prix.',
+    priceJustification:{oil:'Routes bloquées → offre réduite → pétrole rare → prix ↑'},
+    title:'Embargo commercial', desc:'Les routes maritimes sont coupées. Chaque nation doit choisir son camp.',
     effect:'N+1 — A: −400 pétrole (neutralité) · B: −1 000 or + 50% risque −500 pts · prix pétrole ↑×2',
     priceOil:2.0,
     choiceA:{label:'Sacrifier 400 pétrole — neutralité garantie',cost:{oil:400},gain:{}},
     choiceB:{label:'Payer 1 000 or + risque 50% de −500 pts supplémentaires',cost:{treasury:1000},gain:{gamble:true,powerLoss:500}} },
 
-  { id:'arms_race',    type:'choice', period:4,
+  { id:'arms_race', type:'choice', period:4,
     hint:'Des mouvements de troupes inhabituels sont signalés aux frontières de plusieurs régions. Les états-majors renforcent leur état d\'alerte.',
-    title:'Mobilisation militaire',
-    desc:'Les frontières s\'embrasent. Temps de choisir votre stratégie.',
+    causalExplanation:'La mobilisation militaire est en cours. Vos choix stratégiques déterminent votre force pour la guerre.',
+    priceJustification:{},
+    title:'Mobilisation militaire', desc:'Les frontières s\'embrasent. Temps de choisir votre stratégie.',
     effect:'N+1 — A: −600 or → +150 armée, −200 pts · B: −500 nourr → +100 armée, +25% combat',
     choiceA:{label:'Achat d\'armement (−600 or → +150 armée, −200 pts popularité)',cost:{treasury:600},gain:{army:150,powerLoss:200}},
     choiceB:{label:'Mobilisation populaire (−500 nourr → +100 armée, +25% bonus combat)',cost:{food:500},gain:{army:100,combatBonus:0.25}} },
 
-  { id:'scandal',      type:'choice', period:4,
+  { id:'scandal', type:'choice', period:4,
     hint:'Des fuites dans la presse internationale évoquent des irrégularités financières impliquant plusieurs gouvernements. Les bourses surveillent.',
-    title:'Scandale financier',
-    desc:'Des révélations compromettantes circulent. Avouer ou nier ?',
+    causalExplanation:'Le scandale financier ternit l\'image des gouvernements → les touristes évitent les destinations politiquement instables → prix touristiques baissent.',
+    priceJustification:{tourism:'Image gouvernements ternie → touristes évitent → demande ↓ → prix ↓'},
+    title:'Scandale financier', desc:'Des révélations compromettantes circulent. Avouer ou nier ?',
     effect:'N+1 — A: −300 or, −100 pts (certain) · B: 50% rien / 50% −1 200 or −400 pts · prix tourisme ↓−20%',
     priceTourism:0.8,
     choiceA:{label:'Reconnaître les faits (coût certain: −300 or, −100 pts)',cost:{treasury:300},gain:{powerLoss:100}},
     choiceB:{label:'Démentir (50%: rien / 50%: −1 200 or et −400 pts)',cost:{},gain:{gamble:true,powerLoss:400,goldLoss:1200}} },
 
-  { id:'war_prep',     type:'choice', period:4,
+  { id:'war_prep', type:'choice', period:4,
     hint:'Les services de renseignement font circuler des évaluations alarmantes sur l\'instabilité régionale. Les budgets de défense sont sous pression.',
-    title:'Alerte stratégique',
-    desc:'La guerre est dans l\'air. Deux stratégies s\'affrontent.',
+    causalExplanation:'La menace de conflit imminent pousse les nations à choisir entre défense et frappe préventive.',
+    priceJustification:{},
+    title:'Alerte stratégique', desc:'La guerre est dans l\'air. Deux stratégies s\'affrontent.',
     effect:'N+1 — A: −300 or → +150 pts puissance · B: −800 or → +250 armée, −25% or restant',
     choiceA:{label:'Renforcement défensif (−300 or → +150 pts puissance)',cost:{treasury:300},gain:{power:150}},
     choiceB:{label:'Frappe préventive (−800 or → +250 armée, −25% or restant)',cost:{treasury:800},gain:{army:250,goldPenalty:0.25}} },
 
-  { id:'refugees',     type:'choice', period:4,
+  { id:'refugees', type:'choice', period:4,
     hint:'Une instabilité régionale génère des déplacements de population massifs. Les organisations internationales pressent les gouvernements d\'agir.',
-    title:'Crise humanitaire',
-    desc:'Des millions de personnes fuient. Accueillir ou fermer les frontières ?',
+    causalExplanation:'L\'afflux de réfugiés augmente massivement la demande alimentaire → la nourriture se raréfie → prix en hausse.',
+    priceJustification:{food:'Afflux de réfugiés → demande alimentaire en hausse → prix ↑'},
+    title:'Crise humanitaire', desc:'Des millions de personnes fuient. Accueillir ou fermer les frontières ?',
     effect:'N+1 — A: −400 nourr → +400 pts, +60 armée · B: −300 pts · prix nourriture ↑+50%',
     priceFood:1.5,
     choiceA:{label:'Accueillir (−400 nourriture → +400 pts puissance, +60 armée)',cost:{food:400},gain:{power:400,army:60}},
     choiceB:{label:'Refuser (vous perdez −300 pts de puissance)',cost:{},gain:{powerLoss:300}} },
 
   // ── MANCHE 5 — CIBLÉ uniquement (rééquilibrage) ─────────────────────────
-  { id:'revolution',   type:'targeted', period:5,
+  { id:'revolution', type:'targeted', period:5,
     hint:'Des mouvements sociaux coordonnés gagnent du terrain dans les grandes puissances. Les marchés anticipent une redistribution des équilibres.',
-    title:'Vague révolutionnaire',
-    desc:'Les peuples renversent les élites. Les équilibres économiques basculent.',
+    causalExplanation:'L\'instabilité sociale dans les grandes puissances fait fuir les touristes → demande touristique chute → prix baissent.',
+    priceJustification:{tourism:'Instabilité sociale → touristes fuient → demande ↓ → prix ↓'},
+    title:'Vague révolutionnaire', desc:'Les peuples renversent les élites. Les équilibres basculent.',
     effect:'N+1 — < 4 500 pts → +400 or · > 10 000 pts → −500 or · prix tourisme ↓−20%',
     priceTourism:0.8, special:'revolution' },
 
-  { id:'imf',          type:'targeted', period:5,
+  { id:'imf', type:'targeted', period:5,
     hint:'Le FMI tient une réunion d\'urgence. Des plans de soutien massifs aux économies vulnérables sont en cours d\'élaboration.',
-    title:'Plan FMI',
-    desc:'Le Fonds Monétaire International injecte des milliards dans les pays fragiles.',
+    causalExplanation:'Le plan FMI stabilise les marchés et injecte de l\'aide → pression à la baisse sur les prix des ressources de base.',
+    priceJustification:{oil:'Plan FMI → stabilisation → normalisation → prix ↓', food:'Aide alimentaire injectée → offre augmente → prix ↓', agriculture:'Subventions agricoles → offre en hausse → prix ↓'},
+    title:'Plan FMI', desc:'Le FMI injecte des milliards dans les pays fragiles.',
     effect:'N+1 — 4 nations les plus faibles → +350 or, +70 armée · prix ressources ↓−15%',
     priceOil:0.85, priceFood:0.85, priceAgri:0.85, special:'aidFMI' },
 
-  { id:'uprising',     type:'targeted', period:5,
+  { id:'uprising', type:'targeted', period:5,
     hint:'Des grèves générales paralysent plusieurs secteurs dans les grandes puissances. Les pays émergents profitent du chaos social pour accélérer leur développement.',
-    title:'Grèves et soulèvements',
-    desc:'Les pays émergents s\'arment. Les superpuissances désertent.',
+    causalExplanation:'Les grèves paralysent les aéroports et hôtels des grandes puissances → le tourisme ne fonctionne plus → sa valeur chute.',
+    priceJustification:{tourism:'Grèves → aéroports et hôtels paralysés → tourisme impossible → prix ↓'},
+    title:'Grèves et soulèvements', desc:'Les pays émergents s\'arment. Les superpuissances désertent.',
     effect:'N+1 — Tier B → +90 armée · Tier S → −180 armée · prix tourisme ↓−25%',
     priceTourism:0.75, special:'uprising' },
 
   // ── MANCHE 6 — CIBLÉ uniquement (déstabilisation pré-guerre) ───────────
-  { id:'earthquake',   type:'targeted', period:6,
+  { id:'earthquake', type:'targeted', period:6,
     hint:'Des relevés sismiques anormaux sont enregistrés dans plusieurs zones tectoniques actives. Les experts évoquent un risque accru pour les semaines à venir.',
-    title:'Séisme majeur',
-    desc:'Le sol tremble. Un pays est frappé sans prévenir juste avant la guerre.',
+    causalExplanation:'Le séisme détruit des terres agricoles → l\'offre agricole mondiale se contracte → prix de l\'agriculture en hausse.',
+    priceJustification:{agriculture:'Terres agricoles détruites → offre réduite → prix ↑'},
+    title:'Séisme majeur', desc:'Le sol tremble. Un pays est frappé sans prévenir juste avant la guerre.',
     effect:'Guerre — 1 pays aléatoire → −55% nourriture, −500 pts · prix agri ↑+60%',
     priceAgri:1.6, targetCount:1, effects:{foodLoss:0.55,powerLoss:500} },
 
-  { id:'typhoon',      type:'targeted', period:6,
+  { id:'typhoon', type:'targeted', period:6,
     hint:'Des formations tropicales d\'intensité exceptionnelle sont signalées simultanément dans l\'Atlantique et le Pacifique. Trajectoires encore imprévisibles.',
-    title:'Typhons dévastateurs',
-    desc:'Deux super-tempêtes frappent les côtes. Personne n\'est à l\'abri.',
+    causalExplanation:'Les typhons rompent les chaînes d\'approvisionnement alimentaires côtières → nourriture se raréfie → prix en hausse.',
+    priceJustification:{food:'Chaînes alimentaires rompues → nourriture rare → prix ↑'},
+    title:'Typhons dévastateurs', desc:'Deux super-tempêtes frappent les côtes. Personne n\'est à l\'abri.',
     effect:'Guerre — 2 pays aléatoires → −60% nourriture, −300 pts · prix nourriture ↑+40%',
     priceFood:1.4, targetCount:2, effects:{foodLoss:0.60,powerLoss:300} },
 
-  { id:'tourism_crisis',type:'targeted', period:6,
+  { id:'tourism_crisis', type:'targeted', period:6,
     hint:'Une série d\'incidents sécuritaires dans des sites très fréquentés génère des avis de voyage restrictifs dans plusieurs pays majeurs.',
-    title:'Crise du tourisme',
-    desc:'Les touristes fuient. Les pays très touristiques perdent, les autres gagnent.',
+    causalExplanation:'Les attentats vident les destinations touristiques phares → seules quelques destinations sûres subsistent → rareté → prix du tourisme monte.',
+    priceJustification:{tourism:'Attentats → destinations phares vidées → rareté des lieux sûrs → prix ↑'},
+    title:'Crise du tourisme', desc:'Les touristes fuient. Les pays très touristiques perdent, les autres gagnent.',
     effect:'Guerre — tourisme > 200 → −500 or · tourisme < 70 → +250 or · prix tourisme ↑×2',
     priceTourism:2.0, special:'tourismCrisis' },
 ];
@@ -336,7 +356,7 @@ let gameState = {
   warTurnOrder:[], warCurrentTurn:0, warTurnSeconds:30, negotiationRanking:[],
   teamActionsThisPeriod:{}, lastActionByTeam:{},
   pendingChoiceEvent:null, winner:null, winners:[],
-  isTutorial:false, tutorialSnapshot:{}, gameOver:false, negotiationRanking:[],
+  isTutorial:false, tutorialSnapshot:{}, gameOver:false, negotiationRanking:[], prevEvent:null,
 };
 
 let timerInterval=null, warTurnInterval=null;
@@ -569,13 +589,40 @@ io.on('connection',(socket)=>{
   });
 
   socket.on('mj:endTutorial',()=>{
-    Object.values(gameState.countries).forEach(c=>{if(gameState.tutorialSnapshot[c.id]){const s=gameState.tutorialSnapshot[c.id];c.oil=s.oil;c.food=s.food;c.tourism=s.tourism;c.agriculture=s.agriculture;c.army=s.army;c.atk=s.atk;c.def=s.def;c.treasury=s.treasury;c.militarySpent=s.militarySpent||0;c.defense=false;c.combatBonus=0;c.power=calcPower(c);}});
-    gameState.isTutorial=false;gameState.teamActionsThisPeriod={};
+    // Restore ALL country stats from snapshot — hard reset
+    Object.values(gameState.countries).forEach(c=>{
+      const s=gameState.tutorialSnapshot[c.id];
+      if(!s)return;
+      c.oil=s.oil;c.food=s.food;c.tourism=s.tourism;c.agriculture=s.agriculture;
+      c.army=s.army;c.atk=s.atk||0;c.def=s.def||0;c.treasury=s.treasury;
+      c.militarySpent=s.militarySpent||0;c.defense=false;c.combatBonus=0;c.power=calcPower(c);
+    });
+    gameState.isTutorial=false;
+    gameState.teamActionsThisPeriod={};
+    gameState.lastActionByTeam={};
+    gameState.tutorialSnapshot={}; // clear snapshot after restore
+    // Reset prices back to base (tutorial may have weird event mods)
+    gameState.prices={...BASE_PRICES};
+    gameState.prevPrices={...BASE_PRICES};
+    gameState.currentPrices={...BASE_PRICES};
+    gameState.eventMod={oilMultiplier:1,tourismMultiplier:1,agriMultiplier:1,baseMultiplier:1,blockOilBelowPower:0};
     addLog('Tutorial terminé — ressources remises à zéro','event');
-    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,'✅ Tutorial terminé ! Ressources remises à zéro. La vraie partie commence !','neutral');});broadcast();
+    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,'✅ Tutorial terminé ! Ressources remises à zéro. La vraie partie commence !','neutral');});
+    broadcast();
   });
 
   socket.on('mj:startProsperity',()=>{
+    // Always restore tutorial snapshot if it exists (fixes: tutorial purchases persisting into period 1)
+    if(gameState.isTutorial && Object.keys(gameState.tutorialSnapshot).length>0){
+      Object.values(gameState.countries).forEach(c=>{
+        if(gameState.tutorialSnapshot[c.id]){
+          const s=gameState.tutorialSnapshot[c.id];
+          c.oil=s.oil;c.food=s.food;c.tourism=s.tourism;c.agriculture=s.agriculture;
+          c.army=s.army;c.atk=s.atk||0;c.def=s.def||0;c.treasury=s.treasury;
+          c.militarySpent=s.militarySpent||0;c.defense=false;c.combatBonus=0;c.power=calcPower(c);
+        }
+      });
+    }
     gameState.phase='prosperity';gameState.currentPeriod=1;gameState.isTutorial=false;
     gameState.teamActionsThisPeriod={};gameState.lastActionByTeam={};
     const p=PERIODS[0];const ev=gameState.periodSequence[0]||weightedRandom(EVENTS);
@@ -604,6 +651,7 @@ io.on('connection',(socket)=>{
     // Prices for this new period = prices announced by PREVIOUS event
     const thisEv=gameState.periodSequence[gameState.currentPeriod];   // will be new period
     gameState.prevPrices={...gameState.prices};
+    gameState.prevEvent = gameState.currentEvent || null; // store for causal explanation display
     // Step 1: mean-revert current prices toward base
     const reverted = meanRevertPrices(gameState.currentPrices || gameState.prices);
     // Step 2: apply THIS period's event multipliers to reverted prices (cumulative)
