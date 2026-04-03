@@ -476,7 +476,7 @@ function onUpdate(prev){
       overline:theme.overline,bg:theme.bg,
       title:ev?.periodName||'Nouvelle Période',
       subtitle:ev?.periodDesc||'',
-      effect:ev?('⚡ '+ev.title+' — '+ev.effect):'',
+      effect:'', // event effect hidden — shown as hint only
       hint:ev?.nextHint||null,
     },18000);
     timerTotal=600;lastPeriod=state.currentPeriod;
@@ -500,7 +500,7 @@ function renderProsperity(){
     const tc={market:'ev-type-market',choice:'ev-type-choice',targeted:'ev-type-targeted'};
     const pill=document.getElementById('sc-ev-type');
     if(pill){pill.textContent=tl[ev.type]||'MARCHÉ';pill.className='ev-type-pill '+(tc[ev.type]||'ev-type-market');}
-    document.getElementById('sc-ev-period').textContent=`Période ${ev.periodNumber||''} · ${ev.periodSubtitle||''}`;
+    document.getElementById('sc-ev-period').textContent=ev.periodSubtitle||`Année ${ev.periodNumber||''}`;
     document.getElementById('sc-ev-name').textContent=ev.periodName||'';
     document.getElementById('sc-ev-desc').textContent=ev.periodDesc||'';
     // Bloc jaune — causal explanation from PREVIOUS event (why current prices are what they are)
