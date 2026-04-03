@@ -5,11 +5,38 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  pingTimeout: 60000,
+  pingInterval: 25000,
+  maxHttpBufferSize: 1e6,
+});
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.get('/screen', (req, res) => res.sendFile(path.join(__dirname, 'public', 'screen.html')));
+
+// ─── SESSION MANAGEMENT ────────────────────────────────────────────────────
+// MJ PIN: set via env var MJ_PIN or defaults to a random 4-digit pin per boot
+const MJ_PIN = process.env.MJ_PIN || String(Math.floor(1000 + Math.random() * 9000));
+console.log('MJ PIN this session:', MJ_PIN);
+
+// Session join code: 6 alphanumeric chars, regenerated each game start
+let SESSION_CODE = generateSessionCode();
+function generateSessionCode() {
+  return Math.random().toString(36).substring(2,5).toUpperCase() +
+         Math.random().toString(36).substring(2,5).toUpperCase();
+}
+
+// Track connected sockets per team for reconnection
+// socketId -> { teamName, countryId, isMJ }
+const socketRegistry = new Map();
+// teamName -> socketId (latest)
+const teamSockets = new Map();
+
+// Expose session info endpoint
+app.get('/session-info', (req, res) => {
+  res.json({ sessionCode: SESSION_CODE, phase: gameState.phase });
+});
 
 const COUNTRIES = [
   { id:'usa',     flag:'🇺🇸', name:'États-Unis',  tier:'S', gold:900, oil:200, food:400, tourism:200, agriculture:120, army:320, atk:0, def:0, militarySpent:0, population:330 },
@@ -330,6 +357,8 @@ function addTeamNews(teamName,text,type){
   if(!gameState.teams[teamName])return;
   gameState.teams[teamName].news=gameState.teams[teamName].news||[];
   gameState.teams[teamName].news.push({text,type,time:new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})});
+  if(gameState.teams[teamName].news.length>80)
+    gameState.teams[teamName].news=gameState.teams[teamName].news.slice(-80);
 }
 function broadcast(){io.emit('state',gameState);}
 
@@ -448,12 +477,72 @@ function advanceWarTurn(){
 function nextWarTurn(){if(warTurnInterval){clearInterval(warTurnInterval);warTurnInterval=null;}gameState.warCurrentTurn++;advanceWarTurn();}
 
 io.on('connection',(socket)=>{
-  socket.emit('state',gameState);
-  socket.emit('timer',{seconds:gameState.timerSeconds,running:gameState.timerRunning});
-  if(gameState.winners&&gameState.winners.length>0)socket.emit('winner',{winners:gameState.winners,type:gameState.winners.length>1?'alliance':'solo'});
+  // Send session info immediately so client knows the code
+  socket.emit('sessionInfo', { sessionCode: SESSION_CODE, mjPin: null });
+
+  // ── Auth handlers ──────────────────────────────────────────────────────
+  socket.on('auth:mj', ({pin}, cb) => {
+    if(String(pin) === String(MJ_PIN)) {
+      socketRegistry.set(socket.id, { isMJ: true });
+      socket.join('mj');
+      if(typeof cb==='function') cb({ ok: true });
+      socket.emit('state', gameState);
+      socket.emit('timer', {seconds:gameState.timerSeconds, running:gameState.timerRunning});
+      if(gameState.winners&&gameState.winners.length>0)
+        socket.emit('winner', {winners:gameState.winners, type:gameState.winners.length>1?'alliance':'solo'});
+    } else {
+      if(typeof cb==='function') cb({ ok: false, error: 'PIN incorrect' });
+    }
+  });
+
+  socket.on('mj:kickTeam',({teamName})=>{
+    const team=gameState.teams[teamName];
+    if(!team)return;
+    if(team.country){
+      const c=gameState.countries[team.country];
+      if(c){c.team=null;c.eliminated=false;}
+      delete gameState.takenCountries[team.country];
+    }
+    delete gameState.teams[teamName];
+    teamSockets.delete(teamName);
+    const sid=Array.from(socketRegistry.entries()).find(([k,v])=>v.teamName===teamName)?.[0];
+    if(sid){socketRegistry.delete(sid);const s=io.sockets.sockets.get(sid);if(s)s.emit('kicked','Vous avez été retiré de la partie par le MJ.');}
+    addLog(`${teamName} retiré — pays libéré`,'event');
+    broadcast();
+  });
+
+  socket.on('auth:rejoin', ({teamName, sessionCode}, cb) => {
+    if(String(sessionCode) !== String(SESSION_CODE)) {
+      if(typeof cb==='function') cb({ ok: false, error: 'Code de session invalide' }); return;
+    }
+    const team = gameState.teams[teamName];
+    if(!team) { if(typeof cb==='function') cb({ ok: false, error: 'Équipe introuvable' }); return; }
+    // Update socket mapping
+    teamSockets.set(teamName, socket.id);
+    socketRegistry.set(socket.id, { teamName, countryId: team.country, isMJ: false });
+    if(typeof cb==='function') cb({ ok: true, team, countryId: team.country });
+    socket.emit('state', gameState);
+    socket.emit('timer', {seconds:gameState.timerSeconds, running:gameState.timerRunning});
+    if(gameState.winners&&gameState.winners.length>0)
+      socket.emit('winner', {winners:gameState.winners, type:gameState.winners.length>1?'alliance':'solo'});
+    Object.entries(gameState.pendingAllianceProposals).forEach(([to,p])=>{
+      if(p&&p.to===teamName) socket.emit('allianceProposal',p);
+    });
+  });
+
+  socket.on('disconnect', () => {
+    socketRegistry.delete(socket.id);
+  });
+
   Object.entries(gameState.pendingAllianceProposals).forEach(([to,p])=>{if(p)socket.emit('allianceProposal',p);});
 
   socket.on('mj:startDraft',()=>{
+    SESSION_CODE = generateSessionCode();
+    console.log('New session code:', SESSION_CODE);
+    io.emit('sessionInfo', { sessionCode: SESSION_CODE });
+    // Fresh start — clear all previous session data
+    socketRegistry.forEach((v, k) => { if(!v.isMJ) socketRegistry.delete(k); });
+    teamSockets.clear();
     initCountries();gameState.phase='draft';gameState.currentPeriod=0;
     gameState.coalition={proposed:false,moroccoAccepted:false,guineaAccepted:false,active:false};
     gameState.teamActionsThisPeriod={};gameState.lastActionByTeam={};
@@ -820,12 +909,31 @@ io.on('connection',(socket)=>{
   socket.on('mj:eliminate',({countryId})=>{const c=gameState.countries[countryId];if(!c)return;c.eliminated=true;addLog(`☠️ ${c.flag} éliminé !`,'eliminated');addTeamNews(c.team,'Votre nation a été conquise.','bad');broadcast();checkWinner();});
   socket.on('mj:bonus',({countryId,amount})=>{const c=gameState.countries[countryId];if(!c)return;c.treasury+=amount;c.power=calcPower(c);addLog(`${amount>0?'+':''}${amount} or → ${c.flag}`,amount>0?'economy':'attack');broadcast();});
   socket.on('mj:reset',()=>{
+    SESSION_CODE = generateSessionCode();
+    console.log('Session reset, new code:', SESSION_CODE);
+    io.emit('sessionInfo', { sessionCode: SESSION_CODE });
+    // Clean up all session data — no stale entries accumulate
+    socketRegistry.clear();
+    teamSockets.clear();
     if(timerInterval)clearInterval(timerInterval);if(warTurnInterval)clearInterval(warTurnInterval);timerInterval=null;warTurnInterval=null;
     gameState={phase:'setup',currentPeriod:0,currentEvent:null,nextEvent:null,nextHint:null,periodSequence:[],countries:{},takenCountries:{},teams:{},prices:{...BASE_PRICES},prevPrices:{...BASE_PRICES},currentPrices:{...BASE_PRICES},eventMod:{oilMultiplier:1,tourismMultiplier:1,agriMultiplier:1,baseMultiplier:1,blockOilBelowPower:0},coalition:{proposed:false,moroccoAccepted:false,guineaAccepted:false,active:false},alliances:{},pendingAllianceProposals:{},log:[],timerSeconds:600,timerRunning:false,warTurnOrder:[],warCurrentTurn:0,warTurnSeconds:30,teamActionsThisPeriod:{},lastActionByTeam:{},pendingChoiceEvent:null,winner:null,winners:[],isTutorial:false,tutorialSnapshot:{},gameOver:false,negotiationRanking:[]};
     broadcast();io.emit('timer',{seconds:600,running:false});
   });
-  socket.on('team:join',({teamName})=>{if(!gameState.teams[teamName])gameState.teams[teamName]={country:null,news:[]};broadcast();});
-  socket.on('team:draftCountry',({teamName,countryId})=>{if(gameState.takenCountries[countryId]){socket.emit('error','Déjà pris !');return;}gameState.takenCountries[countryId]=teamName;gameState.teams[teamName].country=countryId;gameState.countries[countryId].team=teamName;addLog(`${gameState.countries[countryId].flag} ${gameState.countries[countryId].name} → ${teamName}`,'event');broadcast();});
+  socket.on('team:join',({teamName, sessionCode}, cb)=>{
+    if(String(sessionCode) !== String(SESSION_CODE)){
+      if(typeof cb==='function') cb({ok:false,error:'Code de session invalide. Demandez le bon code au MJ.'});return;
+    }
+    if(gameState.phase!=='draft'){if(typeof cb==='function') cb({ok:false,error:'La partie est déjà en cours — impossible de rejoindre maintenant.'});return;}
+    if(gameState.teams[teamName]){
+      if(typeof cb==='function') cb({ok:false,error:'Ce nom est déjà pris. Choisissez un autre nom.'});return;
+    }
+    gameState.teams[teamName]={country:null,news:[]};
+    teamSockets.set(teamName, socket.id);
+    socketRegistry.set(socket.id, {teamName, countryId:null, isMJ:false});
+    if(typeof cb==='function') cb({ok:true});
+    broadcast();
+  });
+  socket.on('team:draftCountry',({teamName,countryId})=>{if(gameState.phase!=='draft'){socket.emit('error','Le draft est terminé.');return;}if(gameState.takenCountries[countryId]){socket.emit('error','Déjà pris !');return;}gameState.takenCountries[countryId]=teamName;gameState.teams[teamName].country=countryId;gameState.countries[countryId].team=teamName;addLog(`${gameState.countries[countryId].flag} ${gameState.countries[countryId].name} → ${teamName}`,'event');broadcast();});
 });
 
 const PORT=process.env.PORT||3000;
