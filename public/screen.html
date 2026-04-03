@@ -225,17 +225,17 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
         </div>
         <div class="ev-name" id="sc-ev-name">—</div>
         <div class="ev-desc" id="sc-ev-desc"></div>
-        <div class="ev-effect" id="sc-ev-effect"></div>
-        <!-- HINT pour la prochaine période -->
+        <!-- BLOC JAUNE : explication causale (event précédent → pourquoi les prix actuels) -->
+        <div id="sc-causal-block" style="display:none;margin-top:8px;background:rgba(133,79,11,.3);border:1px solid rgba(201,168,76,.4);border-radius:5px;padding:8px 12px">
+          <div style="font-size:9px;font-weight:700;color:#c9a84c;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px" id="sc-causal-title"></div>
+          <div style="font-size:12px;color:#fde68a;line-height:1.6" id="sc-causal-text"></div>
+        </div>
+        <!-- BLOC BLEU : indice brut — pas de prix N+1 -->
         <div id="sc-hint-block" style="display:none" class="ev-hint">
-          <div class="ev-hint-title">🔮 Ce qui va arriver — prochaine période</div>
+          <div class="ev-hint-title">🔮 Indice — prochaine période</div>
           <div class="ev-hint-text" id="sc-hint-text"></div>
         </div>
-        <!-- PRIX de la prochaine période -->
-        <div id="sc-next-prices-block" style="display:none">
-          <div style="font-size:10px;font-weight:700;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;font-family:'Cinzel',serif">💰 Prix prochaine période — anticipez !</div>
-          <div class="screen-prices" id="sc-next-prices"></div>
-        </div>
+        <!-- Prix N+1 cachés du screen — MJ uniquement -->
       </div>
       <div class="timer-block">
         <div>
@@ -506,19 +506,18 @@ function renderProsperity(){
     document.getElementById('sc-ev-period').textContent=`Période ${ev.periodNumber||''} · ${ev.periodSubtitle||''}`;
     document.getElementById('sc-ev-name').textContent=ev.periodName||'';
     document.getElementById('sc-ev-desc').textContent=ev.periodDesc||'';
-    document.getElementById('sc-ev-effect').textContent='⚡ '+ev.title+' — '+ev.effect;
+    // Bloc jaune — causal explanation from PREVIOUS event (why current prices are what they are)
+    const prevEv=state.prevEvent||null;
+    const causalBlock=document.getElementById('sc-causal-block');
+    if(prevEv&&prevEv.causalExplanation&&causalBlock){
+      causalBlock.style.display='block';
+      document.getElementById('sc-causal-title').textContent='⚡ '+prevEv.title+' — impact sur les prix actuels';
+      document.getElementById('sc-causal-text').textContent=prevEv.causalExplanation;
+    } else if(causalBlock) causalBlock.style.display='none';
+    // Bloc bleu — next hint only (no N+1 prices shown on screen)
     const hintBlock=document.getElementById('sc-hint-block');
     if(ev.nextHint){document.getElementById('sc-hint-text').textContent=ev.nextHint;hintBlock.style.display='block';}
     else hintBlock.style.display='none';
-    // Next period prices with evolution
-    const npBlock=document.getElementById('sc-next-prices-block');
-    if(ev.nextPrices){
-      const np=ev.nextPrices;const cp=state.prices||BASE_PRICES;
-      document.getElementById('sc-next-prices').innerHTML=
-        pricePill('oil',np.oil,cp.oil)+pricePill('food',np.food,cp.food)+
-        pricePill('tourism',np.tourism,cp.tourism)+pricePill('agriculture',np.agriculture,cp.agriculture);
-      npBlock.style.display='block';
-    } else npBlock.style.display='none';
   }
   document.getElementById('sc-lb').innerHTML=sorted.map((c,i)=>{
     const pct=Math.round(c.power/maxP*100);
