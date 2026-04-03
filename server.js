@@ -159,11 +159,11 @@ const EVENTS = [
   // ── MANCHE 2 — MARCHÉ uniquement ────────────────────────────────────────
   { id:'agri_boom', type:'market', period:2,
     hint:'Des conditions météo exceptionnelles sur trois continents laissent présager des récoltes records cette saison.',
-    causalExplanation:'Récoltes records → stocks agricoles abondants → l\'agriculture rapporte énormément et sa valeur monte.',
-    priceJustification:{agriculture:'Récoltes records → denrée abondante mais très prisée → prix ↑'},
-    title:'Superproduction agricole', desc:'Récoltes records. L\'agriculture devient une ressource convoitée.',
-    effect:'N+1 — revenus agri ×5 · nourriture +25% à tous · prix agri ↑+80%',
-    agriMultiplier:5, priceAgri:1.8, special:'agriBoost' },
+    causalExplanation:'Récoltes records → surplus massif sur les marchés → l\'agriculture est abondante donc moins chère, mais les revenus sont énormes.',
+    priceJustification:{agriculture:'Surplus de récoltes → offre abondante → concurrence → prix ↓'},
+    title:'Superproduction agricole', desc:'Récoltes records. L\'agriculture inonde les marchés.',
+    effect:'N+1 — revenus agri ×5 · nourriture +25% à tous · prix agri ↓−40% (surplus)',
+    agriMultiplier:5, priceAgri:0.6, special:'agriBoost' },
 
   { id:'free_trade', type:'market', period:2,
     hint:'Les grandes économies signent un traité historique. Les barrières douanières tombent, les échanges commerciaux s\'accélèrent.',
@@ -177,19 +177,19 @@ const EVENTS = [
   { id:'speculation', type:'market', period:2,
     hint:'Une spéculation massive s\'empare des marchés des matières premières. Les investisseurs cherchent des valeurs refuges.',
     causalExplanation:'Spéculation massive → les investisseurs achètent toutes les matières premières → demande artificielle → prix en hausse partout.',
-    priceJustification:{oil:'Spéculation → demande artificielle → prix ↑', food:'Spéculation → ruée vers les valeurs refuges → prix ↑', tourism:'Investissements dans le secteur → prix ↑', agriculture:'Demande spéculative → prix ↑'},
-    title:'Ruée vers l\'or', desc:'Les marchés s\'emballent. Les prix grimpent partout.',
-    effect:'N+1 — revenus de base ×2 · toutes ressources ↑+40%',
-    baseMultiplier:2, priceOil:1.4, priceFood:1.4, priceTourism:1.4, priceAgri:1.4 },
+    priceJustification:{oil:'Spéculation sur matières premières → demande artificielle → prix ↑', food:'Ruée vers les valeurs refuges alimentaires → prix ↑', agriculture:'Demande spéculative agricole → prix ↑'},
+    title:'Ruée vers l\'or', desc:'Les marchés s\'emballent. Les matières premières s\'envolent.',
+    effect:'N+1 — revenus de base ×2 · pétrole ↑+50% · nourriture ↑+40% · agri ↑+40% · tourisme stable',
+    baseMultiplier:2, priceOil:1.5, priceFood:1.4, priceTourism:1.0, priceAgri:1.4 },
 
   // ── MANCHE 3 — MARCHÉ uniquement ────────────────────────────────────────
   { id:'food_crisis', type:'market', period:3,
     hint:'Les satellites agricoles confirment une sécheresse étendue dans plusieurs zones céréalières. Les stocks mondiaux sont au plus bas.',
     causalExplanation:'La sécheresse a vidé les greniers mondiaux → nourriture rare et chère → l\'agriculture est très rentable cette période.',
-    priceJustification:{food:'Sécheresse → stocks épuisés → nourriture rare → prix ↑'},
+    priceJustification:{food:'Sécheresse → stocks épuisés → nourriture rare → prix ↑', agriculture:'Famine mondiale → l\'agriculture stratégique → prix ↑'},
     title:'Crise alimentaire mondiale', desc:'Les greniers mondiaux se vident. La nourriture devient un luxe.',
-    effect:'N+1 — revenus agri ×4 · pays < 200 nourr → −35% puissance · prix nourriture ↑×4',
-    agriMultiplier:4, priceFood:4.0, special:'foodCrisisPenalty' },
+    effect:'N+1 — revenus agri ×4 · pays < 200 nourr → −35% puissance · prix nourriture ↑×4 · prix agri ↑+80%',
+    agriMultiplier:4, priceFood:4.0, priceAgri:1.8, special:'foodCrisisPenalty' },
 
   { id:'energy_shift', type:'market', period:3,
     hint:'Plusieurs constructeurs automobiles annoncent l\'abandon du moteur thermique d\'ici 5 ans. Les marchés pétroliers réagissent nerveusement.',
@@ -268,10 +268,10 @@ const EVENTS = [
   { id:'imf', type:'targeted', period:5,
     hint:'Le FMI tient une réunion d\'urgence. Des plans de soutien massifs aux économies vulnérables sont en cours d\'élaboration.',
     causalExplanation:'Le plan FMI stabilise les marchés et injecte de l\'aide → pression à la baisse sur les prix des ressources de base.',
-    priceJustification:{oil:'Plan FMI → stabilisation → normalisation → prix ↓', food:'Aide alimentaire injectée → offre augmente → prix ↓', agriculture:'Subventions agricoles → offre en hausse → prix ↓'},
+    priceJustification:{oil:'Plan FMI → stabilisation marchés → prix ↓', food:'Aide alimentaire → offre augmente → prix ↓', agriculture:'Subventions agricoles → offre en hausse → prix ↓', tourism:'Stabilité retrouvée → tourisme reprend → légère hausse → prix →'},
     title:'Plan FMI', desc:'Le FMI injecte des milliards dans les pays fragiles.',
-    effect:'N+1 — 4 nations les plus faibles → +350 or, +70 armée · prix ressources ↓−15%',
-    priceOil:0.85, priceFood:0.85, priceAgri:0.85, special:'aidFMI' },
+    effect:'N+1 — 4 nations les plus faibles → +350 or, +70 armée · pétrole/nourr/agri ↓−15% · tourisme stable',
+    priceOil:0.85, priceFood:0.85, priceAgri:0.85, priceTourism:1.0, special:'aidFMI' },
 
   { id:'uprising', type:'targeted', period:5,
     hint:'Des grèves générales paralysent plusieurs secteurs dans les grandes puissances. Les pays émergents profitent du chaos social pour accélérer leur développement.',
@@ -300,11 +300,11 @@ const EVENTS = [
 
   { id:'tourism_crisis', type:'targeted', period:6,
     hint:'Une série d\'incidents sécuritaires dans des sites très fréquentés génère des avis de voyage restrictifs dans plusieurs pays majeurs.',
-    causalExplanation:'Les attentats vident les destinations touristiques phares → seules quelques destinations sûres subsistent → rareté → prix du tourisme monte.',
-    priceJustification:{tourism:'Attentats → destinations phares vidées → rareté des lieux sûrs → prix ↑'},
-    title:'Crise du tourisme', desc:'Les touristes fuient. Les pays très touristiques perdent, les autres gagnent.',
-    effect:'Guerre — tourisme > 200 → −500 or · tourisme < 70 → +250 or · prix tourisme ↑×2',
-    priceTourism:2.0, special:'tourismCrisis' },
+    causalExplanation:'Les attentats provoquent la fuite des touristes → la demande s\'effondre → le tourisme perd toute sa valeur commerciale.',
+    priceJustification:{tourism:'Attentats → touristes fuient → demande effondrée → prix ↓'},
+    title:'Crise du tourisme', desc:'Les touristes fuient. Le secteur s\'effondre. Les pays peu touristiques s\'en sortent.',
+    effect:'Guerre — tourisme > 200 → −500 or · tourisme < 70 → +250 or · prix tourisme ↓−60%',
+    priceTourism:0.4, special:'tourismCrisis' },
 ];
 
 function pickRandom(pool) {
@@ -632,14 +632,15 @@ io.on('connection',(socket)=>{
     gameState.phase='prosperity';gameState.currentPeriod=1;gameState.isTutorial=false;
     gameState.teamActionsThisPeriod={};gameState.lastActionByTeam={};
     const p=PERIODS[0];const ev=gameState.periodSequence[0]||weightedRandom(EVENTS);
-    // Prices for period 1 = base (no previous event)
+    // Prices for period 1 = BASE (no event applied yet — event announced here, effects in period 2)
     gameState.prevPrices={...BASE_PRICES};
     gameState.currentPrices={...BASE_PRICES};
     gameState.prices={...BASE_PRICES};
+    gameState.eventMod={oilMultiplier:1,tourismMultiplier:1,agriMultiplier:1,baseMultiplier:1,blockOilBelowPower:0};
     gameState.currentEvent={...ev,periodName:p.name,periodSubtitle:p.subtitle,periodDesc:PERIOD_DESCS[0],periodNumber:1};
     gameState.pendingChoiceEvent=null;
-    if(ev.type==='market'||ev.type==='targeted')applyEvent(ev);
-    else if(ev.type==='choice'){gameState.pendingChoiceEvent=ev;io.emit('choiceEvent',ev);}
+    // DO NOT applyEvent here — period 1 event is announced only, effects apply in period 2
+    if(ev.type==='choice'){gameState.pendingChoiceEvent=ev;io.emit('choiceEvent',ev);}
     const nev=gameState.periodSequence[1];
     gameState.nextEvent=nev||null;
     gameState.nextHint=nev?.hint||null;
