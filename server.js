@@ -243,15 +243,6 @@ const EVENTS = [
     choiceA:{label:'Sacrifier 400 pétrole — neutralité garantie',cost:{oil:400},gain:{}},
     choiceB:{label:'Payer 1 000 or + risque 50% de −500 pts',cost:{treasury:1000},gain:{gamble:true,powerLoss:500}} },
 
-  { id:'arms_race', type:'choice', period:4,
-    hint:'Des mouvements de troupes inhabituels sont signalés aux frontières de plusieurs régions.',
-    causalExplanation:'La mobilisation militaire est en cours. Vos choix stratégiques déterminent votre force pour la guerre.',
-    priceJustification:{},
-    title:'Mobilisation militaire', desc:'Les frontières s\'embrasent. Deux stratégies s\'affrontent.',
-    effect:'N+1 — A: −600 or → +150 armée, −200 pts · B: −500 nourr → +100 armée, +25% combat',
-    choiceA:{label:'Achat d\'armement (−600 or → +150 armée, −200 pts popularité)',cost:{treasury:600},gain:{army:150,powerLoss:200}},
-    choiceB:{label:'Mobilisation populaire (−500 nourr → +100 armée, +25% bonus combat)',cost:{food:500},gain:{army:100,combatBonus:0.25}} },
-
   { id:'scandal', type:'choice', period:4,
     hint:'Des fuites dans la presse internationale évoquent des irrégularités financières impliquant plusieurs gouvernements.',
     causalExplanation:'Le scandale financier ternit l\'image → les touristes évitent les destinations politiquement instables → prix baissent.',
@@ -261,15 +252,6 @@ const EVENTS = [
     priceTourism:0.8,
     choiceA:{label:'Reconnaître les faits (−300 or, −100 pts)',cost:{treasury:300},gain:{powerLoss:100}},
     choiceB:{label:'Démentir (50%: rien / 50%: −1 200 or et −400 pts)',cost:{},gain:{gamble:true,powerLoss:400,goldLoss:1200}} },
-
-  { id:'war_prep', type:'choice', period:4,
-    hint:'Les services de renseignement font circuler des évaluations alarmantes sur l\'instabilité régionale.',
-    causalExplanation:'La menace de conflit imminent pousse les nations à choisir entre défense et frappe préventive.',
-    priceJustification:{},
-    title:'Alerte stratégique', desc:'La guerre est dans l\'air. Deux stratégies s\'affrontent.',
-    effect:'N+1 — A: −300 or → +150 pts puissance · B: −800 or → +250 armée, −25% or restant',
-    choiceA:{label:'Renforcement défensif (−300 or → +150 pts puissance)',cost:{treasury:300},gain:{power:150}},
-    choiceB:{label:'Frappe préventive (−800 or → +250 armée, −25% or restant)',cost:{treasury:800},gain:{army:250,goldPenalty:0.25}} },
 
   { id:'refugees', type:'choice', period:4,
     hint:'Une instabilité régionale génère des déplacements de population massifs.',
@@ -330,8 +312,8 @@ const EVENTS = [
     causalExplanation:'La crise du tourisme frappe certains pays juste avant la guerre.',
     priceJustification:{},
     title:'Crise du tourisme', desc:'Les touristes fuient. La guerre approche.',
-    effect:'Guerre — tourisme > 200 → −500 or · tourisme < 70 → +250 or · prix tourisme ↓−60%',
-    priceTourism:0.4, special:'tourismCrisis' },
+    effect:'Guerre — tourisme > 200 → −500 or · tourisme < 70 → +250 or',
+    special:'tourismCrisis' },
 ];
 
 // ─── EVENT ROTATION — garantit un event différent par manche ──────────────
