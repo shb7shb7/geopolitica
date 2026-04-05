@@ -570,8 +570,8 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
       <!-- Sélecteur d'event par période -->
       <div id="mj-event-picker" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:8px">
         <div style="font-size:9px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
-          Événements de la partie
-          <button class="btn-sm bg" id="btn-reroll" style="font-size:9px">🔀 Régénérer</button>
+          Séquence — modifiez via les menus
+          <button class="btn-sm bg" id="btn-reroll" style="font-size:9px">🔀 Régénérer tout</button>
         </div>
         <div id="mj-event-picker-rows"></div>
       </div>
@@ -1695,40 +1695,6 @@ function renderMJ() {
   var wtm=document.getElementById('war-turn-mj'),pc=document.getElementById('period-card');
 
   // Afficher la séquence complète des events (décidée en début de partie)
-  var seqBox = document.getElementById('mj-sequence-box');
-  if(!seqBox && state.periodSequence && state.periodSequence.length > 0) {
-    seqBox = document.createElement('div');
-    seqBox.id = 'mj-sequence-box';
-    seqBox.style.cssText = 'background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:8px';
-    var seqTitle = document.createElement('div');
-    seqTitle.style.cssText = 'font-size:9px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-family:Cinzel,serif;margin-bottom:8px';
-    seqTitle.textContent = 'Séquence des événements (confidentiel MJ)';
-    seqBox.appendChild(seqTitle);
-    var tMap = {market:'Marché',choice:'Choix',targeted:'Ciblé'};
-    var cMap = {market:'#4ade80',choice:'#c9a84c',targeted:'#f87171'};
-    state.periodSequence.forEach(function(ev, i) {
-      var row = document.createElement('div');
-      var isCurrent = (i+1) === state.currentPeriod;
-      var isPast = (i+1) < state.currentPeriod;
-      row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);opacity:'+(isPast?'0.35':'1');
-      row.innerHTML =
-        '<div style="font-size:9px;font-weight:700;min-width:18px;color:'+(isCurrent?'var(--gold)':'var(--text3)')+'">P'+(i+1)+'</div>'
-        +'<div style="font-size:9px;padding:1px 6px;border-radius:2px;font-weight:700;background:rgba(255,255,255,.05);color:'+cMap[ev.type]+';border:1px solid '+cMap[ev.type]+'40">'+tMap[ev.type]+'</div>'
-        +'<div style="flex:1;font-size:10px;color:'+(isCurrent?'#fff':'var(--text2)')+';font-weight:'+(isCurrent?'700':'400')+'">'+ev.title+'</div>'
-        +(isCurrent?'<div style="font-size:8px;padding:1px 5px;background:rgba(201,168,76,.2);color:var(--gold);border-radius:2px">EN COURS</div>':'');
-      seqBox.appendChild(row);
-    });
-    var mainDiv = document.querySelector('.mj-main');
-    if(mainDiv) mainDiv.insertBefore(seqBox, mainDiv.firstChild);
-  } else if(seqBox && state.periodSequence) {
-    // Update current marker
-    var rows = seqBox.querySelectorAll('div[style*="border-bottom"]');
-    rows.forEach(function(row, i) {
-      var isCurrent = (i+1) === state.currentPeriod;
-      var isPast = (i+1) < state.currentPeriod;
-      row.style.opacity = isPast ? '0.35' : '1';
-    });
-  }
   pbtns.innerHTML='';
 
   function addBtn(label,cls,fn){var b=document.createElement('button');b.className='btn-sm '+cls;b.textContent=label;b.onclick=fn;pbtns.appendChild(b);}
@@ -1832,27 +1798,29 @@ function renderMJ() {
   }
 
   // ── Event picker: show all 6 periods with dropdown to select event ──────
+  // ── Unified event picker — source de vérité = state.periodSequence ─────
   var pickerBox = document.getElementById('mj-event-picker');
   var pickerRows = document.getElementById('mj-event-picker-rows');
   if(pickerBox && pickerRows && state.periodSequence && state.periodSequence.length > 0) {
     pickerBox.style.display = 'block';
     var POOLS = {
-      1: ['oil_boom','tourism_boom','gold_rush'],
-      2: ['agri_boom','free_trade','speculation'],
-      3: ['food_crisis','energy_shift','sanctions'],
-      4: ['embargo','scandal','refugees'],
-      5: ['revolution','imf','uprising'],
-      6: ['earthquake','typhoon','tourism_crisis']
+      1:['oil_boom','tourism_boom','gold_rush'],
+      2:['agri_boom','free_trade','speculation'],
+      3:['food_crisis','energy_shift','sanctions'],
+      4:['embargo','scandal','refugees'],
+      5:['revolution','imf','uprising'],
+      6:['earthquake','typhoon','tourism_crisis']
     };
     var TITLES = {
-      oil_boom:'Choc pétrolier',tourism_boom:'Boom du tourisme',gold_rush:'Découverte aurifère',
-      agri_boom:'Superproduction agricole',free_trade:'Accord de libre-échange',speculation:'Ruée vers l\'or',
-      food_crisis:'Crise alimentaire',energy_shift:'Transition énergétique',sanctions:'Sanctions coordonnées',
-      embargo:'Embargo commercial',scandal:'Scandale financier',refugees:'Crise humanitaire',
-      revolution:'Vague révolutionnaire',imf:'Plan FMI',uprising:'Grèves et soulèvements',
-      earthquake:'Séisme majeur',typhoon:'Typhons dévastateurs',tourism_crisis:'Crise du tourisme'
+      oil_boom:'🛢️ Choc pétrolier', tourism_boom:'🏖️ Boom du tourisme', gold_rush:'💰 Découverte aurifère',
+      agri_boom:'🌾 Superproduction agricole', free_trade:'🤝 Libre-échange mondial', speculation:'📈 Ruée vers l\'or',
+      food_crisis:'🌵 Crise alimentaire', energy_shift:'⚡ Transition énergétique', sanctions:'⚠️ Sanctions coordonnées',
+      embargo:'🚢 Embargo commercial', scandal:'📰 Scandale financier', refugees:'🌍 Crise humanitaire',
+      revolution:'✊ Vague révolutionnaire', imf:'🏦 Plan FMI', uprising:'🪧 Grèves et soulèvements',
+      earthquake:'🌋 Séisme majeur', typhoon:'🌀 Typhons dévastateurs', tourism_crisis:'✈️ Crise du tourisme'
     };
-    var TYPE_COL = {market:'#4ade80',choice:'#c9a84c',targeted:'#f87171'};
+    var TYPE_LABELS = {market:'Marché', choice:'Choix', targeted:'Ciblé'};
+    var TYPE_COL = {market:'#4ade80', choice:'#c9a84c', targeted:'#f87171'};
     pickerRows.innerHTML = '';
     state.periodSequence.forEach(function(ev, i) {
       var period = i + 1;
@@ -1860,25 +1828,49 @@ function renderMJ() {
       var isCurrent = period === state.currentPeriod;
       var isPast = period < state.currentPeriod;
       var row = document.createElement('div');
-      row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:5px;opacity:'+(isPast?'0.4':'1');
-      var pLabel = document.createElement('div');
-      pLabel.style.cssText = 'font-size:9px;font-weight:700;min-width:20px;color:'+(isCurrent?'var(--gold)':'var(--text3)')+';font-family:Cinzel,serif';
-      pLabel.textContent = 'P'+period;
-      var sel = document.createElement('select');
-      sel.style.cssText = 'flex:1;font-size:10px;padding:4px 6px;border:1px solid '+(isCurrent?'rgba(201,168,76,.5)':'var(--border)')+';border-radius:4px;background:var(--bg2);color:var(--text)';
-      sel.disabled = isPast;
-      pool.forEach(function(eid) {
-        var opt = document.createElement('option');
-        opt.value = eid;
-        opt.textContent = TITLES[eid]||eid;
-        if(ev.id === eid) opt.selected = true;
-        sel.appendChild(opt);
-      });
-      sel.onchange = function() {
-        socket.emit('mj:selectEvent', {period: period, eventId: sel.value});
-      };
-      row.appendChild(pLabel);
-      row.appendChild(sel);
+      row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);opacity:'+(isPast?'0.35':'1');
+
+      // P label
+      var pLbl = document.createElement('div');
+      pLbl.style.cssText = 'font-size:9px;font-weight:700;min-width:20px;font-family:Cinzel,serif;color:'+(isCurrent?'var(--gold)':'var(--text3)');
+      pLbl.textContent = 'P'+period;
+
+      // Type badge
+      var typeBadge = document.createElement('div');
+      typeBadge.style.cssText = 'font-size:8px;padding:1px 5px;border-radius:2px;font-weight:700;color:'+TYPE_COL[ev.type]+';border:1px solid '+TYPE_COL[ev.type]+'50;white-space:nowrap';
+      typeBadge.textContent = TYPE_LABELS[ev.type]||ev.type;
+
+      if(isPast) {
+        // Past period: show as text only
+        var evName = document.createElement('div');
+        evName.style.cssText = 'flex:1;font-size:10px;color:var(--text3)';
+        evName.textContent = TITLES[ev.id]||ev.title;
+        row.appendChild(pLbl); row.appendChild(typeBadge); row.appendChild(evName);
+      } else {
+        // Future/current: show dropdown
+        var sel = document.createElement('select');
+        sel.className = 'sel';
+        sel.style.cssText = 'flex:1;font-size:10px;padding:3px 5px;border-color:'+(isCurrent?'rgba(201,168,76,.5)':'var(--border)');
+        pool.forEach(function(eid) {
+          var opt = document.createElement('option');
+          opt.value = eid;
+          opt.textContent = TITLES[eid]||eid;
+          if(ev.id === eid) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        sel.onchange = function() {
+          socket.emit('mj:selectEvent', {period: period, eventId: sel.value});
+        };
+        // EN COURS badge
+        if(isCurrent) {
+          var badge = document.createElement('div');
+          badge.style.cssText = 'font-size:8px;padding:1px 6px;background:rgba(201,168,76,.2);color:var(--gold);border-radius:2px;white-space:nowrap;font-weight:700';
+          badge.textContent = 'EN COURS';
+          row.appendChild(pLbl); row.appendChild(typeBadge); row.appendChild(sel); row.appendChild(badge);
+        } else {
+          row.appendChild(pLbl); row.appendChild(typeBadge); row.appendChild(sel);
+        }
+      }
       pickerRows.appendChild(row);
     });
   } else if(pickerBox) {
