@@ -84,9 +84,38 @@ function applyEventMultipliers(current, ev) {
     agriculture: Math.round(current.agriculture * (ev.priceAgri     || 1)),
   };
 }
-function previewNextPrices(currentPrices, nextEv) {
+// ─── Génère l'explication causale d'un event avec les vraies variations de prix ──────
+function buildEventExplanation(ev, prevPrices, newPrices) {
+  if (!ev || !prevPrices || !newPrices) return '';
+  const NAMES = {oil:'Pétrole', food:'Nourriture', tourism:'Tourisme', agriculture:'Agriculture'};
+  const ICONS = {oil:'🛢️', food:'🌾', tourism:'🏖️', agriculture:'🌿'};
+  // Causal explanation from event
+  let txt = ev.causalExplanation || ev.desc || '';
+  // Price changes
+  const changes = [];
+  for (const r of ['oil','food','tourism','agriculture']) {
+    const prev = prevPrices[r] || 0;
+    const next = newPrices[r] || 0;
+    if (prev === 0) continue;
+    const pct = Math.round((next - prev) / prev * 100);
+    if (Math.abs(pct) >= 5) {
+      changes.push(ICONS[r] + ' ' + NAMES[r] + ' : ' + prev + ' → ' + next + ' or (' + (pct > 0 ? '+' : '') + pct + '%)');
+    } else {
+      changes.push(ICONS[r] + ' ' + NAMES[r] + ' : ' + next + ' or (stable)');
+    }
+  }
+  if (changes.length > 0) {
+    txt += '\n\nImpact sur les prix :\n' + changes.join('\n');
+  }
+  return txt;
+}
+
+// Simule les prix qui seront actifs à la PROCHAINE période.
+// Formule réelle du moteur : meanRevert(currentPrices) × multiplicateurs de l'event COURANT (qui se termine)
+// currentEv = event actuel qui va produire ses effets de prix au prochain changement de période
+function previewNextPrices(currentPrices, currentEv) {
   const reverted = meanRevertPrices(currentPrices);
-  return applyEventMultipliers(reverted, nextEv);
+  return applyEventMultipliers(reverted, currentEv);
 }
 function getPassiveIncome(c, mod) {
   const oilInc  = Math.round((c.oil||0)        * 25 * (mod.oilMultiplier     || 1));
@@ -642,15 +671,15 @@ io.on('connection',(socket)=>{
     gameState.phase='prosperity';gameState.currentPeriod=1;gameState.isTutorial=false;
     gameState.teamActionsThisPeriod={};gameState.lastActionByTeam={};gameState.tutorialSnapshot={};
     const p=PERIODS[0];const ev=gameState.periodSequence[0];
-    gameState.currentEvent={...ev,periodName:p.name,periodSubtitle:p.subtitle,periodDesc:PERIOD_DESCS[0],periodNumber:1};
+    gameState.currentEvent={...ev,periodName:p.name,periodSubtitle:p.subtitle,periodDesc:PERIOD_DESCS[0],periodNumber:1,hideEventFromPlayers:true};
     gameState.pendingChoiceEvent=null;
     if(ev.type==='choice'){gameState.pendingChoiceEvent=ev;io.emit('choiceEvent',ev);}
     const nev=gameState.periodSequence[1];
     gameState.nextEvent=nev||null;gameState.nextHint=nev?.hint||null;
-    const nextPrices=previewNextPrices(gameState.prices,nev);
+    const nextPrices=previewNextPrices(gameState.prices,ev);
     gameState.currentEvent.nextPrices=nextPrices;gameState.currentEvent.nextHint=gameState.nextHint;
     resetServerTimer(600);addLog(`Période 1 — ${p.name} [${ev.type.toUpperCase()}]`,'event');
-    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période 1 — ${p.name}\n${PERIOD_DESCS[0]}\n\n⚡ Événement: ${ev.title}\n${ev.desc}\n\n🔮 Indice période suivante:\n${gameState.nextHint||'(aucun indice)'}`, 'neutral');});
+    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période 1 — ${p.name}\n${PERIOD_DESCS[0]}\n\n🔮 Indice pour la prochaine période :\n${gameState.nextHint||'(aucun indice)'}`, 'neutral');});
     broadcast();
   });
 
@@ -688,15 +717,15 @@ io.on('connection',(socket)=>{
     gameState.phase='prosperity';gameState.currentPeriod=1;gameState.isTutorial=false;
     gameState.teamActionsThisPeriod={};gameState.lastActionByTeam={};
     const p=PERIODS[0];const ev=gameState.periodSequence[0];
-    gameState.currentEvent={...ev,periodName:p.name,periodSubtitle:p.subtitle,periodDesc:PERIOD_DESCS[0],periodNumber:1};
+    gameState.currentEvent={...ev,periodName:p.name,periodSubtitle:p.subtitle,periodDesc:PERIOD_DESCS[0],periodNumber:1,hideEventFromPlayers:true};
     gameState.pendingChoiceEvent=null;
     if(ev.type==='choice'){gameState.pendingChoiceEvent=ev;io.emit('choiceEvent',ev);}
     const nev=gameState.periodSequence[1];
     gameState.nextEvent=nev||null;gameState.nextHint=nev?.hint||null;
-    const nextPrices=previewNextPrices(gameState.prices,nev);
+    const nextPrices=previewNextPrices(gameState.prices,ev);
     gameState.currentEvent.nextPrices=nextPrices;gameState.currentEvent.nextHint=gameState.nextHint;
     resetServerTimer(600);addLog(`Période 1 — ${p.name} [${ev.type.toUpperCase()}]`,'event');
-    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période 1 — ${p.name}\n${PERIOD_DESCS[0]}\n\n⚡ Événement: ${ev.title}\n${ev.desc}\n\n🔮 Indice période suivante:\n${gameState.nextHint||'(aucun indice)'}`, 'neutral');});
+    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période 1 — ${p.name}\n${PERIOD_DESCS[0]}\n\n🔮 Indice pour la prochaine période :\n${gameState.nextHint||'(aucun indice)'}`, 'neutral');});
     broadcast();
   });
 
@@ -722,11 +751,31 @@ io.on('connection',(socket)=>{
     // nev = event de la période SUIVANTE (pour donner l'indice aux joueurs)
     const nev=gameState.periodSequence[gameState.currentPeriod]||null;
     gameState.nextEvent=nev||null;
-    const nextPrices=gameState.currentPeriod<6?previewNextPrices(gameState.prices,nev):{...BASE_PRICES};
+    const nextPrices=gameState.currentPeriod<6?previewNextPrices(gameState.prices,ev):{...BASE_PRICES};
     gameState.nextHint=gameState.currentPeriod<6?(nev?.hint||null):'⚔️ La GUERRE commence après cette période. Négociation avant la guerre. Gardez au moins 600 or.';
     gameState.currentEvent.nextPrices=nextPrices;gameState.currentEvent.nextHint=gameState.nextHint;
+    // Stocker les prix AVANT et APRÈS pour l'explication causale
+    gameState.currentEvent.prevPricesSnapshot = {...gameState.prevPrices};
+    gameState.currentEvent.newPricesSnapshot = {oil:gameState.prices.oil,food:gameState.prices.food,tourism:gameState.prices.tourism,agriculture:gameState.prices.agriculture};
+    // Stocker l'explication causale dans l'event pour affichage MJ
+    gameState.currentEvent.causalFromPrev = prevEv ? buildEventExplanation(prevEv, gameState.prevPrices, gameState.prices) : null;
+    gameState.currentEvent.prevEvTitle = prevEv ? prevEv.title : null;
+    // Construire l'explication pour les joueurs : ce que l'indice précédent a causé
+    const causalExpl = buildEventExplanation(prevEv, gameState.prevPrices, gameState.prices);
+    const prevEvTitle = prevEv ? prevEv.title : null;
     resetServerTimer(600);addLog(`Période ${gameState.currentPeriod} — ${p.name} [${ev.type.toUpperCase()}]`,'event');
-    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période ${gameState.currentPeriod} — ${p.name}\n${PERIOD_DESCS[gameState.currentPeriod-1]}\n\n⚡ Événement: ${ev.title}\n${ev.desc}\n\n🔮 Indice période suivante:\n${gameState.nextHint||'(aucun indice)'}`,'neutral');});
+    Object.values(gameState.countries).forEach(c=>{if(c.team){
+      let msg = `📅 Période ${gameState.currentPeriod} — ${p.name}\n${PERIOD_DESCS[gameState.currentPeriod-1]}`;
+      if(prevEvTitle && causalExpl) {
+        msg += `\n\n📊 L'indice "${prevEvTitle}" a provoqué :\n${causalExpl}`;
+      }
+      if(gameState.nextHint) {
+        msg += `\n\n🔮 Indice pour la prochaine période :\n${gameState.nextHint}`;
+      } else {
+        msg += `\n\n🔮 ${gameState.currentPeriod>=6?'La guerre commence après cette période !':'(aucun indice)'}`;
+      }
+      addTeamNews(c.team, msg, 'neutral');
+    }});
     broadcast();
   });
 
