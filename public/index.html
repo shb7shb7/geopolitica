@@ -389,10 +389,10 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.8rem;padding:2rem;text-align:center;background:radial-gradient(ellipse at center,#0d1424,#050709)">
     <div class="logo">Geopolitica</div>
     <div class="divider"></div>
-    <div class="tagline">Business Game · Conquête Économique · 15 Nations</div>
+    <div class="tagline">Business Game · Conquête Économique · 25 Nations</div>
     <div class="btn-group">
-      <button class="btn-primary" onclick="showScreen('screen-mj-auth')">Maître du Jeu</button>
-      <button class="btn-secondary" onclick="showScreen('screen-lobby')">Rejoindre</button>
+      <button class="btn-primary" id="btn-mj">Maître du Jeu</button>
+      <button class="btn-secondary" id="btn-join">Rejoindre</button>
     </div>
   </div>
 </div>
@@ -705,6 +705,14 @@ let selectedPayment = 'gold', selectedNegocType = 'peace', selectedNegocTarget =
 let pendingAttackTarget = null, pendingAllianceProposal = null, canUndo = false;
 let currentSessionCode = '', allianceToastTimer = null;
 let isMJ = false;
+
+// Landing buttons — attached via JS to avoid any inline onclick issues
+document.addEventListener('DOMContentLoaded', () => {
+  const btnMJ = document.getElementById('btn-mj');
+  const btnJoin = document.getElementById('btn-join');
+  if(btnMJ) btnMJ.addEventListener('click', () => showScreen('screen-mj-auth'));
+  if(btnJoin) btnJoin.addEventListener('click', () => showScreen('screen-lobby'));
+});
 
 const ALL_COUNTRIES = [
   // Tier S
