@@ -650,7 +650,7 @@ io.on('connection',(socket)=>{
     const nextPrices=previewNextPrices(gameState.prices,nev);
     gameState.currentEvent.nextPrices=nextPrices;gameState.currentEvent.nextHint=gameState.nextHint;
     resetServerTimer(600);addLog(`Période 1 — ${p.name} [${ev.type.toUpperCase()}]`,'event');
-    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période 1 — ${p.name}\n${PERIOD_DESCS[0]}\n\n⚡ ${ev.title}: ${ev.effect}\n\n🔮 Indice Période 2:\n${gameState.nextHint||'(aucun indice)'}`, 'neutral');});
+    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période 1 — ${p.name}\n${PERIOD_DESCS[0]}\n\n⚡ Événement: ${ev.title}\n${ev.desc}\n\n🔮 Indice période suivante:\n${gameState.nextHint||'(aucun indice)'}`, 'neutral');});
     broadcast();
   });
 
@@ -696,33 +696,37 @@ io.on('connection',(socket)=>{
     const nextPrices=previewNextPrices(gameState.prices,nev);
     gameState.currentEvent.nextPrices=nextPrices;gameState.currentEvent.nextHint=gameState.nextHint;
     resetServerTimer(600);addLog(`Période 1 — ${p.name} [${ev.type.toUpperCase()}]`,'event');
-    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période 1 — ${p.name}\n${PERIOD_DESCS[0]}\n\n⚡ ${ev.title}: ${ev.effect}\n\n🔮 Indice Période 2:\n${gameState.nextHint||'(aucun indice)'}`, 'neutral');});
+    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période 1 — ${p.name}\n${PERIOD_DESCS[0]}\n\n⚡ Événement: ${ev.title}\n${ev.desc}\n\n🔮 Indice période suivante:\n${gameState.nextHint||'(aucun indice)'}`, 'neutral');});
     broadcast();
   });
 
   socket.on('mj:nextPeriod',()=>{
     if(gameState.currentPeriod>=6)return;
-    const thisEv=gameState.periodSequence[gameState.currentPeriod-1];
+    // prevEv = event qui SE TERMINE (période courante) — ses multiplicateurs s'appliquent maintenant
+    const prevEv=gameState.periodSequence[gameState.currentPeriod-1];
     gameState.prevPrices={...gameState.prices};
-    gameState.prevEvent = thisEv || null;
-    const reverted = meanRevertPrices(gameState.currentPrices || gameState.prices);
-    const newPrices = applyEventMultipliers(reverted, thisEv);
-    gameState.currentPrices = {...newPrices};
-    gameState.prices = {...newPrices};
+    gameState.prevEvent=prevEv||null;
+    const reverted=meanRevertPrices(gameState.currentPrices||gameState.prices);
+    const newPrices=applyEventMultipliers(reverted,prevEv);
+    gameState.currentPrices={...newPrices};
+    gameState.prices={...newPrices};
     applyPeriodTransition();
     gameState.currentPeriod++;
-    const p=PERIODS[gameState.currentPeriod-1];const ev=thisEv;
+    // ev = event de la NOUVELLE période courante
+    const ev=gameState.periodSequence[gameState.currentPeriod-1];
+    const p=PERIODS[gameState.currentPeriod-1];
     gameState.currentEvent={...ev,periodName:p.name,periodSubtitle:p.subtitle,periodDesc:PERIOD_DESCS[gameState.currentPeriod-1],periodNumber:gameState.currentPeriod};
     gameState.pendingChoiceEvent=null;
     if(ev.type==='market'||ev.type==='targeted')applyEvent(ev);
     else if(ev.type==='choice'){gameState.pendingChoiceEvent=ev;io.emit('choiceEvent',ev);}
-    const nev=gameState.periodSequence[gameState.currentPeriod-1];
+    // nev = event de la période SUIVANTE (pour donner l'indice aux joueurs)
+    const nev=gameState.periodSequence[gameState.currentPeriod]||null;
     gameState.nextEvent=nev||null;
-    const nextPrices=gameState.currentPeriod<6?previewNextPrices(gameState.prices, nev):{...BASE_PRICES};
-    gameState.nextHint=gameState.currentPeriod<6?(nev?.hint||null):'⚔️ La GUERRE commence après cette période. Une phase de négociation aura lieu pour former des alliances. Gardez au moins 600 or.';
+    const nextPrices=gameState.currentPeriod<6?previewNextPrices(gameState.prices,nev):{...BASE_PRICES};
+    gameState.nextHint=gameState.currentPeriod<6?(nev?.hint||null):'⚔️ La GUERRE commence après cette période. Négociation avant la guerre. Gardez au moins 600 or.';
     gameState.currentEvent.nextPrices=nextPrices;gameState.currentEvent.nextHint=gameState.nextHint;
     resetServerTimer(600);addLog(`Période ${gameState.currentPeriod} — ${p.name} [${ev.type.toUpperCase()}]`,'event');
-    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période ${gameState.currentPeriod} — ${p.name}\n${PERIOD_DESCS[gameState.currentPeriod-1]}\n\n⚡ ${ev.title}: ${ev.effect}\n\n🔮 Ce qui va arriver ensuite:\n${gameState.nextHint||'(aucun indice)'}`,'neutral');});
+    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période ${gameState.currentPeriod} — ${p.name}\n${PERIOD_DESCS[gameState.currentPeriod-1]}\n\n⚡ Événement: ${ev.title}\n${ev.desc}\n\n🔮 Indice période suivante:\n${gameState.nextHint||'(aucun indice)'}`,'neutral');});
     broadcast();
   });
 
