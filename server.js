@@ -391,6 +391,7 @@ let gameState = {
   alliances:{}, pendingAllianceProposals:{}, log:[],
   timerSeconds:600, timerRunning:false,
   warTurnOrder:[], warCurrentTurn:0, warTurnSeconds:45, warCycleOrder:[], // 45s + fair cycle
+  gamePaused:false, pausedWarTurnSeconds:null,
   negotiationRanking:[], attacksReceived:{}, prevEvent:null,
   teamActionsThisPeriod:{}, lastActionByTeam:{},
   pendingChoiceEvent:null, winner:null, winners:[],
@@ -495,15 +496,9 @@ function checkWinner(){
     io.emit('winner',{winners:gameState.winners,type:'solo'});
     addLog(`🏆 ${alive[0].flag} ${alive[0].name} remporte Geopolitica !`,'event');broadcast();
   } else if(alive.length===2){
-    const t1=alive[0].team,t2=alive[1].team;
-    const a1=gameState.alliances[t1],a2=gameState.alliances[t2];
-    if(a1&&a1.type==='peace'&&a1.with===t2&&a2&&a2.type==='peace'&&a2.with===t1){
-      gameState.gameOver=true;gameState.winners=alive;
-      if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
-      if(warTurnInterval){clearInterval(warTurnInterval);warTurnInterval=null;}
-      io.emit('winner',{winners:gameState.winners,type:'alliance'});
-      addLog(`🤝 Double victoire: ${alive[0].flag} & ${alive[1].flag} !`,'event');broadcast();
-    }
+    // Pas de double victoire automatique sur pacte de non-agression
+    // La guerre continue jusqu'à ce qu'il n'en reste qu'un
+    // (Le pacte empêche l'attaque mais ne donne pas la victoire)
   }
 }
 
@@ -548,8 +543,9 @@ function advanceWarTurn(){
   addLog(`Tour de ${team} (${gameState.warCurrentTurn+1}/${gameState.warCycleOrder.length})`,'event');broadcast();
   warTurnInterval=setInterval(()=>{
     if(gameState.gameOver){clearInterval(warTurnInterval);return;}
+    if(gameState.gamePaused){gameState.pausedWarTurnSeconds=gameState.warTurnSeconds;clearInterval(warTurnInterval);warTurnInterval=null;return;}
     gameState.warTurnSeconds--;io.emit('warTurnTimer',{seconds:gameState.warTurnSeconds,team});
-    if(gameState.warTurnSeconds<=0){clearInterval(warTurnInterval);addTeamNews(team,'⏰ Tour passé !','bad');gameState.warCurrentTurn++;advanceWarTurn();}
+    if(gameState.warTurnSeconds<=0){clearInterval(warTurnInterval);warTurnInterval=null;addTeamNews(team,'⏰ Tour passé !','bad');gameState.warCurrentTurn++;advanceWarTurn();}
   },1000);
 }
 function nextWarTurn(){if(warTurnInterval){clearInterval(warTurnInterval);warTurnInterval=null;}gameState.warCurrentTurn++;advanceWarTurn();}
@@ -795,7 +791,53 @@ io.on('connection',(socket)=>{
     if(gameState.countries.morocco?.team)addTeamNews(gameState.countries.morocco.team,'🤝 Coalition africaine proposée avec la Guinée !','neutral');
     if(gameState.countries.guinea?.team)addTeamNews(gameState.countries.guinea.team,'🤝 Coalition africaine proposée avec le Maroc !','neutral');
     Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,'⚔️ GUERRE ! Aucun achat. Attendez votre tour. Attaque = 150 or / 200 pétrole / 300 nourriture.','bad');});
-    broadcast();setTimeout(()=>startWarTurn(),3000);
+    broadcast();setTimeout(()=>startWarTurn(),19000); // Attendre fin cinématique screen (18s)
+  });
+
+  // ── PAUSE / RESUME ────────────────────────────────────────────────────────
+  socket.on('mj:pause',()=>{
+    if(gameState.gamePaused)return;
+    gameState.gamePaused=true;
+    // Pause war turn timer if in war
+    if(gameState.phase==='war'&&warTurnInterval){
+      gameState.pausedWarTurnSeconds=gameState.warTurnSeconds;
+      clearInterval(warTurnInterval);warTurnInterval=null;
+    }
+    pauseServerTimer();
+    io.emit('gamePaused',{paused:true});
+    addLog('⏸️ Partie en pause','event');broadcast();
+  });
+  socket.on('mj:resume',()=>{
+    if(!gameState.gamePaused)return;
+    gameState.gamePaused=false;
+    io.emit('gamePaused',{paused:false});
+    // Resume war turn if needed
+    if(gameState.phase==='war'&&gameState.pausedWarTurnSeconds!=null){
+      const team=gameState.warCycleOrder[gameState.warCurrentTurn];
+      gameState.warTurnSeconds=gameState.pausedWarTurnSeconds;
+      gameState.pausedWarTurnSeconds=null;
+      warTurnInterval=setInterval(()=>{
+        if(gameState.gameOver||gameState.gamePaused){if(gameState.gamePaused){gameState.pausedWarTurnSeconds=gameState.warTurnSeconds;clearInterval(warTurnInterval);warTurnInterval=null;}else{clearInterval(warTurnInterval);}return;}
+        gameState.warTurnSeconds--;io.emit('warTurnTimer',{seconds:gameState.warTurnSeconds,team});
+        if(gameState.warTurnSeconds<=0){clearInterval(warTurnInterval);warTurnInterval=null;addTeamNews(team,'⏰ Tour passé !','bad');gameState.warCurrentTurn++;advanceWarTurn();}
+      },1000);
+    }
+    addLog('▶️ Partie reprise','event');broadcast();
+  });
+
+  // ── REGENERATE EVENTS ──────────────────────────────────────────────────────
+  socket.on('mj:rerollEvents',()=>{
+    gameState.periodSequence=generateSequence();
+    addLog('🔀 Événements régénérés','event');broadcast();
+  });
+
+  // ── SELECT SPECIFIC EVENT FOR A PERIOD ────────────────────────────────────
+  socket.on('mj:selectEvent',({period,eventId})=>{
+    const pool=PERIOD_POOLS[period];if(!pool)return;
+    const ev=pool.find(e=>e.id===eventId);if(!ev)return;
+    if(!gameState.periodSequence||!gameState.periodSequence[period-1])return;
+    gameState.periodSequence[period-1]=ev;
+    addLog(`✏️ P${period} → ${ev.title}`,'event');broadcast();
   });
 
   socket.on('mj:timerStart',({seconds})=>startServerTimer(seconds||gameState.timerSeconds));
@@ -910,8 +952,9 @@ io.on('connection',(socket)=>{
       if(proposal.cost>0){const fc=gameState.countries[gameState.teams[fromTeam]?.country];if(fc)fc.treasury=Math.max(0,fc.treasury-proposal.cost);}
       const agreedTarget=proposal.targetId||null;
       const turnIdx=gameState.warCurrentTurn;
-      gameState.alliances[fromTeam]={type:proposal.type,with:toTeam,withCountryName:toC?.name||toTeam,withCountryFlag:toC?.flag||'',targetId:agreedTarget,expires:turnIdx+(gameState.warTurnOrder.length||10)};
-      gameState.alliances[toTeam]  ={type:proposal.type,with:fromTeam,withCountryName:fromC?.name||fromTeam,withCountryFlag:fromC?.flag||'',targetId:agreedTarget,expires:turnIdx+(gameState.warTurnOrder.length||10)};
+      // Alliance dure toute la guerre (pas d'expiration)
+      gameState.alliances[fromTeam]={type:proposal.type,with:toTeam,withCountryName:toC?.name||toTeam,withCountryFlag:toC?.flag||'',targetId:agreedTarget};
+      gameState.alliances[toTeam]  ={type:proposal.type,with:fromTeam,withCountryName:fromC?.name||fromTeam,withCountryFlag:fromC?.flag||'',targetId:agreedTarget};
       addTeamNews(fromTeam,`✅ ${toC?.flag||''} ${toC?.name||toTeam} a ACCEPTÉ l'alliance !`,'good');
       addTeamNews(toTeam,`✅ Vous avez accepté l'alliance avec ${fromC?.flag||''} ${fromC?.name||fromTeam}`,'good');
       // Notification riche pour les deux parties
@@ -961,7 +1004,8 @@ io.on('connection',(socket)=>{
     } else { att[rk]-=cost; }
     if(armyPenalty>0){att.army=Math.max(0,(att.army||0)-armyPenalty);}
     att.power=calcPower(att);
-    const offBonus=(myAlliance&&myAlliance.type==='offensive'&&(!myAlliance.targetId||myAlliance.targetId===targetId))?0.15:0;
+    // Alliance offensive : +15% en combat pour TOUTES les attaques (pas de target spécifique)
+    const offBonus=(myAlliance&&myAlliance.type==='offensive')?0.15:0;
     if(offBonus>0)att.combatBonus=(att.combatBonus||0)+offBonus;
     const result=resolveCombat(att,def);
     const lA=Math.round(att.army*(result.attackerWins?0.12:0.28));
@@ -1106,7 +1150,7 @@ io.on('connection',(socket)=>{
     io.emit('sessionInfo', { sessionCode: SESSION_CODE });
     socketRegistry.clear();teamSockets.clear();
     if(timerInterval)clearInterval(timerInterval);if(warTurnInterval)clearInterval(warTurnInterval);timerInterval=null;warTurnInterval=null;
-    gameState={phase:'setup',currentPeriod:0,currentEvent:null,nextEvent:null,nextHint:null,periodSequence:[],countries:{},takenCountries:{},teams:{},prices:{...BASE_PRICES},prevPrices:{...BASE_PRICES},currentPrices:{...BASE_PRICES},eventMod:{oilMultiplier:1,tourismMultiplier:1,agriMultiplier:1,baseMultiplier:1,blockOilBelowPower:0},coalition:{proposed:false,moroccoAccepted:false,guineaAccepted:false,active:false},alliances:{},pendingAllianceProposals:{},log:[],timerSeconds:600,timerRunning:false,warTurnOrder:[],warCurrentTurn:0,warTurnSeconds:45,warCycleOrder:[],negotiationRanking:[],attacksReceived:{},prevEvent:null,teamActionsThisPeriod:{},lastActionByTeam:{},pendingChoiceEvent:null,winner:null,winners:[],isTutorial:false,tutorialSnapshot:{},gameOver:false};
+    gameState={phase:'setup',currentPeriod:0,currentEvent:null,nextEvent:null,nextHint:null,periodSequence:[],countries:{},takenCountries:{},teams:{},prices:{...BASE_PRICES},prevPrices:{...BASE_PRICES},currentPrices:{...BASE_PRICES},eventMod:{oilMultiplier:1,tourismMultiplier:1,agriMultiplier:1,baseMultiplier:1,blockOilBelowPower:0},coalition:{proposed:false,moroccoAccepted:false,guineaAccepted:false,active:false},alliances:{},pendingAllianceProposals:{},log:[],timerSeconds:600,timerRunning:false,warTurnOrder:[],warCurrentTurn:0,warTurnSeconds:45,warCycleOrder:[],negotiationRanking:[],attacksReceived:{},prevEvent:null,teamActionsThisPeriod:{},lastActionByTeam:{},pendingChoiceEvent:null,winner:null,winners:[],isTutorial:false,tutorialSnapshot:{},gameOver:false,gamePaused:false,pausedWarTurnSeconds:null};
     broadcast();io.emit('timer',{seconds:600,running:false});
   });
 
