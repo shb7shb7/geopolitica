@@ -848,6 +848,7 @@ io.on('connection',(socket)=>{
 
   // ── CHOICE RESPONSE — pénalité partielle si pas assez de ressources ──────
   socket.on('team:choiceResponse',({teamName,choice})=>{
+    if(gameState.gamePaused){socket.emit('error','Partie en pause — attendez le MJ !');return;}
     const ev=gameState.pendingChoiceEvent;if(!ev)return;
     const team=gameState.teams[teamName];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
@@ -898,6 +899,7 @@ io.on('connection',(socket)=>{
   });
 
   socket.on('team:undoAction',({teamName})=>{
+    if(gameState.gamePaused){socket.emit('error','Partie en pause — attendez le MJ !');return;}
     if(gameState.phase==='war'){socket.emit('error','Impossible d\'annuler en guerre !');return;}
     const last=gameState.lastActionByTeam[teamName];if(!last){socket.emit('error','Aucune action à annuler !');return;}
     const team=gameState.teams[teamName];if(!team||!team.country)return;
@@ -912,6 +914,7 @@ io.on('connection',(socket)=>{
 
   // ── ALLIANCES — négociation uniquement ───────────────────────────────────
   socket.on('team:proposeAlliance',({fromTeam,toTeam,allianceType,targetId})=>{
+    if(gameState.gamePaused){socket.emit('error','Partie en pause — attendez le MJ !');return;}
     if(gameState.phase!=='negotiation'){socket.emit('error','Les alliances ne sont disponibles que pendant la phase de Négociation !');return;}
     // Un seul pacte d'alliance par équipe
     if(gameState.alliances[fromTeam]){socket.emit('error','Vous avez déjà un pacte d\'alliance actif !');return;}
@@ -941,6 +944,7 @@ io.on('connection',(socket)=>{
   });
 
   socket.on('team:respondAlliance',({fromTeam,toTeam,accepted,allianceType})=>{
+    if(gameState.gamePaused){socket.emit('error','Partie en pause — attendez le MJ !');return;}
     const proposal=gameState.pendingAllianceProposals[toTeam];
     if(!proposal||proposal.from!==fromTeam){socket.emit('error','Proposition expirée ou introuvable');return;}
     delete gameState.pendingAllianceProposals[toTeam];
@@ -971,6 +975,7 @@ io.on('connection',(socket)=>{
   });
 
   socket.on('team:acceptCoalition',({teamName})=>{
+    if(gameState.gamePaused){socket.emit('error','Partie en pause — attendez le MJ !');return;}
     const c=Object.values(gameState.countries).find(cc=>cc.team===teamName);if(!c)return;
     if(c.id==='morocco')gameState.coalition.moroccoAccepted=true;
     if(c.id==='guinea')gameState.coalition.guineaAccepted=true;
@@ -984,6 +989,7 @@ io.on('connection',(socket)=>{
 
   // ── ATTACK ───────────────────────────────────────────────────────────────
   socket.on('team:declareAttack',({teamName,targetId,payWith})=>{
+    if(gameState.gamePaused){socket.emit('error','Partie en pause — attendez le MJ !');return;}
     if(gameState.phase!=='war'){socket.emit('error',"Pas encore en guerre !");return;}
     if(gameState.gameOver){socket.emit('error','La partie est terminée !');return;}
     const currentTurnTeam=gameState.warCycleOrder[gameState.warCurrentTurn];
@@ -1060,6 +1066,7 @@ io.on('connection',(socket)=>{
   });
 
   socket.on('team:skipTurn',({teamName})=>{
+    if(gameState.gamePaused){socket.emit('error','Partie en pause — attendez le MJ !');return;}
     const currentTurnTeam=gameState.warCycleOrder[gameState.warCurrentTurn];
     if(currentTurnTeam!==teamName)return;
     addTeamNews(teamName,'Tour passé.','neutral');nextWarTurn();broadcast();
@@ -1067,6 +1074,7 @@ io.on('connection',(socket)=>{
 
   // ── MARKET ACTIONS ───────────────────────────────────────────────────────
   socket.on('team:buyResource',({teamName,resource,qty})=>{
+    if(gameState.gamePaused){socket.emit('error','Partie en pause — attendez le MJ !');return;}
     if(gameState.phase==='war'){socket.emit('error','Aucun achat en guerre !');return;}
     const team=gameState.teams[teamName];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
@@ -1084,6 +1092,7 @@ io.on('connection',(socket)=>{
   });
 
   socket.on('team:sellResource',({teamName,resource,qty})=>{
+    if(gameState.gamePaused){socket.emit('error','Partie en pause — attendez le MJ !');return;}
     if(gameState.phase==='war'){socket.emit('error','Aucune vente en guerre !');return;}
     const team=gameState.teams[teamName];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
@@ -1097,6 +1106,7 @@ io.on('connection',(socket)=>{
   });
 
   socket.on('team:recruitArmy',({teamName,qty,type})=>{
+    if(gameState.gamePaused){socket.emit('error','Partie en pause — attendez le MJ !');return;}
     if(gameState.phase==='war'){socket.emit('error','Aucun recrutement en guerre !');return;}
     const team=gameState.teams[teamName];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
@@ -1114,6 +1124,7 @@ io.on('connection',(socket)=>{
   });
 
   socket.on('team:buyAtk',({teamName,qty})=>{
+    if(gameState.gamePaused){socket.emit('error','Partie en pause — attendez le MJ !');return;}
     if(gameState.phase==='war'){socket.emit('error','Aucun achat en guerre !');return;}
     const team=gameState.teams[teamName];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
@@ -1128,6 +1139,7 @@ io.on('connection',(socket)=>{
   });
 
   socket.on('team:buyDef',({teamName,qty})=>{
+    if(gameState.gamePaused){socket.emit('error','Partie en pause — attendez le MJ !');return;}
     if(gameState.phase==='war'){socket.emit('error','Aucun achat en guerre !');return;}
     const team=gameState.teams[teamName];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
