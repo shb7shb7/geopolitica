@@ -60,7 +60,7 @@ const COUNTRIES = [
   { id:'colombia',   flag:'🇨🇴', name:'Colombie',     tier:'B', gold:300, oil:120, food:75, tourism:130, agriculture:230, army:135, atk:0, def:0, militarySpent:0, population:51 },
   { id:'niger',      flag:'🇳🇪', name:'Niger',        tier:'B', gold:180, oil:80,  food:50, tourism:30,  agriculture:200, army:90,  atk:0, def:0, militarySpent:0, population:25 },
   { id:'thailand',   flag:'🇹🇭', name:'Thaïlande',   tier:'B', gold:360, oil:60,  food:95, tourism:240, agriculture:220, army:145, atk:0, def:0, militarySpent:0, population:70 },
-  { id:'pakistan',   flag:'🇵🇰', name:'Pakistan',     tier:'B', gold:240, oil:70,  food:250, tourism:50,  agriculture:200, army:160, atk:0, def:0, militarySpent:0, population:230 },
+  { id:'pakistan',   flag:'🇵🇰', name:'Pakistan',     tier:'A', gold:240, oil:70,  food:250, tourism:50,  agriculture:200, army:160, atk:0, def:0, militarySpent:0, population:230 },
 ];
 
 function getFoodConsumption(c) { return Math.max(10, Math.min(50, Math.round(c.population / 5 + 5))); }
@@ -190,13 +190,13 @@ const EVENTS = [
     agriMultiplier:5, priceAgri:0.6, special:'agriBoost' },
 
   { id:'free_trade', type:'market', period:2,
-    hint:'Les grandes économies signent un traité historique. Les barrières douanières tombent.',
-    causalExplanation:'Suppression des barrières douanières → marchés inondés → concurrence accrue → toutes les ressources moins chères.',
-    priceJustification:{oil:'Libre-échange → concurrence accrue → prix ↓', food:'Libre-échange → surplus alimentaires libres → prix ↓', tourism:'Frontières ouvertes → offre touristique abondante → prix ↓', agriculture:'Marchés agricoles mondiaux ouverts → prix ↓'},
-    title:'Accord de libre-échange mondial', desc:'Les frontières commerciales s\'ouvrent. Tout devient accessible.',
-    effect:'N+1 — toutes ressources ↓−30% · revenus passifs +15%',
-    priceOil:0.7, priceFood:0.7, priceTourism:0.7, priceAgri:0.7,
-    oilMultiplier:1.15, tourismMultiplier:1.15, agriMultiplier:1.15, baseMultiplier:1.15 },
+    hint:'Les grandes économies signent un traité historique. Les barrières douanières tombent. Le tourisme mondial explose.',
+    causalExplanation:'Suppression des barrières douanières → afflux massif de voyageurs → le tourisme devient la ressource la plus prisée, les autres ressources baissent légèrement.',
+    priceJustification:{tourism:'Frontières ouvertes → voyageurs affluent massivement → tourisme très prisé → prix ↑↑', oil:'Libre-échange → concurrence accrue → prix ↓', food:'Échanges libéralisés → surplus alimentaires → prix ↓', agriculture:'Marchés agricoles mondiaux ouverts → prix ↓'},
+    title:'Accord de libre-échange mondial', desc:'Les frontières commerciales s\'ouvrent. Le tourisme explose.',
+    effect:'N+1 — revenus tourisme ×3 · Prix tourisme ↑×2 · autres ressources −20% · revenus base +15%',
+    priceTourism:2.0, priceOil:0.8, priceFood:0.8, priceAgri:0.8,
+    tourismMultiplier:3, oilMultiplier:1.15, agriMultiplier:1.15, baseMultiplier:1.15 },
 
   { id:'speculation', type:'market', period:2,
     hint:'Une spéculation massive s\'empare des marchés des matières premières. Les investisseurs cherchent des valeurs refuges.',
@@ -871,6 +871,8 @@ io.on('connection',(socket)=>{
   // ── ALLIANCES — négociation uniquement ───────────────────────────────────
   socket.on('team:proposeAlliance',({fromTeam,toTeam,allianceType,targetId})=>{
     if(gameState.phase!=='negotiation'){socket.emit('error','Les alliances ne sont disponibles que pendant la phase de Négociation !');return;}
+    // Un seul pacte d'alliance par équipe
+    if(gameState.alliances[fromTeam]){socket.emit('error','Vous avez déjà un pacte d\'alliance actif !');return;}
     const cost=allianceType==='offensive'?100:0;
     const team=gameState.teams[fromTeam];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
@@ -1026,7 +1028,9 @@ io.on('connection',(socket)=>{
     const c=gameState.countries[team.country];
     if(!gameState.isTutorial){const actions=gameState.teamActionsThisPeriod[teamName]||0;if(actions>=2){socket.emit('error','2 actions déjà utilisées !');return;}}
     if(resource==='oil'&&!gameState.isTutorial&&(gameState.eventMod.blockOilBelowPower||0)>0&&c.power<gameState.eventMod.blockOilBelowPower){socket.emit('error','Achat pétrole bloqué (boom actif) !');return;}
+    const qty2=Math.max(1,Math.floor(qty||1));if(qty2!==qty)qty=qty2;
     const price=gameState.prices[resource]||80;const total=price*qty;
+    if(qty<1){socket.emit('error','Quantité invalide !');return;}
     if(c.treasury<total){socket.emit('error',"Pas assez d'or !");return;}
     gameState.lastActionByTeam[teamName]={treasury:c.treasury,oil:c.oil,food:c.food,tourism:c.tourism,agriculture:c.agriculture,army:c.army,atk:c.atk||0,def:c.def||0,militarySpent:c.militarySpent||0};
     c.treasury-=total;c[resource]+=qty;c.power=calcPower(c);
@@ -1039,6 +1043,7 @@ io.on('connection',(socket)=>{
     if(gameState.phase==='war'){socket.emit('error','Aucune vente en guerre !');return;}
     const team=gameState.teams[teamName];if(!team||!team.country)return;
     const c=gameState.countries[team.country];
+    if(!qty||qty<1){socket.emit('error','Quantité invalide !');return;}
     if(c[resource]<qty){socket.emit('error','Stock insuffisant !');return;}
     const price=gameState.prices[resource]||80;const total=price*qty;
     gameState.lastActionByTeam[teamName]={treasury:c.treasury,oil:c.oil,food:c.food,tourism:c.tourism,agriculture:c.agriculture,army:c.army,atk:c.atk||0,def:c.def||0,militarySpent:c.militarySpent||0};
