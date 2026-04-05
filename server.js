@@ -209,7 +209,7 @@ const EVENTS = [
   // ── MANCHE 3 — crises majeures + INDICE pour surprise du choix en M4 ───
   { id:'food_crisis', type:'market', period:3,
     // L'indice de M3 annonce un event marché pour M4, mais le VRAI event en M4 sera un choix (surprise)
-    hint:'Des tensions diplomatiques autour du détroit d\'Ormuz menacent les routes pétrolières mondiales. Le marché pétrolier s\'inquiète.',
+    hint:'Les satellites agricoles confirment une sécheresse étendue dans plusieurs zones céréalières. Les stocks mondiaux sont au plus bas.',
     causalExplanation:'La sécheresse a vidé les greniers mondiaux → nourriture rare et chère → l\'agriculture est très rentable cette période.',
     priceJustification:{food:'Sécheresse → stocks épuisés → nourriture rare → prix ↑', agriculture:'Famine mondiale → l\'agriculture stratégique → prix ↑'},
     title:'Crise alimentaire mondiale', desc:'Les greniers mondiaux se vident. La nourriture devient un luxe.',
@@ -217,7 +217,7 @@ const EVENTS = [
     agriMultiplier:4, priceFood:4.0, priceAgri:1.8, special:'foodCrisisPenalty' },
 
   { id:'energy_shift', type:'market', period:3,
-    hint:'Des tensions politiques en Asie centrale perturbent les routes commerciales. Les prix de l\'énergie pourraient être affectés.',
+    hint:'Plusieurs constructeurs automobiles annoncent l\'abandon du moteur thermique d\'ici 5 ans. Les marchés pétroliers réagissent nerveusement.',
     causalExplanation:'L\'abandon massif du thermique annoncé → demande de pétrole s\'effondre → sa valeur chute drastiquement.',
     priceJustification:{oil:'Abandon du thermique → demande pétrole effondrée → prix ↓'},
     title:'Transition énergétique', desc:'Le pétrole perd sa valeur stratégique. Les marchés s\'effondrent.',
@@ -225,7 +225,7 @@ const EVENTS = [
     oilMultiplier:0, priceOil:0.3, special:'oilCrash' },
 
   { id:'sanctions', type:'market', period:3,
-    hint:'Des négociations secrètes entre gouvernements laissent présager des bouleversements diplomatiques. Les ambassadeurs sont en effervescence.',
+    hint:'Une coalition diplomatique inédite prépare des mesures contre les économies dominantes. Les ambassadeurs multiplient les consultations discrètes.',
     causalExplanation:'Les sanctions perturbent les chaînes d\'approvisionnement mondiales → tout coûte plus cher à importer ou exporter.',
     priceJustification:{oil:'Perturbations commerciales → prix ↑', food:'Chaînes alimentaires perturbées → prix ↑', tourism:'Tensions → avis de voyage négatifs → prix ↑', agriculture:'Échanges bloqués → prix ↑'},
     title:'Sanctions coordonnées', desc:'Le G20 frappe fort les grandes puissances.',
@@ -675,7 +675,7 @@ io.on('connection',(socket)=>{
     gameState.pendingChoiceEvent=null;
     if(ev.type==='choice'){gameState.pendingChoiceEvent=ev;io.emit('choiceEvent',ev);}
     const nev=gameState.periodSequence[1];
-    gameState.nextEvent=nev||null;gameState.nextHint=nev?.hint||null;
+    gameState.nextEvent=nev||null;gameState.nextHint=ev?.hint||null; // hint de l'event COURANT (celui qui cause les prix P+1)
     const nextPrices=previewNextPrices(gameState.prices,ev);
     gameState.currentEvent.nextPrices=nextPrices;gameState.currentEvent.nextHint=gameState.nextHint;
     resetServerTimer(600);addLog(`Période 1 — ${p.name} [${ev.type.toUpperCase()}]`,'event');
@@ -721,7 +721,7 @@ io.on('connection',(socket)=>{
     gameState.pendingChoiceEvent=null;
     if(ev.type==='choice'){gameState.pendingChoiceEvent=ev;io.emit('choiceEvent',ev);}
     const nev=gameState.periodSequence[1];
-    gameState.nextEvent=nev||null;gameState.nextHint=nev?.hint||null;
+    gameState.nextEvent=nev||null;gameState.nextHint=ev?.hint||null; // hint de l'event COURANT (celui qui cause les prix P+1)
     const nextPrices=previewNextPrices(gameState.prices,ev);
     gameState.currentEvent.nextPrices=nextPrices;gameState.currentEvent.nextHint=gameState.nextHint;
     resetServerTimer(600);addLog(`Période 1 — ${p.name} [${ev.type.toUpperCase()}]`,'event');
@@ -752,7 +752,7 @@ io.on('connection',(socket)=>{
     const nev=gameState.periodSequence[gameState.currentPeriod]||null;
     gameState.nextEvent=nev||null;
     const nextPrices=gameState.currentPeriod<6?previewNextPrices(gameState.prices,ev):{...BASE_PRICES};
-    gameState.nextHint=gameState.currentPeriod<6?(nev?.hint||null):'⚔️ La GUERRE commence après cette période. Négociation avant la guerre. Gardez au moins 600 or.';
+    gameState.nextHint=gameState.currentPeriod<6?(ev?.hint||null):'⚔️ La GUERRE commence après cette période. Négociation avant la guerre. Gardez au moins 600 or.'; // hint de l'event COURANT (celui qui cause les prix P+1)
     gameState.currentEvent.nextPrices=nextPrices;gameState.currentEvent.nextHint=gameState.nextHint;
     // Stocker les prix AVANT et APRÈS pour l'explication causale
     gameState.currentEvent.prevPricesSnapshot = {...gameState.prevPrices};
