@@ -540,7 +540,7 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
         <div class="epill" id="pc-event"></div>
         <!-- Prix prévisionnels période suivante -->
         <div id="pc-prices-box" style="display:none;margin-top:8px;background:rgba(17,21,32,.8);border:1px solid var(--border);border-radius:5px;padding:8px 11px">
-          <div style="font-size:9px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:'Cinzel',serif">📈 Prix réels période suivante (effet de l'event en cours)</div>
+          <div style="font-size:9px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:'Cinzel',serif" id="pc-prices-label">📈 Prix P+1 — causés par l'event actuel</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px" id="pc-prices-grid"></div>
         </div>
         <div id="pc-hint-box" style="display:none;margin-top:8px;background:rgba(30,58,95,.3);border:1px solid #2d5a8e;border-radius:5px;padding:8px 10px;font-size:11px;color:#93c5fd;line-height:1.6">
@@ -1679,6 +1679,9 @@ function renderMJ() {
     var pricesGrid = document.getElementById('pc-prices-grid');
     if(ev.nextPrices && pricesGrid) {
       pricesBox.style.display = 'block';
+      // Label dynamique : précise quel event cause ces prix
+      var pricesLabel = document.getElementById('pc-prices-label');
+      if(pricesLabel) pricesLabel.textContent = '📈 Prix P' + (ev.periodNumber+1) + ' — causés par "' + (ev.title||'event actuel') + '"';
       var bp2 = {oil:80,food:40,tourism:120,agriculture:60};
       var rlabels = {oil:'🛢️ Pétrole',food:'🌾 Nourriture',tourism:'🏖️ Tourisme',agriculture:'🌿 Agriculture'};
       pricesGrid.innerHTML = Object.keys(rlabels).map(function(r) {
