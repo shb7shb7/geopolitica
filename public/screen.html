@@ -257,7 +257,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
         </div>
         <div class="ev-name" id="sc-ev-name">—</div>
         <div class="ev-desc" id="sc-ev-desc"></div>
-        <div id="sc-ev-effect" class="ev-effect" style="display:none"></div>
+        <!-- Explication causale : ce que l'indice précédent a provoqué (P2+) -->
+        <div id="sc-causal-block" style="display:none;background:rgba(26,122,74,.1);border:1px solid rgba(26,122,74,.35);border-radius:6px;padding:10px 14px;margin-top:6px">
+          <div style="font-size:10px;font-weight:700;color:#4ade80;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:'Cinzel',serif">📊 <span id="sc-causal-title">Effet de l'indice précédent</span></div>
+          <div id="sc-causal-body" style="font-size:12px;color:#86efac;line-height:1.7;white-space:pre-line"></div>
+        </div>
+
         <div id="sc-hint-block" class="ev-hint-box" style="display:none">
           <div class="ev-hint-label">🔮 Indice — prochaine période</div>
           <div class="ev-hint-text" id="sc-hint-text"></div>
@@ -605,13 +610,31 @@ function renderProsperity(){
     const ev=state.currentEvent;
     const tl={market:'MARCHÉ',choice:'CHOIX',targeted:'CIBLÉ'};
     const tc={market:'ev-type-market',choice:'ev-type-choice',targeted:'ev-type-targeted'};
-    const pill=document.getElementById('sc-ev-type');
-    if(pill){pill.textContent=tl[ev.type]||'MARCHÉ';pill.className='ev-type-pill '+(tc[ev.type]||'ev-type-market');}
     document.getElementById('sc-ev-period').textContent=ev.periodSubtitle||`Année ${ev.periodNumber||''}`;
     document.getElementById('sc-ev-name').textContent=ev.periodName||'';
     document.getElementById('sc-ev-desc').textContent=ev.periodDesc||'';
-    const effEl=document.getElementById('sc-ev-effect');
-    if(ev.effect){effEl.textContent='⚡ '+ev.effect;effEl.style.display='inline-block';}else effEl.style.display='none';
+    // Pill type + P1 masquage event
+    const pill=document.getElementById('sc-ev-type');
+    if(pill){pill.textContent=tl[ev.type]||'MARCHÉ';pill.className='ev-type-pill '+(tc[ev.type]||'ev-type-market');}
+    // En P1 : pas d'event visible, l'event n'avait pas été annoncé
+    // (pill déjà défini ci-dessus)
+    if(ev.hideEventFromPlayers) {
+      if(pill) pill.style.display='none';
+      document.getElementById('sc-ev-period').textContent='';
+    } else {
+      if(pill) pill.style.display='inline-block';
+    }
+
+    // Explication causale (P2+) : ce que l'indice précédent a causé sur les prix
+    const causalBlock=document.getElementById('sc-causal-block');
+    if(ev.causalFromPrev && ev.prevEvTitle && !ev.hideEventFromPlayers) {
+      document.getElementById('sc-causal-title').textContent = 'Indice "' + ev.prevEvTitle + '" → impact sur les prix :';
+      document.getElementById('sc-causal-body').textContent=ev.causalFromPrev;
+      causalBlock.style.display='block';
+    } else {
+      causalBlock.style.display='none';
+    }
+
     const hintBlock=document.getElementById('sc-hint-block');
     if(ev.nextHint){document.getElementById('sc-hint-text').textContent=ev.nextHint;hintBlock.style.display='block';}
     else hintBlock.style.display='none';
