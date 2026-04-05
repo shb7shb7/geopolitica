@@ -79,6 +79,12 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 .lobby-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:22px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
 .lobby-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 
+/* ── Pause overlay ── */
+#pause-overlay{position:fixed;inset:0;background:rgba(5,7,9,.96);z-index:900;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1.2rem}
+#pause-overlay.show{display:flex}
+.po-icon{font-size:48px}
+.po-title{font-size:20px;font-weight:700;font-family:'Cinzel',serif;color:var(--gold)}
+.po-sub{font-size:13px;color:var(--text2);letter-spacing:2px}
 /* ── Loading overlay (pendant cinématique screen) ── */
 #period-loading-overlay{position:fixed;inset:0;background:rgba(5,7,9,.97);z-index:800;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem}
 #period-loading-overlay.show{display:flex;animation:fadeInOv .5s ease}
@@ -535,6 +541,7 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
     <div style="display:flex;gap:8px;align-items:center">
       <div id="mj-session-display" style="font-size:10px;color:var(--gold);padding:3px 9px;border:1px solid rgba(201,168,76,.3);border-radius:3px;letter-spacing:1px;font-weight:600"></div>
       <button class="btn-sm" id="btn-sound">🔔</button>
+      <button class="btn-sm" id="btn-pause-resume" style="background:rgba(201,168,76,.15);color:var(--gold);border-color:var(--gold)">⏸ Pause</button>
       <button class="btn-sm br" id="btn-reset">Reset</button>
     </div>
   </div>
@@ -559,6 +566,14 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
           <div style="font-size:9px;font-weight:700;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;font-family:'Cinzel',serif">🔮 Indice — prochaine période</div>
           <div id="pc-hint-text"></div>
         </div>
+      </div>
+      <!-- Sélecteur d'event par période -->
+      <div id="mj-event-picker" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:8px">
+        <div style="font-size:9px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+          Événements de la partie
+          <button class="btn-sm bg" id="btn-reroll" style="font-size:9px">🔀 Régénérer</button>
+        </div>
+        <div id="mj-event-picker-rows"></div>
       </div>
       <div class="card" id="war-turn-mj" style="display:none">
         <div class="card-title">Tour actuel</div>
@@ -793,6 +808,12 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
   </div>
 </div>
 
+<!-- Pause overlay -->
+<div id="pause-overlay">
+  <div class="po-icon">⏸️</div>
+  <div class="po-title">Partie en pause</div>
+  <div class="po-sub">En attente du Maître du Jeu</div>
+</div>
 <!-- Loading overlay pendant cinématique screen -->
 <div id="period-loading-overlay">
   <div class="plo-logo">Geopolitica</div>
@@ -936,6 +957,13 @@ socket.on('allianceAccepted', function(d) { showAllianceToast({accepted:true, fl
 socket.on('allianceRefused', function(d) { showAllianceToast({accepted:false, flag:d.byCountry.flag, name:d.byCountry.name}); });
 socket.on('error', function(msg) { toast(msg); });
 
+socket.on('gamePaused', function(d) {
+  var ov = document.getElementById('pause-overlay');
+  if(!ov) return;
+  if(d.paused) ov.classList.add('show');
+  else ov.classList.remove('show');
+});
+
 socket.on('periodTransition', function(d) {
   if(isMJ) return; // MJ ne voit pas l'overlay
   var ov = document.getElementById('period-loading-overlay');
@@ -964,6 +992,17 @@ window.addEventListener('load', function() {
   document.getElementById('btn-rejoin').onclick = tryRejoin;
   document.getElementById('confirm-draft-btn').onclick = confirmDraft;
   document.getElementById('btn-sound').onclick = function(){ soundEnabled=!soundEnabled; this.textContent=soundEnabled?'🔔':'🔕'; };
+  // Pause/resume
+  var _paused = false;
+  document.getElementById('btn-pause-resume').onclick = function() {
+    _paused = !_paused;
+    if(_paused) { socket.emit('mj:pause'); this.textContent='▶ Reprendre'; this.style.background='rgba(192,57,43,.2)'; this.style.color='#f87171'; this.style.borderColor='#c0392b'; }
+    else { socket.emit('mj:resume'); this.textContent='⏸ Pause'; this.style.background='rgba(201,168,76,.15)'; this.style.color='var(--gold)'; this.style.borderColor='var(--gold)'; }
+  };
+  // Reroll events
+  document.getElementById('btn-reroll').onclick = function() {
+    if(confirm('Régénérer tous les événements ?')) socket.emit('mj:rerollEvents');
+  };
   document.getElementById('btn-reset').onclick = function(){ if(confirm('Reset ?')) socket.emit('mj:reset'); };
   document.getElementById('btn-next-war-turn').onclick = function(){ socket.emit('mj:nextWarTurn'); };
   document.getElementById('btn-restart-war-turns').onclick = function(){ socket.emit('mj:startWarTurns'); };
@@ -1283,12 +1322,13 @@ function renderMarket() {
     var can = canBuyQty(treasury, price);
     var stock = c?c[r.id]||0:0;
     var arrowHtml = diff > prevPrice*0.05 ? '<span class="mr-price-change up">↑</span>' : diff < -prevPrice*0.05 ? '<span class="mr-price-change down">↓</span>' : '';
+    var prevTxt = prevPrice !== price && !isWar ? ' <span style="font-size:9px;color:var(--text3)">(était '+prevPrice+')</span>' : '';
     var canTxt = can>0?('max '+can+' achetables'):('Pas assez d\'or');
     var row = document.createElement('div');
     row.className = 'market-resource' + (oilBlocked?' blocked':'');
     row.innerHTML =
       '<div class="mr-top"><div class="mr-name">'+r.icon+' '+r.name+(oilBlocked?' <span style="font-size:9px;color:#f87171">bloqué</span>':'')+'</div>'
-      +'<div><div class="mr-price">'+price.toLocaleString()+' or '+arrowHtml+'</div>'
+      +'<div><div class="mr-price">'+price.toLocaleString()+' or/unité '+arrowHtml+'</div>'
       +'<div style="font-size:10px;color:'+(can>0?'#4ade80':'#f87171')+'">'+canTxt+'</div></div></div>'
       +'<div class="mr-controls" style="flex-wrap:wrap;gap:6px">'
       +'<div style="font-size:10px;color:var(--text3)">Stock: '+stock.toLocaleString()+'</div>'
@@ -1789,6 +1829,60 @@ function renderMJ() {
 
     if(ev.nextHint){document.getElementById('pc-hint-box').style.display='block';document.getElementById('pc-hint-text').textContent=ev.nextHint;}
     else document.getElementById('pc-hint-box').style.display='none';
+  }
+
+  // ── Event picker: show all 6 periods with dropdown to select event ──────
+  var pickerBox = document.getElementById('mj-event-picker');
+  var pickerRows = document.getElementById('mj-event-picker-rows');
+  if(pickerBox && pickerRows && state.periodSequence && state.periodSequence.length > 0) {
+    pickerBox.style.display = 'block';
+    var POOLS = {
+      1: ['oil_boom','tourism_boom','gold_rush'],
+      2: ['agri_boom','free_trade','speculation'],
+      3: ['food_crisis','energy_shift','sanctions'],
+      4: ['embargo','scandal','refugees'],
+      5: ['revolution','imf','uprising'],
+      6: ['earthquake','typhoon','tourism_crisis']
+    };
+    var TITLES = {
+      oil_boom:'Choc pétrolier',tourism_boom:'Boom du tourisme',gold_rush:'Découverte aurifère',
+      agri_boom:'Superproduction agricole',free_trade:'Accord de libre-échange',speculation:'Ruée vers l\'or',
+      food_crisis:'Crise alimentaire',energy_shift:'Transition énergétique',sanctions:'Sanctions coordonnées',
+      embargo:'Embargo commercial',scandal:'Scandale financier',refugees:'Crise humanitaire',
+      revolution:'Vague révolutionnaire',imf:'Plan FMI',uprising:'Grèves et soulèvements',
+      earthquake:'Séisme majeur',typhoon:'Typhons dévastateurs',tourism_crisis:'Crise du tourisme'
+    };
+    var TYPE_COL = {market:'#4ade80',choice:'#c9a84c',targeted:'#f87171'};
+    pickerRows.innerHTML = '';
+    state.periodSequence.forEach(function(ev, i) {
+      var period = i + 1;
+      var pool = POOLS[period] || [];
+      var isCurrent = period === state.currentPeriod;
+      var isPast = period < state.currentPeriod;
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:5px;opacity:'+(isPast?'0.4':'1');
+      var pLabel = document.createElement('div');
+      pLabel.style.cssText = 'font-size:9px;font-weight:700;min-width:20px;color:'+(isCurrent?'var(--gold)':'var(--text3)')+';font-family:Cinzel,serif';
+      pLabel.textContent = 'P'+period;
+      var sel = document.createElement('select');
+      sel.style.cssText = 'flex:1;font-size:10px;padding:4px 6px;border:1px solid '+(isCurrent?'rgba(201,168,76,.5)':'var(--border)')+';border-radius:4px;background:var(--bg2);color:var(--text)';
+      sel.disabled = isPast;
+      pool.forEach(function(eid) {
+        var opt = document.createElement('option');
+        opt.value = eid;
+        opt.textContent = TITLES[eid]||eid;
+        if(ev.id === eid) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.onchange = function() {
+        socket.emit('mj:selectEvent', {period: period, eventId: sel.value});
+      };
+      row.appendChild(pLabel);
+      row.appendChild(sel);
+      pickerRows.appendChild(row);
+    });
+  } else if(pickerBox) {
+    pickerBox.style.display = 'none';
   }
 
   document.getElementById('mj-lb').innerHTML=sorted.map(function(c,i){
