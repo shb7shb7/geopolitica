@@ -540,7 +540,7 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
         <div class="epill" id="pc-event"></div>
         <!-- Prix prévisionnels période suivante -->
         <div id="pc-prices-box" style="display:none;margin-top:8px;background:rgba(17,21,32,.8);border:1px solid var(--border);border-radius:5px;padding:8px 11px">
-          <div style="font-size:9px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:'Cinzel',serif">📈 Prix période suivante (estimés)</div>
+          <div style="font-size:9px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:'Cinzel',serif">📈 Prix réels période suivante (effet de l'event en cours)</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px" id="pc-prices-grid"></div>
         </div>
         <div id="pc-hint-box" style="display:none;margin-top:8px;background:rgba(30,58,95,.3);border:1px solid #2d5a8e;border-radius:5px;padding:8px 10px;font-size:11px;color:#93c5fd;line-height:1.6">
@@ -1151,6 +1151,13 @@ function updateTeamUI() {
   var hintCard = document.getElementById('hint-card');
   if(ev && ev.nextHint) { document.getElementById('hint-card-text').textContent=ev.nextHint; if(hintCard) hintCard.style.display='block'; }
   else if(hintCard) hintCard.style.display='none';
+  // En P1, on n'affiche PAS l'event courant aux joueurs (aucun indice n'avait été donné avant)
+  var hintLabelEl = document.querySelector('.hint-label');
+  if(hintLabelEl && ev) {
+    hintLabelEl.innerHTML = ev.hideEventFromPlayers
+      ? '<div class="hint-pulse"></div>Indice — prochaine période'
+      : '<div class="hint-pulse"></div>Indice — prochaine période';
+  }
 
   document.getElementById('tutorial-banner').style.display = isTut?'block':'none';
   document.getElementById('elim-banner').style.display = c.eliminated?'block':'none';
@@ -1639,9 +1646,33 @@ function renderMJ() {
     document.getElementById('pc-num').innerHTML='Période '+(ev.periodNumber||0)+' · '+(ev.periodSubtitle||'')+' <span class="ev-type-tag '+(tc[ev.type]||'')+'">'+(tl[ev.type]||'')+'</span>';
     document.getElementById('pc-name').textContent=ev.periodName||'';
     document.getElementById('pc-desc').textContent=ev.periodDesc||'';
-    // Texte de l'event en clair (reformulaté)
+    // Texte de l'event en clair
     var evTypeLabel = {market:'Marché',choice:'CHOIX SURPRISE',targeted:'Ciblé'}[ev.type]||ev.type;
     document.getElementById('pc-event').textContent = ev.title + ' [' + evTypeLabel + '] — ' + ev.desc;
+
+    // Explication causale : ce que l'indice précédent a provoqué (P2+)
+    var causalBox = document.getElementById('pc-causal-box');
+    if(!causalBox) {
+      causalBox = document.createElement('div');
+      causalBox.id = 'pc-causal-box';
+      causalBox.style.cssText = 'display:none;margin-top:8px;background:rgba(26,122,74,.08);border:1px solid rgba(26,122,74,.3);border-radius:5px;padding:8px 11px;font-size:11px;color:#4ade80;white-space:pre-line;line-height:1.6';
+      var pcEvent = document.getElementById('pc-event');
+      if(pcEvent && pcEvent.parentNode) pcEvent.parentNode.insertBefore(causalBox, pcEvent.nextSibling);
+    }
+    if(ev.causalFromPrev && ev.prevEvTitle) {
+      causalBox.style.display = 'block';
+      var causalTitle = document.createElement('div');
+      causalTitle.style.cssText = 'font-size:9px;font-weight:700;color:#4ade80;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;font-family:Cinzel,serif';
+      causalTitle.textContent = 'Effet de l\'indice "' + ev.prevEvTitle + '" sur les prix :';
+      var causalBody = document.createElement('div');
+      causalBody.style.cssText = 'font-size:11px;line-height:1.7';
+      causalBody.textContent = ev.causalFromPrev;
+      causalBox.innerHTML = '';
+      causalBox.appendChild(causalTitle);
+      causalBox.appendChild(causalBody);
+    } else {
+      causalBox.style.display = 'none';
+    }
 
     // Aperçu des prix de la prochaine période
     var pricesBox = document.getElementById('pc-prices-box');
