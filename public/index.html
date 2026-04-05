@@ -9,6 +9,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0a0c10;--bg2:#111520;--bg3:#161b28;--border:#1e2640;--gold:#c9a84c;--red:#c0392b;--green:#1a7a4a;--text:#d4d8e8;--text2:#8892b0;--text3:#4a5568}
+html,body{width:100%;height:100%}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 .screen{display:none;min-height:100vh;flex-direction:column}.screen.active{display:flex}
 h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
@@ -697,7 +698,23 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 <div id="toast"></div>
 
 <script>
-const socket = io();
+// showScreen défini EN PREMIER — avant socket.io — pour que les boutons marchent toujours
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);if(el)el.classList.add('active');
+}
+
+// Landing buttons
+document.addEventListener('DOMContentLoaded', () => {
+  const btnMJ = document.getElementById('btn-mj');
+  const btnJoin = document.getElementById('btn-join');
+  if(btnMJ) btnMJ.addEventListener('click', () => showScreen('screen-mj-auth'));
+  if(btnJoin) btnJoin.addEventListener('click', () => showScreen('screen-lobby'));
+});
+
+let socket;
+try { socket = io(); } catch(e) { socket = {emit:()=>{},on:()=>{}}; }
+
 let state = {}, myTeam = null, myCountryId = null, selectedDraft = null;
 let timerSec = 600, soundEnabled = true;
 let currentWarTurn = null, choiceCdInterval = null, allyNotifInterval = null;
@@ -705,14 +722,6 @@ let selectedPayment = 'gold', selectedNegocType = 'peace', selectedNegocTarget =
 let pendingAttackTarget = null, pendingAllianceProposal = null, canUndo = false;
 let currentSessionCode = '', allianceToastTimer = null;
 let isMJ = false;
-
-// Landing buttons — attached via JS to avoid any inline onclick issues
-document.addEventListener('DOMContentLoaded', () => {
-  const btnMJ = document.getElementById('btn-mj');
-  const btnJoin = document.getElementById('btn-join');
-  if(btnMJ) btnMJ.addEventListener('click', () => showScreen('screen-mj-auth'));
-  if(btnJoin) btnJoin.addEventListener('click', () => showScreen('screen-lobby'));
-});
 
 const ALL_COUNTRIES = [
   // Tier S
@@ -807,7 +816,6 @@ function saveSession(teamName,sessionCode,countryId){try{localStorage.setItem('g
 function clearSession(){try{localStorage.removeItem('geopolitica_session');}catch(e){}}
 
 // ── UI HELPERS ─────────────────────────────────────────────────────────────
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
 function playAlarm(){if(!soundEnabled)return;try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[0,.3,.6].forEach(d=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;o.type='sine';g.gain.setValueAtTime(.4,ctx.currentTime+d);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+d+.4);o.start(ctx.currentTime+d);o.stop(ctx.currentTime+d+.4);});}catch(e){}}
 function toggleSound(){soundEnabled=!soundEnabled;document.getElementById('sound-btn').textContent=soundEnabled?'🔔':'🔕';}
