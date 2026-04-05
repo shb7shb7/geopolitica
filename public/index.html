@@ -611,7 +611,7 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
     <div id="tutorial-banner" style="display:none;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);border-radius:5px;padding:7px 11px;font-size:11px;color:var(--gold);text-align:center">🎮 MANCHE TEST — Actions illimitées. Ressources remises à zéro après.</div>
     <div id="coal-box" style="display:none" class="coal-box">
       <div style="font-size:12px;font-weight:700;color:var(--gold);font-family:'Cinzel',serif;margin-bottom:3px">🤝 Coalition Africaine proposée</div>
-      <div style="font-size:11px;color:var(--text);margin-bottom:7px">Avec l'Afrique du Sud — +25% ressources.</div>
+      <div style="font-size:11px;color:var(--text);margin-bottom:7px">Avec l'Guinée — +25% ressources.</div>
       <div style="display:flex;gap:8px;justify-content:center" id="coal-btns">
         <button class="btn-primary" id="btn-coal-accept">Accepter</button>
         <button class="btn-secondary" id="btn-coal-refuse">Refuser</button>
@@ -803,7 +803,7 @@ var ALL_COUNTRIES = [
   {id:'india',flag:'🇮🇳',name:'Inde',tier:'B',gold:400,oil:100,food:580,tourism:130,agriculture:210,army:180,population:1400},
   {id:'mexico',flag:'🇲🇽',name:'Mexique',tier:'B',gold:360,oil:180,food:420,tourism:160,agriculture:180,army:150,population:130},
   {id:'morocco',flag:'🇲🇦',name:'Maroc',tier:'B',gold:300,oil:60,food:380,tourism:170,agriculture:190,army:135,population:37},
-  {id:'southafrica',flag:'🇿🇦',name:'Afrique S.',tier:'B',gold:320,oil:80,food:350,tourism:140,agriculture:170,army:140,population:60},
+  {id:'guinea',flag:'🇬🇳',name:'Guinée',tier:'B',gold:320,oil:80,food:350,tourism:140,agriculture:170,army:140,population:60},
   {id:'algeria',flag:'🇩🇿',name:'Algérie',tier:'B',gold:310,oil:340,food:300,tourism:80,agriculture:160,army:145,population:45},
   {id:'argentina',flag:'🇦🇷',name:'Argentine',tier:'B',gold:340,oil:140,food:560,tourism:100,agriculture:280,army:145,population:46},
   {id:'colombia',flag:'🇨🇴',name:'Colombie',tier:'B',gold:300,oil:120,food:480,tourism:130,agriculture:230,army:135,population:51},
@@ -1194,11 +1194,11 @@ function updateTeamUI() {
   if(isNegoc) renderNegocPanel();
 
   // Coalition
-  var coal = state.coalition; var isMG = myCountryId==='morocco'||myCountryId==='southafrica';
+  var coal = state.coalition; var isMG = myCountryId==='morocco'||myCountryId==='guinea';
   var cb = document.getElementById('coal-box');
   if(coal&&coal.proposed&&isMG&&!coal.active) {
     cb.style.display='block';
-    var myAcc=(myCountryId==='morocco'&&coal.moroccoAccepted)||(myCountryId==='southafrica'&&coal.guineaAccepted);
+    var myAcc=(myCountryId==='morocco'&&coal.moroccoAccepted)||(myCountryId==='guinea'&&coal.guineaAccepted);
     document.getElementById('coal-btns').style.display=myAcc?'none':'flex';
   } else if(coal&&coal.active&&isMG) {
     cb.style.display='block';
