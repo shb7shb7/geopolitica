@@ -34,36 +34,36 @@ app.get('/session-info', (req, res) => {
 // ─── COUNTRIES ───────────────────────────────────────────────────────────
 const COUNTRIES = [
   // ── TIER S — Superpuissances ──────────────────────────────────────────
-  { id:'usa',        flag:'🇺🇸', name:'États-Unis',  tier:'S', gold:900, oil:200, food:400, tourism:200, agriculture:120, army:320, atk:0, def:0, militarySpent:0, population:330 },
-  { id:'china',      flag:'🇨🇳', name:'Chine',        tier:'S', gold:850, oil:250, food:550, tourism:120, agriculture:180, army:290, atk:0, def:0, militarySpent:0, population:1400 },
+  { id:'usa',        flag:'🇺🇸', name:'États-Unis',  tier:'S', gold:900, oil:200, food:250, tourism:200, agriculture:120, army:320, atk:0, def:0, militarySpent:0, population:330 },
+  { id:'china',      flag:'🇨🇳', name:'Chine',        tier:'S', gold:850, oil:250, food:250, tourism:120, agriculture:180, army:290, atk:0, def:0, militarySpent:0, population:1400 },
   // ── TIER A — Puissances majeures ─────────────────────────────────────
-  { id:'russia',     flag:'🇷🇺', name:'Russie',       tier:'A', gold:550, oil:520, food:220, tourism:60,  agriculture:90,  army:260, atk:0, def:0, militarySpent:0, population:145 },
-  { id:'germany',    flag:'🇩🇪', name:'Allemagne',    tier:'A', gold:650, oil:100, food:300, tourism:220, agriculture:130, army:220, atk:0, def:0, militarySpent:0, population:83 },
-  { id:'qatar',      flag:'🇶🇦', name:'Qatar',        tier:'A', gold:720, oil:400, food:80,  tourism:250, agriculture:20,  army:170, atk:0, def:0, militarySpent:0, population:3 },
-  { id:'france',     flag:'🇫🇷', name:'France',       tier:'A', gold:600, oil:80,  food:360, tourism:280, agriculture:160, army:215, atk:0, def:0, militarySpent:0, population:68 },
-  { id:'japan',      flag:'🇯🇵', name:'Japon',        tier:'A', gold:700, oil:60,  food:280, tourism:300, agriculture:100, army:190, atk:0, def:0, militarySpent:0, population:125 },
-  { id:'turkey',     flag:'🇹🇷', name:'Turquie',      tier:'A', gold:480, oil:120, food:300, tourism:200, agriculture:150, army:245, atk:0, def:0, militarySpent:0, population:85 },
-  { id:'australia',  flag:'🇦🇺', name:'Australie',    tier:'A', gold:550, oil:200, food:350, tourism:180, agriculture:200, army:180, atk:0, def:0, militarySpent:0, population:26 },
+  { id:'russia',     flag:'🇷🇺', name:'Russie',       tier:'A', gold:550, oil:520, food:170, tourism:60,  agriculture:90,  army:260, atk:0, def:0, militarySpent:0, population:145 },
+  { id:'germany',    flag:'🇩🇪', name:'Allemagne',    tier:'A', gold:650, oil:100, food:110, tourism:220, agriculture:130, army:220, atk:0, def:0, militarySpent:0, population:83 },
+  { id:'qatar',      flag:'🇶🇦', name:'Qatar',        tier:'A', gold:720, oil:400, food:50,  tourism:250, agriculture:20,  army:170, atk:0, def:0, militarySpent:0, population:3 },
+  { id:'france',     flag:'🇫🇷', name:'France',       tier:'A', gold:600, oil:80,  food:95, tourism:280, agriculture:160, army:215, atk:0, def:0, militarySpent:0, population:68 },
+  { id:'japan',      flag:'🇯🇵', name:'Japon',        tier:'A', gold:700, oil:60,  food:150, tourism:300, agriculture:100, army:190, atk:0, def:0, militarySpent:0, population:125 },
+  { id:'turkey',     flag:'🇹🇷', name:'Turquie',      tier:'A', gold:480, oil:120, food:110, tourism:200, agriculture:150, army:245, atk:0, def:0, militarySpent:0, population:85 },
+  { id:'australia',  flag:'🇦🇺', name:'Australie',    tier:'A', gold:550, oil:200, food:50, tourism:180, agriculture:200, army:180, atk:0, def:0, militarySpent:0, population:26 },
   { id:'saudi',      flag:'🇸🇦', name:'Arabie S.',    tier:'A', gold:700, oil:600, food:60,  tourism:120, agriculture:20,  army:190, atk:0, def:0, militarySpent:0, population:35 },
-  { id:'uk',         flag:'🇬🇧', name:'Royaume-Uni',  tier:'A', gold:640, oil:90,  food:280, tourism:260, agriculture:110, army:200, atk:0, def:0, militarySpent:0, population:67 },
-  { id:'canada',     flag:'🇨🇦', name:'Canada',       tier:'A', gold:580, oil:280, food:380, tourism:200, agriculture:220, army:185, atk:0, def:0, militarySpent:0, population:38 },
-  { id:'singapore',  flag:'🇸🇬', name:'Singapour',   tier:'A', gold:680, oil:30,  food:60,  tourism:320, agriculture:10,  army:140, atk:0, def:0, militarySpent:0, population:6 },
+  { id:'uk',         flag:'🇬🇧', name:'Royaume-Uni',  tier:'A', gold:640, oil:90,  food:90, tourism:260, agriculture:110, army:200, atk:0, def:0, militarySpent:0, population:67 },
+  { id:'canada',     flag:'🇨🇦', name:'Canada',       tier:'A', gold:580, oil:280, food:65, tourism:200, agriculture:220, army:185, atk:0, def:0, militarySpent:0, population:38 },
+  { id:'singapore',  flag:'🇸🇬', name:'Singapour',   tier:'A', gold:680, oil:30,  food:50,  tourism:320, agriculture:10,  army:140, atk:0, def:0, militarySpent:0, population:6 },
   // ── TIER B — Émergents (+15% en combat) ──────────────────────────────
-  { id:'brazil',     flag:'🇧🇷', name:'Brésil',       tier:'B', gold:420, oil:160, food:620, tourism:90,  agriculture:260, army:160, atk:0, def:0, militarySpent:0, population:215 },
-  { id:'india',      flag:'🇮🇳', name:'Inde',         tier:'B', gold:400, oil:100, food:580, tourism:130, agriculture:210, army:180, atk:0, def:0, militarySpent:0, population:1400 },
-  { id:'mexico',     flag:'🇲🇽', name:'Mexique',      tier:'B', gold:360, oil:180, food:420, tourism:160, agriculture:180, army:150, atk:0, def:0, militarySpent:0, population:130 },
-  { id:'morocco',    flag:'🇲🇦', name:'Maroc',        tier:'B', gold:300, oil:60,  food:380, tourism:170, agriculture:190, army:135, atk:0, def:0, militarySpent:0, population:37 },
-  { id:'guinea',flag:'🇬🇳', name:'Guinée',   tier:'B', gold:320, oil:80,  food:350, tourism:140, agriculture:170, army:140, atk:0, def:0, militarySpent:0, population:60 },
-  { id:'belgium',    flag:'🇧🇪', name:'Belgique',     tier:'A', gold:390, oil:40,  food:240, tourism:190, agriculture:120, army:130, atk:0, def:0, militarySpent:0, population:12 },
-  { id:'algeria',    flag:'🇩🇿', name:'Algérie',      tier:'B', gold:310, oil:340, food:300, tourism:80,  agriculture:160, army:145, atk:0, def:0, militarySpent:0, population:45 },
-  { id:'argentina',  flag:'🇦🇷', name:'Argentine',    tier:'B', gold:340, oil:140, food:560, tourism:100, agriculture:280, army:145, atk:0, def:0, militarySpent:0, population:46 },
-  { id:'colombia',   flag:'🇨🇴', name:'Colombie',     tier:'B', gold:300, oil:120, food:480, tourism:130, agriculture:230, army:135, atk:0, def:0, militarySpent:0, population:51 },
-  { id:'niger',      flag:'🇳🇪', name:'Niger',        tier:'B', gold:180, oil:80,  food:260, tourism:30,  agriculture:200, army:90,  atk:0, def:0, militarySpent:0, population:25 },
-  { id:'thailand',   flag:'🇹🇭', name:'Thaïlande',   tier:'B', gold:360, oil:60,  food:500, tourism:240, agriculture:220, army:145, atk:0, def:0, militarySpent:0, population:70 },
-  { id:'pakistan',   flag:'🇵🇰', name:'Pakistan',     tier:'B', gold:240, oil:70,  food:420, tourism:50,  agriculture:200, army:160, atk:0, def:0, militarySpent:0, population:230 },
+  { id:'brazil',     flag:'🇧🇷', name:'Brésil',       tier:'B', gold:420, oil:160, food:240, tourism:90,  agriculture:260, army:160, atk:0, def:0, militarySpent:0, population:215 },
+  { id:'india',      flag:'🇮🇳', name:'Inde',         tier:'B', gold:400, oil:100, food:250, tourism:130, agriculture:210, army:180, atk:0, def:0, militarySpent:0, population:1400 },
+  { id:'mexico',     flag:'🇲🇽', name:'Mexique',      tier:'B', gold:360, oil:180, food:155, tourism:160, agriculture:180, army:150, atk:0, def:0, militarySpent:0, population:130 },
+  { id:'morocco',    flag:'🇲🇦', name:'Maroc',        tier:'B', gold:300, oil:60,  food:60, tourism:170, agriculture:190, army:135, atk:0, def:0, militarySpent:0, population:37 },
+  { id:'guinea',flag:'🇬🇳', name:'Guinée',   tier:'B', gold:320, oil:80,  food:85, tourism:140, agriculture:170, army:140, atk:0, def:0, militarySpent:0, population:60 },
+  { id:'belgium',    flag:'🇧🇪', name:'Belgique',     tier:'A', gold:390, oil:40,  food:50, tourism:190, agriculture:120, army:130, atk:0, def:0, militarySpent:0, population:12 },
+  { id:'algeria',    flag:'🇩🇿', name:'Algérie',      tier:'B', gold:310, oil:340, food:70, tourism:80,  agriculture:160, army:145, atk:0, def:0, militarySpent:0, population:45 },
+  { id:'argentina',  flag:'🇦🇷', name:'Argentine',    tier:'B', gold:340, oil:140, food:70, tourism:100, agriculture:280, army:145, atk:0, def:0, militarySpent:0, population:46 },
+  { id:'colombia',   flag:'🇨🇴', name:'Colombie',     tier:'B', gold:300, oil:120, food:75, tourism:130, agriculture:230, army:135, atk:0, def:0, militarySpent:0, population:51 },
+  { id:'niger',      flag:'🇳🇪', name:'Niger',        tier:'B', gold:180, oil:80,  food:50, tourism:30,  agriculture:200, army:90,  atk:0, def:0, militarySpent:0, population:25 },
+  { id:'thailand',   flag:'🇹🇭', name:'Thaïlande',   tier:'B', gold:360, oil:60,  food:95, tourism:240, agriculture:220, army:145, atk:0, def:0, militarySpent:0, population:70 },
+  { id:'pakistan',   flag:'🇵🇰', name:'Pakistan',     tier:'B', gold:240, oil:70,  food:250, tourism:50,  agriculture:200, army:160, atk:0, def:0, militarySpent:0, population:230 },
 ];
 
-function getFoodConsumption(c) { return Math.max(3, Math.round(c.population / 6)); }
+function getFoodConsumption(c) { return Math.max(10, Math.min(50, Math.round(c.population / 5 + 5))); }
 
 const BASE_PRICES = { oil:80, food:40, tourism:120, agriculture:60 };
 const MEAN_REVERT_STRENGTH = 1/3;
@@ -662,6 +662,7 @@ io.on('connection',(socket)=>{
     gameState.nextEvent=nev||null;gameState.nextHint=ev?.hint||null; // hint de l'event COURANT (celui qui cause les prix P+1)
     const nextPrices=previewNextPrices(gameState.prices,ev);
     gameState.currentEvent.nextPrices=nextPrices;gameState.currentEvent.nextHint=gameState.nextHint;
+    io.emit('periodTransition', {period: 1, duration: 18000});
     resetServerTimer(600);addLog(`Période 1 — ${p.name} [${ev.type.toUpperCase()}]`,'event');
     Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période 1 — ${p.name}\n${PERIOD_DESCS[0]}\n\n🔮 Indice pour la prochaine période :\n${gameState.nextHint||'(aucun indice)'}`, 'neutral');});
     broadcast();
@@ -708,6 +709,7 @@ io.on('connection',(socket)=>{
     gameState.nextEvent=nev||null;gameState.nextHint=ev?.hint||null; // hint de l'event COURANT (celui qui cause les prix P+1)
     const nextPrices=previewNextPrices(gameState.prices,ev);
     gameState.currentEvent.nextPrices=nextPrices;gameState.currentEvent.nextHint=gameState.nextHint;
+    io.emit('periodTransition', {period: 1, duration: 18000});
     resetServerTimer(600);addLog(`Période 1 — ${p.name} [${ev.type.toUpperCase()}]`,'event');
     Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`📅 Période 1 — ${p.name}\n${PERIOD_DESCS[0]}\n\n🔮 Indice pour la prochaine période :\n${gameState.nextHint||'(aucun indice)'}`, 'neutral');});
     broadcast();
@@ -750,6 +752,8 @@ io.on('connection',(socket)=>{
     // Construire l'explication pour les joueurs : ce que l'indice précédent a causé
     const causalExpl = buildEventExplanation(prevEv, gameState.prevPrices, gameState.prices);
     const prevEvTitle = prevEv ? prevEv.title : null;
+    // Signal aux joueurs : cinématique en cours, afficher overlay loading
+    io.emit('periodTransition', {period: gameState.currentPeriod, duration: 18000});
     resetServerTimer(600);addLog(`Période ${gameState.currentPeriod} — ${p.name} [${ev.type.toUpperCase()}]`,'event');
     Object.values(gameState.countries).forEach(c=>{if(c.team){
       let msg = `📅 Période ${gameState.currentPeriod} — ${p.name}\n${PERIOD_DESCS[gameState.currentPeriod-1]}`;
