@@ -773,6 +773,7 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
             <div class="negoc-type-desc">+15% combat 1 tour</div>
           </div>
         </div>
+        <div id="negoc-already-allied" style="display:none;font-size:11px;padding:8px;background:rgba(26,122,74,.1);border:1px solid rgba(26,122,74,.3);border-radius:6px;color:#4ade80;text-align:center">✅ Vous avez déjà un pacte d'alliance actif</div>
         <button class="btn-primary" id="btn-negoc-propose" style="width:100%;margin-top:4px">Proposer →</button>
       </div>
     </div>
@@ -829,7 +830,7 @@ var ALL_COUNTRIES = [
   {id:'colombia',flag:'🇨🇴',name:'Colombie',tier:'B',gold:300,oil:120,food:75,tourism:130,agriculture:230,army:135,population:51},
   {id:'niger',flag:'🇳🇪',name:'Niger',tier:'B',gold:180,oil:80,food:50,tourism:30,agriculture:200,army:90,population:25},
   {id:'thailand',flag:'🇹🇭',name:'Thaïlande',tier:'B',gold:360,oil:60,food:95,tourism:240,agriculture:220,army:145,population:70},
-  {id:'pakistan',flag:'🇵🇰',name:'Pakistan',tier:'B',gold:240,oil:70,food:250,tourism:50,agriculture:200,army:160,population:230}
+  {id:'pakistan',flag:'🇵🇰',name:'Pakistan',tier:'A',gold:240,oil:70,food:250,tourism:50,agriculture:200,army:160,population:230}
 ];
 var BASE_PRICES = {oil:80,food:40,tourism:120,agriculture:60};
 
@@ -1145,17 +1146,23 @@ function updateTeamUI() {
   pb.className = 'phase-badge ' + (pmap[state.phase]||'ph-s');
   pb.textContent = plbl[state.phase] || 'En attente';
 
-  var foodNeeded = Math.max(2, Math.round(c.population/8));
+  // Consommation nourriture : même formule que server.js
+  var foodNeeded = Math.max(10, Math.min(50, Math.round((c.population||1)/5 + 5)));
+  var mod = state.eventMod || {};
+  // Revenus par ressource avec eventMod
+  var revOil   = Math.round((c.oil||0)   * 25 * (mod.oilMultiplier||1));
+  var revTour  = Math.round((c.tourism||0) * 25 * (mod.tourismMultiplier||1));
+  var revAgri  = Math.round((c.agriculture||0) * 20 * (mod.agriMultiplier||1));
   var resources = ['oil','food','tourism','agriculture'];
   resources.forEach(function(r) {
     var el = document.getElementById('t-'+r); if(el) el.textContent = (c[r]||0).toLocaleString();
   });
   var subs = {oil:'t-oil-sub',food:'t-food-sub',tourism:'t-tourism-sub',agriculture:'t-agri-sub'};
   var hints = {
-    oil:'Rev: +'+Math.round((c.oil||0)*25)+' or/période',
-    food:'Conso: ~'+foodNeeded+'/période',
-    tourism:'Rev: +'+Math.round((c.tourism||0)*25)+' or/période',
-    agriculture:'Rev: +'+Math.round((c.agriculture||0)*20)+' or/période'
+    oil:  'Rev: +'+revOil.toLocaleString()+' or/pér'+(mod.oilMultiplier&&mod.oilMultiplier!==1?' (×'+mod.oilMultiplier+')':''),
+    food: 'Conso: −'+foodNeeded+'/pér · stock: '+(c.food>=foodNeeded?Math.floor((c.food)/foodNeeded)+' pér restantes':'⚠️ FAMINE PROCHE'),
+    tourism: 'Rev: +'+revTour.toLocaleString()+' or/pér'+(mod.tourismMultiplier&&mod.tourismMultiplier!==1?' (×'+mod.tourismMultiplier+')':''),
+    agriculture: 'Rev: +'+revAgri.toLocaleString()+' or/pér'+(mod.agriMultiplier&&mod.agriMultiplier!==1?' (×'+mod.agriMultiplier+')':'')
   };
   resources.forEach(function(r) {
     var sub = document.getElementById(subs[r]); if(!sub) return;
@@ -1294,8 +1301,9 @@ function renderMarket() {
         var res = btn.getAttribute('data-res');
         var inp = row.querySelector('input[data-res="'+res+'"]');
         var qty = parseInt(inp?inp.value:1)||1;
-        if(btn.getAttribute('data-action')==='buy') socket.emit('team:buyResource',{teamName:myTeam,resource:res,qty:qty});
-        else socket.emit('team:sellResource',{teamName:myTeam,resource:res,qty:qty});
+        var safeQty = Math.max(1, Math.floor(qty));
+        if(btn.getAttribute('data-action')==='buy') socket.emit('team:buyResource',{teamName:myTeam,resource:res,qty:safeQty});
+        else socket.emit('team:sellResource',{teamName:myTeam,resource:res,qty:safeQty});
       };
     });
     div.appendChild(row);
@@ -1560,6 +1568,16 @@ function renderNegocPanel() {
     ab.style.display='block';
     at.innerHTML='<span class="ally-type-badge ally-type-'+(myAlly.type==='offensive'?'offensive':'peace')+'">'+(myAlly.type==='offensive'?'OFFENSIVE':'NON-AGRESSION')+'</span> avec '+(myAlly.withCountryFlag||'')+' '+(myAlly.withCountryName||myAlly.with);
   } else if(ab) ab.style.display='none';
+  // Bloquer le bouton si alliance déjà active
+  var alreadyBox = document.getElementById('negoc-already-allied');
+  var proposeBtn = document.getElementById('btn-negoc-propose');
+  if(myAlly) {
+    if(alreadyBox) alreadyBox.style.display = 'block';
+    if(proposeBtn) proposeBtn.style.display = 'none';
+  } else {
+    if(alreadyBox) alreadyBox.style.display = 'none';
+    if(proposeBtn) proposeBtn.style.display = 'block';
+  }
 }
 
 // ── ARMY ACTIONS ───────────────────────────────────────────────────────────
