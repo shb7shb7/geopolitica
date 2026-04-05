@@ -653,7 +653,7 @@ io.on('connection',(socket)=>{
     gameState.nextHint=hint;gameState.nextEvent=firstRealEv;
     resetServerTimer(300);
     addLog('Manche Test démarrée (5 min)','event');
-    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,`🎮 MANCHE TEST — Explorez librement !\n\n🔮 Ce qui va arriver en Période 1:\n${hint}`,'neutral');});
+    Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,'🎮 MANCHE TEST — Explorez librement ! Achetez, vendez, testez. Ressources remises à zéro après.','neutral');});
     broadcast();
   });
 
@@ -741,15 +741,18 @@ io.on('connection',(socket)=>{
     const newPrices=applyEventMultipliers(reverted,prevEv);
     gameState.currentPrices={...newPrices};
     gameState.prices={...newPrices};
+    // Appliquer les effets de l'event QUI VIENT DE SE TERMINER (prevEv) AVANT les revenus :
+    // eventMod (multiplicateurs de revenus) + effets spéciaux (agriBoost, oilCrash, etc.)
+    if(prevEv&&(prevEv.type==='market'||prevEv.type==='targeted'))applyEvent(prevEv);
+    // Maintenant calculer les revenus avec le bon eventMod
     applyPeriodTransition();
     gameState.currentPeriod++;
-    // ev = event de la NOUVELLE période courante
+    // ev = event de la NOUVELLE période courante (affiché, indice donné, effets au prochain tour)
     const ev=gameState.periodSequence[gameState.currentPeriod-1];
     const p=PERIODS[gameState.currentPeriod-1];
     gameState.currentEvent={...ev,periodName:p.name,periodSubtitle:p.subtitle,periodDesc:PERIOD_DESCS[gameState.currentPeriod-1],periodNumber:gameState.currentPeriod};
     gameState.pendingChoiceEvent=null;
-    if(ev.type==='market'||ev.type==='targeted')applyEvent(ev);
-    else if(ev.type==='choice'){gameState.pendingChoiceEvent=ev;io.emit('choiceEvent',ev);}
+    if(ev.type==='choice'){gameState.pendingChoiceEvent=ev;io.emit('choiceEvent',ev);}
     // nev = event de la période SUIVANTE (pour donner l'indice aux joueurs)
     const nev=gameState.periodSequence[gameState.currentPeriod]||null;
     gameState.nextEvent=nev||null;
