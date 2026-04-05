@@ -53,7 +53,7 @@ const COUNTRIES = [
   { id:'india',      flag:'🇮🇳', name:'Inde',         tier:'B', gold:400, oil:100, food:580, tourism:130, agriculture:210, army:180, atk:0, def:0, militarySpent:0, population:1400 },
   { id:'mexico',     flag:'🇲🇽', name:'Mexique',      tier:'B', gold:360, oil:180, food:420, tourism:160, agriculture:180, army:150, atk:0, def:0, militarySpent:0, population:130 },
   { id:'morocco',    flag:'🇲🇦', name:'Maroc',        tier:'B', gold:300, oil:60,  food:380, tourism:170, agriculture:190, army:135, atk:0, def:0, militarySpent:0, population:37 },
-  { id:'southafrica',flag:'🇿🇦', name:'Afrique S.',   tier:'B', gold:320, oil:80,  food:350, tourism:140, agriculture:170, army:140, atk:0, def:0, militarySpent:0, population:60 },
+  { id:'guinea',flag:'🇬🇳', name:'Guinée',   tier:'B', gold:320, oil:80,  food:350, tourism:140, agriculture:170, army:140, atk:0, def:0, militarySpent:0, population:60 },
   { id:'belgium',    flag:'🇧🇪', name:'Belgique',     tier:'A', gold:390, oil:40,  food:240, tourism:190, agriculture:120, army:130, atk:0, def:0, militarySpent:0, population:12 },
   { id:'algeria',    flag:'🇩🇿', name:'Algérie',      tier:'B', gold:310, oil:340, food:300, tourism:80,  agriculture:160, army:145, atk:0, def:0, militarySpent:0, population:45 },
   { id:'argentina',  flag:'🇦🇷', name:'Argentine',    tier:'B', gold:340, oil:140, food:560, tourism:100, agriculture:280, army:145, atk:0, def:0, militarySpent:0, population:46 },
@@ -281,53 +281,55 @@ const EVENTS = [
     choiceA:{label:'Accueillir (−400 nourriture → +400 pts puissance, +60 armée)',cost:{food:400},gain:{power:400,army:60}},
     choiceB:{label:'Refuser (vous perdez −300 pts de puissance)',cost:{},gain:{powerLoss:300}} },
 
-  // ── MANCHE 5 ────────────────────────────────────────────────────────────
+  // ── MANCHE 5 — ciblé + prix P6 (indice vague, effet surprise) ─────────────
   { id:'revolution', type:'targeted', period:5,
-    hint:'Des mouvements sociaux coordonnés gagnent du terrain dans les grandes puissances.',
-    causalExplanation:'L\'instabilité sociale dans les grandes puissances fait fuir les touristes → demande touristique chute → prix baissent.',
-    priceJustification:{tourism:'Instabilité sociale → touristes fuient → demande ↓ → prix ↓'},
-    title:'Vague révolutionnaire', desc:'Les peuples renversent les élites. Les équilibres basculent.',
-    effect:'N+1 — < 4 500 pts → +400 or · > 10 000 pts → −500 or · prix tourisme ↓−20%',
-    priceTourism:0.8, special:'revolution' },
+    // Indice vague : ne révèle pas l'event exact, juste une tension géopolitique
+    hint:'Des tensions géopolitiques profondes reconfigurent les alliances mondiales. Les marchés surveillent les développements.',
+    causalExplanation:'L\'instabilité sociale dans les grandes puissances fait fuir les touristes → demande touristique chute → prix baissent en période de guerre.',
+    priceJustification:{tourism:'Instabilité → touristes fuient → prix ↓', oil:'Incertitude → demande énergie fluctue → prix ↑'},
+    title:'Vague révolutionnaire', desc:'Les peuples renversent les élites. Les équilibres basculent. Les marchés s\'affolent.',
+    effect:'Guerre — < 4 500 pts → +400 or · > 10 000 pts → −500 or · prix tourisme ↓−20% · prix pétrole ↑+30%',
+    priceTourism:0.8, priceOil:1.3, special:'revolution' },
 
   { id:'imf', type:'targeted', period:5,
-    hint:'Le FMI tient une réunion d\'urgence. Des plans de soutien massifs aux économies vulnérables sont élaborés.',
-    causalExplanation:'Le plan FMI stabilise les marchés → pression à la baisse sur les prix des ressources de base.',
-    priceJustification:{oil:'Plan FMI → stabilisation marchés → prix ↓', food:'Aide alimentaire → offre augmente → prix ↓', agriculture:'Subventions agricoles → offre en hausse → prix ↓'},
-    title:'Plan FMI', desc:'Le FMI injecte des milliards dans les pays fragiles.',
-    effect:'N+1 — 4 nations les plus faibles → +350 or, +70 armée · pétrole/nourr/agri ↓−15%',
-    priceOil:0.85, priceFood:0.85, priceAgri:0.85, priceTourism:1.0, special:'aidFMI' },
+    hint:'Des signaux économiques contradictoires émergent des grandes institutions mondiales. Les analystes restent prudents.',
+    causalExplanation:'Le plan FMI stabilise certains marchés mais crée des déséquilibres → les ressources stratégiques se raréfient avant la guerre.',
+    priceJustification:{oil:'Tensions géopolitiques → demande énergie ↑ → prix ↑', food:'Aide alimentaire canalisée → stocks libres ↓ → prix ↑', agriculture:'Subventions détournées → offre libre ↓ → prix ↑'},
+    title:'Plan FMI & Tensions', desc:'Le FMI injecte des milliards — mais les marchés restent nerveux.',
+    effect:'Guerre — 4 nations les plus faibles → +350 or, +70 armée · prix pétrole ↑+25% · prix nourriture ↑+20% · prix agri ↑+20%',
+    priceOil:1.25, priceFood:1.2, priceAgri:1.2, priceTourism:1.0, special:'aidFMI' },
 
   { id:'uprising', type:'targeted', period:5,
-    hint:'Des grèves générales paralysent plusieurs secteurs dans les grandes puissances.',
-    causalExplanation:'Les grèves paralysent les aéroports et hôtels des grandes puissances → le tourisme ne fonctionne plus → sa valeur chute.',
-    priceJustification:{tourism:'Grèves → aéroports et hôtels paralysés → prix ↓'},
+    hint:'Des mouvements sociaux inattendus bouleversent plusieurs économies clés. L\'issue reste incertaine.',
+    causalExplanation:'Les grèves et soulèvements perturbent les chaînes d\'approvisionnement → certaines ressources se raréfient, d\'autres explosent avant la guerre.',
+    priceJustification:{tourism:'Grèves → aéroports paralysés → prix ↓', oil:'Perturbations industrielles → offre réduite → prix ↑', agriculture:'Blocages logistiques → stocks agricoles tendus → prix ↑'},
     title:'Grèves et soulèvements', desc:'Les pays émergents s\'arment. Les superpuissances désertent.',
-    effect:'N+1 — Tier B → +90 armée · Tier S → −180 armée · prix tourisme ↓−25%',
-    priceTourism:0.75, special:'uprising' },
+    effect:'Guerre — Tier B → +90 armée · Tier S → −180 armée · prix tourisme ↓−25% · prix pétrole ↑+40% · prix agri ↑+30%',
+    priceTourism:0.75, priceOil:1.4, priceAgri:1.3, special:'uprising' },
 
-  // ── MANCHE 6 ────────────────────────────────────────────────────────────
+  // ── MANCHE 6 — dernière période de paix — hint = conseil stratégique ───────
+  // Pas de multiplicateurs de prix utiles (pas de P7) — le hint prépare à la guerre
   { id:'earthquake', type:'targeted', period:6,
-    hint:'Des relevés sismiques anormaux sont enregistrés dans plusieurs zones tectoniques actives.',
-    causalExplanation:'Le séisme détruit des terres agricoles → l\'offre agricole mondiale se contracte → prix de l\'agriculture en hausse.',
-    priceJustification:{agriculture:'Terres agricoles détruites → offre réduite → prix ↑'},
+    hint:'⚔️ DERNIÈRE PÉRIODE — La guerre est imminente ! Vendez pétrole, tourisme, agriculture. Gardez la nourriture et au moins 600 or. Recrutez des soldats, investissez en ATK et DEF maintenant.',
+    causalExplanation:'Le séisme détruit des terres agricoles juste avant la guerre.',
+    priceJustification:{},
     title:'Séisme majeur', desc:'Le sol tremble. Un pays est frappé sans prévenir juste avant la guerre.',
-    effect:'Guerre — 1 pays aléatoire → −55% nourriture, −500 pts · prix agri ↑+60%',
-    priceAgri:1.6, targetCount:1, effects:{foodLoss:0.55,powerLoss:500} },
+    effect:'Guerre — 1 pays aléatoire → −55% nourriture, −500 pts',
+    targetCount:1, effects:{foodLoss:0.55,powerLoss:500} },
 
   { id:'typhoon', type:'targeted', period:6,
-    hint:'Des formations tropicales d\'intensité exceptionnelle sont signalées simultanément dans l\'Atlantique et le Pacifique.',
-    causalExplanation:'Les typhons rompent les chaînes d\'approvisionnement alimentaires côtières → nourriture se raréfie → prix en hausse.',
-    priceJustification:{food:'Chaînes alimentaires rompues → nourriture rare → prix ↑'},
-    title:'Typhons dévastateurs', desc:'Deux super-tempêtes frappent les côtes. Personne n\'est à l\'abri.',
-    effect:'Guerre — 2 pays aléatoires → −60% nourriture, −300 pts · prix nourriture ↑+40%',
-    priceFood:1.4, targetCount:2, effects:{foodLoss:0.60,powerLoss:300} },
+    hint:'⚔️ DERNIÈRE PÉRIODE — La guerre commence après ! Liquidez vos ressources économiques (sauf nourriture). Minimum 600 or en caisse. Maximisez armée, ATK et DEF — c\'est votre dernière chance.',
+    causalExplanation:'Les typhons frappent plusieurs pays juste avant la guerre.',
+    priceJustification:{},
+    title:'Typhons dévastateurs', desc:'Deux super-tempêtes frappent les côtes. La guerre suit.',
+    effect:'Guerre — 2 pays aléatoires → −60% nourriture, −300 pts',
+    targetCount:2, effects:{foodLoss:0.60,powerLoss:300} },
 
   { id:'tourism_crisis', type:'targeted', period:6,
-    hint:'Une série d\'incidents sécuritaires dans des sites très fréquentés génère des avis de voyage restrictifs.',
-    causalExplanation:'Les attentats provoquent la fuite des touristes → la demande s\'effondre → le tourisme perd toute sa valeur.',
-    priceJustification:{tourism:'Attentats → touristes fuient → demande effondrée → prix ↓'},
-    title:'Crise du tourisme', desc:'Les touristes fuient. Le secteur s\'effondre.',
+    hint:'⚔️ DERNIÈRE PÉRIODE — Plus aucun achat possible en guerre ! Vendez tout ce que vous pouvez maintenant. Gardez nourriture + 600 or minimum. Recrutez des soldats, investissez en ATK et DEF — c\'est maintenant ou jamais.',
+    causalExplanation:'La crise du tourisme frappe certains pays juste avant la guerre.',
+    priceJustification:{},
+    title:'Crise du tourisme', desc:'Les touristes fuient. La guerre approche.',
     effect:'Guerre — tourisme > 200 → −500 or · tourisme < 70 → +250 or · prix tourisme ↓−60%',
     priceTourism:0.4, special:'tourismCrisis' },
 ];
@@ -801,8 +803,8 @@ io.on('connection',(socket)=>{
     gameState.coalition={proposed:true,moroccoAccepted:false,guineaAccepted:false,active:false};
     gameState.attacksReceived={};
     resetServerTimer(600);addLog('⚔️ GUERRE MONDIALE DÉMARRÉE','attack');
-    if(gameState.countries.morocco?.team)addTeamNews(gameState.countries.morocco.team,'🤝 Coalition africaine proposée avec l\'Afrique du Sud !','neutral');
-    if(gameState.countries.southafrica?.team)addTeamNews(gameState.countries.southafrica.team,'🤝 Coalition africaine proposée avec le Maroc !','neutral');
+    if(gameState.countries.morocco?.team)addTeamNews(gameState.countries.morocco.team,'🤝 Coalition africaine proposée avec la Guinée !','neutral');
+    if(gameState.countries.guinea?.team)addTeamNews(gameState.countries.guinea.team,'🤝 Coalition africaine proposée avec le Maroc !','neutral');
     Object.values(gameState.countries).forEach(c=>{if(c.team)addTeamNews(c.team,'⚔️ GUERRE ! Aucun achat. Attendez votre tour. Attaque = 150 or / 200 pétrole / 300 nourriture.','bad');});
     broadcast();setTimeout(()=>startWarTurn(),3000);
   });
@@ -937,10 +939,10 @@ io.on('connection',(socket)=>{
   socket.on('team:acceptCoalition',({teamName})=>{
     const c=Object.values(gameState.countries).find(cc=>cc.team===teamName);if(!c)return;
     if(c.id==='morocco')gameState.coalition.moroccoAccepted=true;
-    if(c.id==='southafrica')gameState.coalition.guineaAccepted=true;
+    if(c.id==='guinea')gameState.coalition.guineaAccepted=true;
     if(gameState.coalition.moroccoAccepted&&gameState.coalition.guineaAccepted){
       gameState.coalition.active=true;
-      ['morocco','southafrica'].forEach(id=>{const cc=gameState.countries[id];if(cc&&cc.team){cc.tourism=Math.round(cc.tourism*1.25);cc.oil=Math.round(cc.oil*1.25);cc.power=calcPower(cc);addTeamNews(cc.team,'🤝 Coalition africaine activée ! +25% ressources','good');}});
+      ['morocco','guinea'].forEach(id=>{const cc=gameState.countries[id];if(cc&&cc.team){cc.tourism=Math.round(cc.tourism*1.25);cc.oil=Math.round(cc.oil*1.25);cc.power=calcPower(cc);addTeamNews(cc.team,'🤝 Coalition africaine activée ! +25% ressources','good');}});
     }
     broadcast();
   });
