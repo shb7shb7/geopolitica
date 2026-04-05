@@ -538,6 +538,11 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
         <div class="pname" id="pc-name"></div>
         <div style="font-size:10px;color:var(--text);line-height:1.6;margin-bottom:5px" id="pc-desc"></div>
         <div class="epill" id="pc-event"></div>
+        <!-- Prix prévisionnels période suivante -->
+        <div id="pc-prices-box" style="display:none;margin-top:8px;background:rgba(17,21,32,.8);border:1px solid var(--border);border-radius:5px;padding:8px 11px">
+          <div style="font-size:9px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:'Cinzel',serif">📈 Prix période suivante (estimés)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px" id="pc-prices-grid"></div>
+        </div>
         <div id="pc-hint-box" style="display:none;margin-top:8px;background:rgba(30,58,95,.3);border:1px solid #2d5a8e;border-radius:5px;padding:8px 10px;font-size:11px;color:#93c5fd;line-height:1.6">
           <div style="font-size:9px;font-weight:700;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;font-family:'Cinzel',serif">🔮 Indice — prochaine période</div>
           <div id="pc-hint-text"></div>
@@ -1634,7 +1639,32 @@ function renderMJ() {
     document.getElementById('pc-num').innerHTML='Période '+(ev.periodNumber||0)+' · '+(ev.periodSubtitle||'')+' <span class="ev-type-tag '+(tc[ev.type]||'')+'">'+(tl[ev.type]||'')+'</span>';
     document.getElementById('pc-name').textContent=ev.periodName||'';
     document.getElementById('pc-desc').textContent=ev.periodDesc||'';
-    document.getElementById('pc-event').textContent='⚡ '+ev.title+' — '+ev.effect;
+    // Texte de l'event en clair (reformulaté)
+    var evTypeLabel = {market:'Marché',choice:'CHOIX SURPRISE',targeted:'Ciblé'}[ev.type]||ev.type;
+    document.getElementById('pc-event').textContent = ev.title + ' [' + evTypeLabel + '] — ' + ev.desc;
+
+    // Aperçu des prix de la prochaine période
+    var pricesBox = document.getElementById('pc-prices-box');
+    var pricesGrid = document.getElementById('pc-prices-grid');
+    if(ev.nextPrices && pricesGrid) {
+      pricesBox.style.display = 'block';
+      var bp2 = {oil:80,food:40,tourism:120,agriculture:60};
+      var rlabels = {oil:'🛢️ Pétrole',food:'🌾 Nourriture',tourism:'🏖️ Tourisme',agriculture:'🌿 Agriculture'};
+      pricesGrid.innerHTML = Object.keys(rlabels).map(function(r) {
+        var nextP = (ev.nextPrices[r]||bp2[r]);
+        var curP = (state.prices&&state.prices[r]||bp2[r]);
+        var diff = nextP - curP;
+        var pct = Math.round(diff/curP*100);
+        var arrow = pct > 5 ? ' ↑' : pct < -5 ? ' ↓' : ' →';
+        var col = pct > 5 ? '#f87171' : pct < -5 ? '#4ade80' : 'var(--text2)';
+        return '<div style="background:var(--bg3);border-radius:4px;padding:5px 8px;font-size:11px">'
+          + '<div style="font-size:9px;color:var(--text3)">' + rlabels[r] + '</div>'
+          + '<div style="font-weight:700;color:' + col + '">' + nextP.toLocaleString() + ' or' + arrow + '</div>'
+          + '<div style="font-size:9px;color:' + col + '">' + (pct > 0 ? '+' : '') + pct + '%</div>'
+          + '</div>';
+      }).join('');
+    } else if(pricesBox) pricesBox.style.display='none';
+
     if(ev.nextHint){document.getElementById('pc-hint-box').style.display='block';document.getElementById('pc-hint-text').textContent=ev.nextHint;}
     else document.getElementById('pc-hint-box').style.display='none';
   }
