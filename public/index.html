@@ -958,6 +958,7 @@ socket.on('allianceRefused', function(d) { showAllianceToast({accepted:false, fl
 socket.on('error', function(msg) { toast(msg); });
 
 socket.on('gamePaused', function(d) {
+  if(isMJ) return; // MJ ne voit pas l'overlay pause
   var ov = document.getElementById('pause-overlay');
   if(!ov) return;
   if(d.paused) ov.classList.add('show');
@@ -1144,6 +1145,14 @@ function enterGame() { updateTeamUI(); showScreen('screen-team'); }
 
 // ── STATE UPDATE ───────────────────────────────────────────────────────────
 function onStateUpdate() {
+  // Pause overlay — joueurs uniquement, pas le MJ
+  if(!isMJ) {
+    var ov = document.getElementById('pause-overlay');
+    if(ov) {
+      if(state.gamePaused) ov.classList.add('show');
+      else ov.classList.remove('show');
+    }
+  }
   if (isMJ) { renderMJ(); return; }
   if (myTeam && state.teams && state.teams[myTeam]) {
     var t = state.teams[myTeam];
