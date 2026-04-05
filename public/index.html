@@ -79,6 +79,18 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
 .lobby-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:22px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
 .lobby-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 
+/* ── Loading overlay (pendant cinématique screen) ── */
+#period-loading-overlay{position:fixed;inset:0;background:rgba(5,7,9,.97);z-index:800;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem}
+#period-loading-overlay.show{display:flex;animation:fadeInOv .5s ease}
+@keyframes fadeInOv{0%{opacity:0}100%{opacity:1}}
+.plo-logo{font-size:32px;font-weight:700;font-family:'Cinzel',serif;color:var(--gold);letter-spacing:-1px}
+.plo-text{font-size:14px;color:var(--text2);letter-spacing:3px;text-transform:uppercase}
+.plo-bar{width:200px;height:2px;background:rgba(201,168,76,.15);border-radius:1px;overflow:hidden}
+.plo-bar-fill{height:100%;background:var(--gold);border-radius:1px;animation:plo-progress linear forwards}
+@keyframes plo-progress{0%{width:0%}100%{width:100%}}
+.plo-dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin:0 3px;animation:dotpulse 1.4s ease-in-out infinite}
+.plo-dots span:nth-child(2){animation-delay:.2s}.plo-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dotpulse{0%,80%,100%{opacity:.2;transform:scale(.7)}40%{opacity:1;transform:scale(1)}}
 /* ── Flash / overlays ── */
 .atk-flash{position:fixed;inset:0;pointer-events:none;z-index:500}
 .atk-flash.go{animation:wf 4s ease-out forwards}
@@ -780,36 +792,44 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
   </div>
 </div>
 
+<!-- Loading overlay pendant cinématique screen -->
+<div id="period-loading-overlay">
+  <div class="plo-logo">Geopolitica</div>
+  <div class="plo-text" id="plo-text">Nouvelle période en cours...</div>
+  <div class="plo-bar"><div class="plo-bar-fill" id="plo-bar-fill" style="animation-duration:18s"></div></div>
+  <div class="plo-dots"><span></span><span></span><span></span></div>
+  <div style="font-size:11px;color:rgba(201,168,76,.4);margin-top:.5rem">Regardez l'écran principal</div>
+</div>
 <div id="toast"></div>
 
 <script>
 // ── COUNTRIES ──────────────────────────────────────────────────────────────
 var ALL_COUNTRIES = [
-  {id:'usa',flag:'🇺🇸',name:'États-Unis',tier:'S',gold:900,oil:200,food:400,tourism:200,agriculture:120,army:320,population:330},
-  {id:'china',flag:'🇨🇳',name:'Chine',tier:'S',gold:850,oil:250,food:550,tourism:120,agriculture:180,army:290,population:1400},
-  {id:'russia',flag:'🇷🇺',name:'Russie',tier:'A',gold:550,oil:520,food:220,tourism:60,agriculture:90,army:260,population:145},
-  {id:'germany',flag:'🇩🇪',name:'Allemagne',tier:'A',gold:650,oil:100,food:300,tourism:220,agriculture:130,army:220,population:83},
-  {id:'qatar',flag:'🇶🇦',name:'Qatar',tier:'A',gold:720,oil:400,food:80,tourism:250,agriculture:20,army:170,population:3},
-  {id:'france',flag:'🇫🇷',name:'France',tier:'A',gold:600,oil:80,food:360,tourism:280,agriculture:160,army:215,population:68},
-  {id:'japan',flag:'🇯🇵',name:'Japon',tier:'A',gold:700,oil:60,food:280,tourism:300,agriculture:100,army:190,population:125},
-  {id:'turkey',flag:'🇹🇷',name:'Turquie',tier:'A',gold:480,oil:120,food:300,tourism:200,agriculture:150,army:245,population:85},
-  {id:'australia',flag:'🇦🇺',name:'Australie',tier:'A',gold:550,oil:200,food:350,tourism:180,agriculture:200,army:180,population:26},
+  {id:'usa',flag:'🇺🇸',name:'États-Unis',tier:'S',gold:900,oil:200,food:250,tourism:200,agriculture:120,army:320,population:330},
+  {id:'china',flag:'🇨🇳',name:'Chine',tier:'S',gold:850,oil:250,food:250,tourism:120,agriculture:180,army:290,population:1400},
+  {id:'russia',flag:'🇷🇺',name:'Russie',tier:'A',gold:550,oil:520,food:170,tourism:60,agriculture:90,army:260,population:145},
+  {id:'germany',flag:'🇩🇪',name:'Allemagne',tier:'A',gold:650,oil:100,food:110,tourism:220,agriculture:130,army:220,population:83},
+  {id:'qatar',flag:'🇶🇦',name:'Qatar',tier:'A',gold:720,oil:400,food:50,tourism:250,agriculture:20,army:170,population:3},
+  {id:'france',flag:'🇫🇷',name:'France',tier:'A',gold:600,oil:80,food:95,tourism:280,agriculture:160,army:215,population:68},
+  {id:'japan',flag:'🇯🇵',name:'Japon',tier:'A',gold:700,oil:60,food:150,tourism:300,agriculture:100,army:190,population:125},
+  {id:'turkey',flag:'🇹🇷',name:'Turquie',tier:'A',gold:480,oil:120,food:110,tourism:200,agriculture:150,army:245,population:85},
+  {id:'australia',flag:'🇦🇺',name:'Australie',tier:'A',gold:550,oil:200,food:50,tourism:180,agriculture:200,army:180,population:26},
   {id:'saudi',flag:'🇸🇦',name:'Arabie S.',tier:'A',gold:700,oil:600,food:60,tourism:120,agriculture:20,army:190,population:35},
-  {id:'uk',flag:'🇬🇧',name:'Royaume-Uni',tier:'A',gold:640,oil:90,food:280,tourism:260,agriculture:110,army:200,population:67},
-  {id:'canada',flag:'🇨🇦',name:'Canada',tier:'A',gold:580,oil:280,food:380,tourism:200,agriculture:220,army:185,population:38},
-  {id:'singapore',flag:'🇸🇬',name:'Singapour',tier:'A',gold:680,oil:30,food:60,tourism:320,agriculture:10,army:140,population:6},
-  {id:'belgium',flag:'🇧🇪',name:'Belgique',tier:'A',gold:390,oil:40,food:240,tourism:190,agriculture:120,army:130,population:12},
-  {id:'brazil',flag:'🇧🇷',name:'Brésil',tier:'B',gold:420,oil:160,food:620,tourism:90,agriculture:260,army:160,population:215},
-  {id:'india',flag:'🇮🇳',name:'Inde',tier:'B',gold:400,oil:100,food:580,tourism:130,agriculture:210,army:180,population:1400},
-  {id:'mexico',flag:'🇲🇽',name:'Mexique',tier:'B',gold:360,oil:180,food:420,tourism:160,agriculture:180,army:150,population:130},
-  {id:'morocco',flag:'🇲🇦',name:'Maroc',tier:'B',gold:300,oil:60,food:380,tourism:170,agriculture:190,army:135,population:37},
-  {id:'guinea',flag:'🇬🇳',name:'Guinée',tier:'B',gold:320,oil:80,food:350,tourism:140,agriculture:170,army:140,population:60},
-  {id:'algeria',flag:'🇩🇿',name:'Algérie',tier:'B',gold:310,oil:340,food:300,tourism:80,agriculture:160,army:145,population:45},
-  {id:'argentina',flag:'🇦🇷',name:'Argentine',tier:'B',gold:340,oil:140,food:560,tourism:100,agriculture:280,army:145,population:46},
-  {id:'colombia',flag:'🇨🇴',name:'Colombie',tier:'B',gold:300,oil:120,food:480,tourism:130,agriculture:230,army:135,population:51},
-  {id:'niger',flag:'🇳🇪',name:'Niger',tier:'B',gold:180,oil:80,food:260,tourism:30,agriculture:200,army:90,population:25},
-  {id:'thailand',flag:'🇹🇭',name:'Thaïlande',tier:'B',gold:360,oil:60,food:500,tourism:240,agriculture:220,army:145,population:70},
-  {id:'pakistan',flag:'🇵🇰',name:'Pakistan',tier:'B',gold:240,oil:70,food:420,tourism:50,agriculture:200,army:160,population:230}
+  {id:'uk',flag:'🇬🇧',name:'Royaume-Uni',tier:'A',gold:640,oil:90,food:90,tourism:260,agriculture:110,army:200,population:67},
+  {id:'canada',flag:'🇨🇦',name:'Canada',tier:'A',gold:580,oil:280,food:65,tourism:200,agriculture:220,army:185,population:38},
+  {id:'singapore',flag:'🇸🇬',name:'Singapour',tier:'A',gold:680,oil:30,food:50,tourism:320,agriculture:10,army:140,population:6},
+  {id:'belgium',flag:'🇧🇪',name:'Belgique',tier:'A',gold:390,oil:40,food:50,tourism:190,agriculture:120,army:130,population:12},
+  {id:'brazil',flag:'🇧🇷',name:'Brésil',tier:'B',gold:420,oil:160,food:240,tourism:90,agriculture:260,army:160,population:215},
+  {id:'india',flag:'🇮🇳',name:'Inde',tier:'B',gold:400,oil:100,food:250,tourism:130,agriculture:210,army:180,population:1400},
+  {id:'mexico',flag:'🇲🇽',name:'Mexique',tier:'B',gold:360,oil:180,food:155,tourism:160,agriculture:180,army:150,population:130},
+  {id:'morocco',flag:'🇲🇦',name:'Maroc',tier:'B',gold:300,oil:60,food:60,tourism:170,agriculture:190,army:135,population:37},
+  {id:'guinea',flag:'🇬🇳',name:'Guinée',tier:'B',gold:320,oil:80,food:85,tourism:140,agriculture:170,army:140,population:60},
+  {id:'algeria',flag:'🇩🇿',name:'Algérie',tier:'B',gold:310,oil:340,food:70,tourism:80,agriculture:160,army:145,population:45},
+  {id:'argentina',flag:'🇦🇷',name:'Argentine',tier:'B',gold:340,oil:140,food:70,tourism:100,agriculture:280,army:145,population:46},
+  {id:'colombia',flag:'🇨🇴',name:'Colombie',tier:'B',gold:300,oil:120,food:75,tourism:130,agriculture:230,army:135,population:51},
+  {id:'niger',flag:'🇳🇪',name:'Niger',tier:'B',gold:180,oil:80,food:50,tourism:30,agriculture:200,army:90,population:25},
+  {id:'thailand',flag:'🇹🇭',name:'Thaïlande',tier:'B',gold:360,oil:60,food:95,tourism:240,agriculture:220,army:145,population:70},
+  {id:'pakistan',flag:'🇵🇰',name:'Pakistan',tier:'B',gold:240,oil:70,food:250,tourism:50,agriculture:200,army:160,population:230}
 ];
 var BASE_PRICES = {oil:80,food:40,tourism:120,agriculture:60};
 
@@ -914,6 +934,20 @@ socket.on('actionUndone', function() { canUndo = false; setUndoBtns(false); show
 socket.on('allianceAccepted', function(d) { showAllianceToast({accepted:true, flag:d.byCountry.flag, name:d.byCountry.name, allianceType:d.type}); });
 socket.on('allianceRefused', function(d) { showAllianceToast({accepted:false, flag:d.byCountry.flag, name:d.byCountry.name}); });
 socket.on('error', function(msg) { toast(msg); });
+
+socket.on('periodTransition', function(d) {
+  if(isMJ) return; // MJ ne voit pas l'overlay
+  var ov = document.getElementById('period-loading-overlay');
+  var bar = document.getElementById('plo-bar-fill');
+  var txt = document.getElementById('plo-text');
+  if(!ov) return;
+  if(txt) txt.textContent = 'Période ' + d.period + ' — Animation en cours...';
+  var dur = (d.duration||18000) / 1000;
+  if(bar) bar.style.animationDuration = dur + 's';
+  ov.classList.add('show');
+  // Hide after animation
+  setTimeout(function(){ ov.classList.remove('show'); }, d.duration||18000);
+});
 socket.on('kicked', function(msg) { clearSession(); myTeam=null; myCountryId=null; toast('Retiré : '+msg); setTimeout(function(){ showScreen('screen-landing'); }, 2000); });
 
 // ── STARTUP ────────────────────────────────────────────────────────────────
@@ -1601,6 +1635,42 @@ function renderMJ() {
 
   var pbtns=document.getElementById('phase-btns'),pdesc=document.getElementById('phase-desc');
   var wtm=document.getElementById('war-turn-mj'),pc=document.getElementById('period-card');
+
+  // Afficher la séquence complète des events (décidée en début de partie)
+  var seqBox = document.getElementById('mj-sequence-box');
+  if(!seqBox && state.periodSequence && state.periodSequence.length > 0) {
+    seqBox = document.createElement('div');
+    seqBox.id = 'mj-sequence-box';
+    seqBox.style.cssText = 'background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:8px';
+    var seqTitle = document.createElement('div');
+    seqTitle.style.cssText = 'font-size:9px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-family:Cinzel,serif;margin-bottom:8px';
+    seqTitle.textContent = 'Séquence des événements (confidentiel MJ)';
+    seqBox.appendChild(seqTitle);
+    var tMap = {market:'Marché',choice:'Choix',targeted:'Ciblé'};
+    var cMap = {market:'#4ade80',choice:'#c9a84c',targeted:'#f87171'};
+    state.periodSequence.forEach(function(ev, i) {
+      var row = document.createElement('div');
+      var isCurrent = (i+1) === state.currentPeriod;
+      var isPast = (i+1) < state.currentPeriod;
+      row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);opacity:'+(isPast?'0.35':'1');
+      row.innerHTML =
+        '<div style="font-size:9px;font-weight:700;min-width:18px;color:'+(isCurrent?'var(--gold)':'var(--text3)')+'">P'+(i+1)+'</div>'
+        +'<div style="font-size:9px;padding:1px 6px;border-radius:2px;font-weight:700;background:rgba(255,255,255,.05);color:'+cMap[ev.type]+';border:1px solid '+cMap[ev.type]+'40">'+tMap[ev.type]+'</div>'
+        +'<div style="flex:1;font-size:10px;color:'+(isCurrent?'#fff':'var(--text2)')+';font-weight:'+(isCurrent?'700':'400')+'">'+ev.title+'</div>'
+        +(isCurrent?'<div style="font-size:8px;padding:1px 5px;background:rgba(201,168,76,.2);color:var(--gold);border-radius:2px">EN COURS</div>':'');
+      seqBox.appendChild(row);
+    });
+    var mainDiv = document.querySelector('.mj-main');
+    if(mainDiv) mainDiv.insertBefore(seqBox, mainDiv.firstChild);
+  } else if(seqBox && state.periodSequence) {
+    // Update current marker
+    var rows = seqBox.querySelectorAll('div[style*="border-bottom"]');
+    rows.forEach(function(row, i) {
+      var isCurrent = (i+1) === state.currentPeriod;
+      var isPast = (i+1) < state.currentPeriod;
+      row.style.opacity = isPast ? '0.35' : '1';
+    });
+  }
   pbtns.innerHTML='';
 
   function addBtn(label,cls,fn){var b=document.createElement('button');b.className='btn-sm '+cls;b.textContent=label;b.onclick=fn;pbtns.appendChild(b);}
