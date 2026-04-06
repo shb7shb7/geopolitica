@@ -400,7 +400,7 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
       <div class="combat-formula-title">Formule de combat</div>
       <div id="conf-formula-att" class="cf-att"></div>
       <div id="conf-formula-def" class="cf-def"></div>
-      <div style="font-size:9px;color:var(--text3);margin-top:3px">±18–36% aléatoire · Tier B +15% · Défenseur +10%</div>
+      <div style="font-size:9px;color:var(--text3);margin-top:3px">±110% aléatoire · ATK/DEF coeff 0.001 · Tier B ×1.15 · Aucun bonus territorial</div>
     </div>
     <div style="font-size:10px;color:var(--text2);margin:6px 0 3px;text-align:center">Probabilité estimée de victoire</div>
     <div class="prob-bar"><div class="prob-fill" id="prob-fill"></div></div>
@@ -640,7 +640,6 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
   <div class="team-body">
     <div id="elim-banner" style="display:none" class="elim-banner"><h2 style="font-size:14px;margin-bottom:2px;font-family:'Cinzel',serif">Nation Conquise</h2><p style="font-size:11px;color:#fca5a5">Votre nation a été vaincue.</p></div>
     <div id="tutorial-banner" style="display:none;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);border-radius:5px;padding:7px 11px;font-size:11px;color:var(--gold);text-align:center">🎮 MANCHE TEST — Actions illimitées. Ressources remises à zéro après.</div>
-    </div>
     <div id="hint-card" style="display:none" class="hint-blue-block">
       <div class="hint-label"><div class="hint-pulse"></div>Indice — prochaine période</div>
       <div class="hint-text" id="hint-card-text"></div>
@@ -782,8 +781,12 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
             <div class="negoc-type-icon">&#9876;&#65039;</div>
             <div class="negoc-type-name">Offensive</div>
             <div class="negoc-type-cost">100 or</div>
-            <div class="negoc-type-desc">+15% combat 1 tour</div>
+            <div class="negoc-type-desc">+15% combat en guerre</div>
           </div>
+        </div>
+        <div id="negoc-offensive-target-wrap" style="display:none;margin-bottom:8px">
+          <div style="font-size:10px;color:var(--gold);margin-bottom:4px;font-weight:600">🎯 Votre cible pour le +15% :</div>
+          <select id="negoc-offensive-target" class="sel"><option value="">Choisir votre cible...</option></select>
         </div>
         <div id="negoc-already-allied" style="display:none;font-size:11px;padding:8px;background:rgba(26,122,74,.1);border:1px solid rgba(26,122,74,.3);border-radius:6px;color:#4ade80;text-align:center">✅ Vous avez déjà un pacte d'alliance actif</div>
         <button class="btn-primary" id="btn-negoc-propose" style="width:100%;margin-top:4px">Proposer →</button>
@@ -798,8 +801,8 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
         <div class="rule-block"><h3>Premier assaut</h3><p>La première attaque reçue ne peut jamais vous éliminer. Vous perdez 50% des ressources et 30% de puissance, mais survivez.</p></div>
         <div class="rule-block"><h3>🕊️ Alliances (Négociation uniquement)</h3><p>Le rang 1 s'allie avec le dernier, rang 2 avec les 2 derniers, etc.</p><ul style="margin-top:5px"><li><span class="ally-type-badge ally-type-peace">NON-AGRESSION</span> Gratuit — double victoire si 2 derniers !</li><li style="margin-top:4px"><span class="ally-type-badge ally-type-offensive">OFFENSIVE</span> 100 or — +15% combat 1 tour</li></ul></div>
         <div class="rule-block"><h3>💰 Revenus / période</h3><ul><li>🛢️ Pétrole ×25 or</li><li>🏖️ Tourisme ×25 or</li><li>🌿 Agriculture ×20 or</li></ul></div>
-        <div class="rule-block"><h3>📊 Puissance</h3><p>Or×0.25 + Armée×10 + Pétrole×0.8 + Tourisme×0.6 + Agri×0.5 + Nourr×1.2 + ATK×8 + DEF×6. Tier B : ×1.15.</p></div>
-        <div class="rule-block"><h3>Combat</h3><p>Armée × (1+ATK×0.012) × aléa(±18–36%) × tier. Défenseur +10%. Tier B ×1.15.</p></div>
+        <div class="rule-block"><h3>📊 Puissance</h3><p>Armée×20 + Or×0.10 + Pétrole×0.8 + Tourisme×0.6 + Agri×0.5 + Nourr×1.2 + ATK×15 + DEF×12. Tier B : ×1.15.</p></div>
+        <div class="rule-block"><h3>Combat V5</h3><p>Attaquant : armée × (1+ATK×0.001) × Tier × aléa(±110%). Défenseur : armée × (1+DEF×0.001) × Tier × aléa(±110%). Pas de bonus territorial — DEF = investissement pur.</p></div>
       </div>
     </div>
   </div>
@@ -1289,9 +1292,6 @@ function updateTeamUI() {
   if(isWar) renderAttackTargets();
   if(isNegoc) renderNegocPanel();
 
-  // Coalition
-
-
   if(state.phase!=='war') {
     document.getElementById('my-turn-box').style.display='none';
     document.getElementById('other-turn-box').style.display='none';
@@ -1389,7 +1389,7 @@ function renderMarket() {
     if(buyBtn) buyBtn.disabled = !!buyBlocked;
 
     var sellBtn = row.querySelector('[data-action="sell"]');
-    if(sellBtn) sellBtn.disabled = !!(isWar||stock===0);
+    if(sellBtn) sellBtn.disabled = !!(isWar||stock===0); // vente illimitée, pas d'action consommée
   });
 }
 
@@ -1651,11 +1651,19 @@ function selectNegocType(type) {
   ['peace','offensive'].forEach(function(t){
     var el=document.getElementById('nt-'+t); if(el) el.classList.toggle('selected',t===type);
   });
+  var wrap=document.getElementById('negoc-offensive-target-wrap');
+  if(wrap) wrap.style.display = type==='offensive'?'block':'none';
 }
 function selectNegocAlly(team) { selectedNegocTarget=team; renderNegocPanel(); }
 function sendNegocProposal() {
   if(!selectedNegocTarget){toast('Choisissez une nation cible !');return;}
-  socket.emit('team:proposeAlliance',{fromTeam:myTeam,toTeam:selectedNegocTarget,allianceType:selectedNegocType});
+  var offTargetId = null;
+  if(selectedNegocType === 'offensive') {
+    var sel = document.getElementById('negoc-offensive-target');
+    offTargetId = sel ? sel.value : null;
+    if(!offTargetId){toast('Choisissez votre cible offensive !');return;}
+  }
+  socket.emit('team:proposeAlliance',{fromTeam:myTeam,toTeam:selectedNegocTarget,allianceType:selectedNegocType,targetId:offTargetId});
   toast('Alliance proposée !');
 }
 function renderNegocPanel() {
@@ -1690,6 +1698,21 @@ function renderNegocPanel() {
     ab.style.display='block';
     at.innerHTML='<span class="ally-type-badge ally-type-'+(myAlly.type==='offensive'?'offensive':'peace')+'">'+(myAlly.type==='offensive'?'OFFENSIVE':'NON-AGRESSION')+'</span> avec '+(myAlly.withCountryFlag||'')+' '+(myAlly.withCountryName||myAlly.with);
   } else if(ab) ab.style.display='none';
+  // Peupler la liste des cibles offensives (tous sauf soi-même)
+  var offTargetSel = document.getElementById('negoc-offensive-target');
+  if(offTargetSel && state.negotiationRanking) {
+    var curVal = offTargetSel.value;
+    offTargetSel.innerHTML = '<option value="">Choisir votre cible...</option>';
+    alive.forEach(function(c) {
+      if(c.team !== myTeam) {
+        var o = document.createElement('option');
+        o.value = c.id; // ID du pays cible
+        o.textContent = c.flag + ' ' + c.name;
+        offTargetSel.appendChild(o);
+      }
+    });
+    if(curVal) offTargetSel.value = curVal;
+  }
   // Bloquer le bouton si alliance déjà active
   var alreadyBox = document.getElementById('negoc-already-allied');
   var proposeBtn = document.getElementById('btn-negoc-propose');
@@ -1760,6 +1783,11 @@ function kickTeam() {
 }
 
 function renderMJ() {
+  // Nettoyer le message vainqueur si nouvelle partie
+  if(state.phase==='setup'||state.phase==='draft') {
+    var oldWMsg = document.getElementById('mj-winner-msg');
+    if(oldWMsg) oldWMsg.remove();
+  }
   var countries=state.countries||{};
   var teams=Object.values(countries).filter(function(c){return c.team;});
   var alive=teams.filter(function(c){return !c.eliminated;});
