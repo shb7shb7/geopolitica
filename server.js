@@ -61,7 +61,7 @@ const COUNTRIES = [
 ];
 
 // ─── EVENTS AVEC VIDÉO — durée joueurs = vidéo (~25s) + cinématique (18s) ──
-const VIDEO_EVENT_IDS = new Set(['oil_boom','free_trade','food_crisis','refugees','uprising']);
+const VIDEO_EVENT_IDS = new Set(['oil_boom','free_trade','food_crisis','refugees','uprising','typhoon']);
 const VIDEO_CINEMATIC_MS = 45000;
 
 function getFoodConsumption(c) { return Math.max(10, Math.min(50, Math.round(c.population / 5 + 5))); }
