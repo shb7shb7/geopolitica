@@ -223,9 +223,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 <body>
 <div class="anim-flash" id="anim-flash"></div>
 
-<!-- ══════════════════════════════════════════════════
-     VIDEO OVERLAY
-══════════════════════════════════════════════════ -->
+<!-- VIDEO OVERLAY -->
 <div id="video-overlay">
   <video id="vid" playsinline autoplay
     style="width:100vw;height:100vh;object-fit:cover;display:block;">
@@ -407,8 +405,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 
 <script>
 // ══════════════════════════════════════════════════════════════════════
-// VIDÉOS — fichiers locaux dans public/
-// Essaie les deux casses (selon upload GitHub)
+// VIDÉOS
 // ══════════════════════════════════════════════════════════════════════
 const EVENT_VIDEOS = {
   'oil_boom':    ['/Media1.mp4'],
@@ -419,27 +416,28 @@ const EVENT_VIDEOS = {
   'typhoon':     ['/Media6.mp4'],
 };
 
-// ── État vidéo ─────────────────────────────────────────────────────────
 let _videoPendingFn = null;
 let _videoAutoSkip = null;
-let _pendingChoiceEvent = null; // choiceEvent en attente de la fin de vidéo+cinématique
+let _pendingChoiceEvent = null;
 
-// Essaie chaque URL dans l'ordre jusqu'à trouver celle qui fonctionne
+// Vérifie l'existence du fichier via fetch avant de le charger
 function tryVideoUrls(urls, vid, src, idx, onLoaded, onFail) {
   if (idx >= urls.length) { onFail(); return; }
   fetch(urls[idx], { method: 'HEAD' })
-    .then(res => {
+    .then(function(res) {
       if (!res.ok) throw new Error('404');
       vid.onerror = null;
       vid.onloadedmetadata = null;
       src.src = urls[idx];
       vid.load();
       vid.onerror = function() {
+        console.warn('Erreur lecture:', urls[idx]);
         tryVideoUrls(urls, vid, src, idx + 1, onLoaded, onFail);
       };
       vid.onloadedmetadata = onLoaded;
     })
-    .catch(() => {
+    .catch(function() {
+      console.warn('Fichier introuvable:', urls[idx]);
       tryVideoUrls(urls, vid, src, idx + 1, onLoaded, onFail);
     });
 }
@@ -463,16 +461,15 @@ function showEventVideo(eventId, onComplete) {
 
   tryVideoUrls(urls, vid, src, 0,
     function onLoaded() {
-      // Barre de progression sur durée réelle
       fill.style.transition = 'none'; fill.style.width = '0%';
-      requestAnimationFrame(() => {
-        fill.style.transition = `width ${vid.duration}s linear`;
+      requestAnimationFrame(function() {
+        fill.style.transition = 'width ' + vid.duration + 's linear';
         fill.style.width = '100%';
       });
       if (_videoAutoSkip) clearTimeout(_videoAutoSkip);
       _videoAutoSkip = setTimeout(skipVideo, vid.duration * 1000 + 300);
       const p = vid.play();
-      if (p !== undefined) p.catch(() => { errDiv.style.display = 'flex'; });
+      if (p !== undefined) p.catch(function() { errDiv.style.display = 'flex'; });
     },
     function onFail() {
       console.warn('Aucune vidéo trouvée pour', eventId, '→ cinématique directe');
@@ -564,13 +561,11 @@ socket.on('warTurnTimer', ({seconds,team}) => {
 });
 socket.on('countryDrafted', () => renderDraftTeams());
 
-// ── Vues ───────────────────────────────────────────────────────────────
 function showView(id){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-// ── Cinématique ────────────────────────────────────────────────────────
 function showCinematic(opts, dur) {
   const cin = document.getElementById('cinematic');
   document.getElementById('cin-bg').style.background = opts.bg||'radial-gradient(ellipse at center,#0a1628,#000)';
@@ -602,11 +597,9 @@ function hideCinematic(){
   if(pf){pf.style.transition='none';pf.style.width='0%';}
 }
 
-// ── Vidéo PUIS cinématique — et déclenche le choiceEvent après ────────
 function showVideoThenCinematic(eventId, opts, dur) {
   showEventVideo(eventId, () => {
     showCinematic(opts, dur);
-    // Après la cinématique, afficher le choix si en attente
     if (_pendingChoiceEvent) {
       const ev = _pendingChoiceEvent;
       _pendingChoiceEvent = null;
@@ -615,14 +608,8 @@ function showVideoThenCinematic(eventId, opts, dur) {
   });
 }
 
-// Overlay de choix affiché sur l'écran (juste pour les joueurs via index.html)
-// Sur screen.html on ne fait rien de spécial, c'est géré côté joueur
-function showChoiceOverlay(ev) {
-  // Rien à afficher sur screen — le choiceEvent est géré dans index.html
-  // On réemet juste le signal aux joueurs via socket si besoin
-}
+function showChoiceOverlay(ev) {}
 
-// ── Timers ─────────────────────────────────────────────────────────────
 function updateTimers(){
   const m=Math.floor(timerSec/60),s=timerSec%60;
   const fmt=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
@@ -641,7 +628,6 @@ function flashTimerEnd(){
   });
 }
 
-// ── War ticker ─────────────────────────────────────────────────────────
 function updateWarTicker(team, seconds, turnIndex, total) {
   const c = state.countries&&Object.values(state.countries).find(c=>c.team===team);
   document.getElementById('wtt-flag').textContent = c?.flag||'';
@@ -655,7 +641,6 @@ function updateWarTicker(team, seconds, turnIndex, total) {
   }
 }
 
-// ── Battle popup ───────────────────────────────────────────────────────
 function showBattle(attId,defId,success,scoreAtt,scoreDef,firstBlood){
   const fl=document.getElementById('anim-flash');
   fl.className='anim-flash flash';setTimeout(()=>fl.className='anim-flash',4200);
@@ -677,7 +662,6 @@ function showBattle(attId,defId,success,scoreAtt,scoreDef,firstBlood){
   setTimeout(()=>p.classList.remove('show'),16000);
 }
 
-// ── Winner ────────────────────────────────────────────────────────────
 function showWinner(winners,type){
   showView('view-winner');
   const isAlliance=type==='alliance'||winners.length>1;
@@ -712,7 +696,6 @@ function showWinner(winners,type){
   }
 }
 
-// ── Draft teams ────────────────────────────────────────────────────────
 function renderDraftTeams(){
   const grid=document.getElementById('draft-teams-grid');if(!grid)return;
   const countries=state.countries||{};
@@ -738,9 +721,6 @@ function renderDraftTeams(){
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════
-// onUpdate — décide vidéo + cinématique selon l'event
-// ══════════════════════════════════════════════════════════════════════
 function onUpdate(){
   if(gameOver)return;
   if(state.gameOver&&state.winners&&state.winners.length>0){
@@ -773,7 +753,6 @@ function onUpdate(){
     lastPhase=state.phase;
   }
 
-  // ── Cinématique de période (avec vidéo si event concerné) ────────────
   if(state.currentPeriod!==lastPeriod && state.currentPeriod>0 && state.phase==='prosperity'){
     const ev = state.currentEvent;
     const eventId = ev ? ev.id : null;
@@ -796,7 +775,6 @@ function onUpdate(){
     };
 
     if(hasVideo) {
-      // Stocker le choiceEvent en attente si période 4 (choice)
       if(ev && ev.type === 'choice') _pendingChoiceEvent = ev;
       showVideoThenCinematic(eventId, cinematicOpts, 18000);
     } else {
@@ -813,7 +791,6 @@ function onUpdate(){
   if(state.phase==='draft') document.getElementById('wait-sub-text').textContent='Phase de draft — choisissez votre nation';
 }
 
-// ── Prosperity ─────────────────────────────────────────────────────────
 function renderProsperity(){
   const countries=state.countries||{};
   const alive=Object.values(countries).filter(c=>c.team&&!c.eliminated);
@@ -878,7 +855,6 @@ function renderProsperity(){
   }).join('');
 }
 
-// ── Negotiation ────────────────────────────────────────────────────────
 function renderNegotiation(){
   const ranking=state.negotiationRanking||[];
   if(!ranking.length||negocRevealDone)return;
@@ -918,7 +894,6 @@ function startNegocReveal(ranking){
   revealNext();
 }
 
-// ── War ────────────────────────────────────────────────────────────────
 function renderWar(){
   const countries=state.countries||{};
   const teams=Object.values(countries).filter(c=>c.team);
