@@ -643,7 +643,7 @@ h1,h2,h3,.logo,.logo-sm{font-family:'Cinzel',serif}
     <div class="army-section">
       <div style="padding:8px 12px 6px;border-bottom:1px solid var(--border);font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:2px;font-family:'Cinzel',serif;display:flex;align-items:center;gap:6px">
         Capacité militaire
-        <span class="tip"><span class="tip-icon">?</span><span class="tip-box">Armée = taille de vos forces. ATK booste votre puissance offensive (+1.2%/point, cap 50pts). DEF booste votre résistance défensive (+1.2%/point, cap 50pts). ATK et DEF s'annulent mutuellement — investissez les deux ! Disponible en manches 5-6.</span></span>
+        <span class="tip"><span class="tip-icon">?</span><span class="tip-box">Armée = taille de vos forces. ATK booste votre puissance offensive (+0.1%/point, cap 50pts). DEF booste votre résistance défensive (+0.1%/point, cap 50pts). ATK et DEF s'annulent mutuellement — investissez les deux ! Disponible en manches 5-6.</span></span>
         <span id="army-available-badge" style="display:none;margin-left:auto;font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(26,122,74,.2);color:#4ade80;border:1px solid rgba(26,122,74,.4)">Disponible Année 5</span>
         <span id="army-locked-badge" style="display:none;margin-left:auto;font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)" id="army-locked-badge"></span>
       </div>
@@ -992,7 +992,7 @@ function showAtkResult(attId,defId,success,scoreAtt,scoreDef){
 }
 
 function estimateProbability(att,def){
-  // Monte Carlo V5 — même formule exacte que le serveur
+  // Monte Carlo V5 - formule exacte serveur : ATK offense, DEF defense, coeff 0.001, alea +-110%
   const tA=att.tier==='B'?1.15:1.0, tD=def.tier==='B'?1.15:1.0;
   const atkBonus=1+(att.atk||0)*0.001;
   const defBonus=1+(def.def||0)*0.001;
@@ -1005,6 +1005,8 @@ function estimateProbability(att,def){
     const sD=(def.army*tD*rD+(def.food||0)*0.02)*defBonus;
     if(sA>sD)wins++;
   }
+  return Math.round(wins/N*100);
+}
   return Math.round(wins/N*100);
 }
 
@@ -1037,8 +1039,8 @@ function openConfrontation(){
   document.getElementById('prob-fill').style.width=pct+'%';
   document.getElementById('prob-att-label').textContent=`${att.flag} ${pct}%`;
   document.getElementById('prob-def-label').textContent=`${100-pct}% ${def.flag}`;
-  document.getElementById('conf-att-pct').textContent=pct+'% de victoire (±15% aléatoire)';
-  document.getElementById('conf-def-pct').textContent=(100-pct)+'% de victoire (±15% aléatoire)';
+  document.getElementById('conf-att-pct').textContent=pct+'% de victoire (Monte Carlo)';
+  document.getElementById('conf-def-pct').textContent=(100-pct)+'% de victoire (Monte Carlo)';
   document.getElementById('conf-modal').classList.add('show');
 }
 
