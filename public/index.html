@@ -838,6 +838,7 @@ var ALL_COUNTRIES = [
   {id:'canada',flag:'🇨🇦',name:'Canada',tier:'A',gold:580,oil:280,food:65,tourism:200,agriculture:220,army:185,population:38},
   {id:'singapore',flag:'🇸🇬',name:'Singapour',tier:'A',gold:680,oil:30,food:50,tourism:320,agriculture:10,army:140,population:6},
   {id:'belgium',flag:'🇧🇪',name:'Belgique',tier:'A',gold:390,oil:40,food:50,tourism:190,agriculture:120,army:130,population:12},
+  {id:'pakistan',flag:'🇵🇰',name:'Pakistan',tier:'A',gold:240,oil:70,food:250,tourism:50,agriculture:200,army:160,population:230},
   {id:'brazil',flag:'🇧🇷',name:'Brésil',tier:'B',gold:420,oil:160,food:240,tourism:90,agriculture:260,army:160,population:215},
   {id:'india',flag:'🇮🇳',name:'Inde',tier:'B',gold:400,oil:100,food:250,tourism:130,agriculture:210,army:180,population:1400},
   {id:'mexico',flag:'🇲🇽',name:'Mexique',tier:'B',gold:360,oil:180,food:155,tourism:160,agriculture:180,army:150,population:130},
@@ -848,7 +849,6 @@ var ALL_COUNTRIES = [
   {id:'colombia',flag:'🇨🇴',name:'Colombie',tier:'B',gold:300,oil:120,food:75,tourism:130,agriculture:230,army:135,population:51},
   {id:'niger',flag:'🇳🇪',name:'Niger',tier:'B',gold:180,oil:80,food:50,tourism:30,agriculture:200,army:90,population:25},
   {id:'thailand',flag:'🇹🇭',name:'Thaïlande',tier:'B',gold:360,oil:60,food:95,tourism:240,agriculture:220,army:145,population:70},
-  {id:'pakistan',flag:'🇵🇰',name:'Pakistan',tier:'A',gold:240,oil:70,food:250,tourism:50,agriculture:200,army:160,population:230}
 ];
 var BASE_PRICES = {oil:80,food:40,tourism:120,agriculture:60};
 
@@ -1319,8 +1319,46 @@ function renderMarket() {
   var prices = state.prices||BASE_PRICES, prev = state.prevPrices||BASE_PRICES;
   var c = state.countries&&myCountryId?state.countries[myCountryId]:null;
   var treasury = c?c.treasury:0;
-  div.innerHTML = '';
-  [{id:'oil',name:'Pétrole',icon:'🛢️'},{id:'food',name:'Nourriture',icon:'🌾'},{id:'tourism',name:'Tourisme',icon:'🏖️'},{id:'agriculture',name:'Agriculture',icon:'🌿'}].forEach(function(r) {
+  var RESOURCES = [{id:'oil',name:'Pétrole',icon:'🛢️'},{id:'food',name:'Nourriture',icon:'🌾'},{id:'tourism',name:'Tourisme',icon:'🏖️'},{id:'agriculture',name:'Agriculture',icon:'🌿'}];
+
+  // Créer les rows UNE SEULE FOIS — ne jamais recréer pour ne pas reset les inputs
+  if(!div.querySelector('[data-res-row]')) {
+    div.innerHTML = '';
+    RESOURCES.forEach(function(r) {
+      var row = document.createElement('div');
+      row.setAttribute('data-res-row', r.id);
+      row.className = 'market-resource';
+      row.innerHTML =
+        '<div class="mr-top">'
+          +'<div class="mr-name" data-label="'+r.id+'">'+r.icon+' '+r.name+'</div>'
+          +'<div>'
+            +'<div class="mr-price" data-price="'+r.id+'"></div>'
+            +'<div data-cantxt="'+r.id+'" style="font-size:10px"></div>'
+          +'</div>'
+        +'</div>'
+        +'<div class="mr-controls" style="flex-wrap:wrap;gap:6px">'
+          +'<div data-stock="'+r.id+'" style="font-size:10px;color:var(--text3)"></div>'
+          +'<input type="number" class="qty-input" data-res="'+r.id+'" value="1" min="1" max="9999"/>'
+          +'<button class="buybtn" data-res="'+r.id+'" data-action="buy">Acheter</button>'
+          +'<button class="sellbtn" data-res="'+r.id+'" data-action="sell">Vendre</button>'
+        +'</div>';
+      row.querySelectorAll('button').forEach(function(btn) {
+        btn.onclick = function() {
+          var res = btn.getAttribute('data-res');
+          var inp = row.querySelector('input[data-res="'+res+'"]');
+          var qty = parseInt(inp?inp.value:1)||1;
+          var safeQty = Math.max(1, Math.floor(qty));
+          if(btn.getAttribute('data-action')==='buy') socket.emit('team:buyResource',{teamName:myTeam,resource:res,qty:safeQty});
+          else socket.emit('team:sellResource',{teamName:myTeam,resource:res,qty:safeQty});
+        };
+      });
+      div.appendChild(row);
+    });
+  }
+
+  // Mettre à jour labels/prix/boutons SANS toucher aux inputs
+  RESOURCES.forEach(function(r) {
+    var row = div.querySelector('[data-res-row="'+r.id+'"]'); if(!row) return;
     var price = Math.round(prices[r.id]||BASE_PRICES[r.id]);
     var prevPrice = Math.round(prev[r.id]||BASE_PRICES[r.id]);
     var diff = price - prevPrice;
@@ -1329,31 +1367,29 @@ function renderMarket() {
     var can = canBuyQty(treasury, price);
     var stock = c?c[r.id]||0:0;
     var arrowHtml = diff > prevPrice*0.05 ? '<span class="mr-price-change up">↑</span>' : diff < -prevPrice*0.05 ? '<span class="mr-price-change down">↓</span>' : '';
-    var prevTxt = prevPrice !== price && !isWar ? ' <span style="font-size:9px;color:var(--text3)">(était '+prevPrice+')</span>' : '';
-    var canTxt = can>0?('max '+can+' achetables'):('Pas assez d\'or');
-    var row = document.createElement('div');
-    row.className = 'market-resource' + (oilBlocked?' blocked':'');
-    row.innerHTML =
-      '<div class="mr-top"><div class="mr-name">'+r.icon+' '+r.name+(oilBlocked?' <span style="font-size:9px;color:#f87171">bloqué</span>':'')+'</div>'
-      +'<div><div class="mr-price">'+price.toLocaleString()+' or/unité '+arrowHtml+'</div>'
-      +'<div style="font-size:10px;color:'+(can>0?'#4ade80':'#f87171')+'">'+canTxt+'</div></div></div>'
-      +'<div class="mr-controls" style="flex-wrap:wrap;gap:6px">'
-      +'<div style="font-size:10px;color:var(--text3)">Stock: '+stock.toLocaleString()+'</div>'
-      +'<input type="number" class="qty-input" data-res="'+r.id+'" value="1" min="1" max="9999"'+( oilBlocked?' disabled':'')+'/>'
-      +'<button class="buybtn"'+( buyBlocked?' disabled':'')+' data-res="'+r.id+'" data-action="buy">Acheter</button>'
-      +'<button class="sellbtn"'+( isWar||stock===0?' disabled':'')+' data-res="'+r.id+'" data-action="sell">Vendre</button>'
-      +'</div>';
-    row.querySelectorAll('button').forEach(function(btn) {
-      btn.onclick = function() {
-        var res = btn.getAttribute('data-res');
-        var inp = row.querySelector('input[data-res="'+res+'"]');
-        var qty = parseInt(inp?inp.value:1)||1;
-        var safeQty = Math.max(1, Math.floor(qty));
-        if(btn.getAttribute('data-action')==='buy') socket.emit('team:buyResource',{teamName:myTeam,resource:res,qty:safeQty});
-        else socket.emit('team:sellResource',{teamName:myTeam,resource:res,qty:safeQty});
-      };
-    });
-    div.appendChild(row);
+
+    row.className = 'market-resource'+(oilBlocked?' blocked':'');
+
+    var labelEl = row.querySelector('[data-label="'+r.id+'"]');
+    if(labelEl) labelEl.innerHTML = r.icon+' '+r.name+(oilBlocked?' <span style="font-size:9px;color:#f87171">bloqué</span>':'');
+
+    var priceEl = row.querySelector('[data-price="'+r.id+'"]');
+    if(priceEl) priceEl.innerHTML = price.toLocaleString()+' or/unité '+arrowHtml;
+
+    var cantxtEl = row.querySelector('[data-cantxt="'+r.id+'"]');
+    if(cantxtEl) { cantxtEl.textContent = can>0?('max '+can+' achetables'):"Pas assez d'or"; cantxtEl.style.color = can>0?'#4ade80':'#f87171'; }
+
+    var stockEl = row.querySelector('[data-stock="'+r.id+'"]');
+    if(stockEl) stockEl.textContent = 'Stock: '+stock.toLocaleString();
+
+    var inp = row.querySelector('input[data-res="'+r.id+'"]');
+    if(inp) inp.disabled = !!oilBlocked;
+
+    var buyBtn = row.querySelector('[data-action="buy"]');
+    if(buyBtn) buyBtn.disabled = !!buyBlocked;
+
+    var sellBtn = row.querySelector('[data-action="sell"]');
+    if(sellBtn) sellBtn.disabled = !!(isWar||stock===0);
   });
 }
 
