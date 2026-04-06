@@ -407,24 +407,39 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 
 <script>
 // ══════════════════════════════════════════════════════════════════════
-// VIDÉOS — liens directs Google Drive (uc?export=download)
+// VIDÉOS — fichiers locaux dans public/
+// Essaie les deux casses (selon upload GitHub)
 // ══════════════════════════════════════════════════════════════════════
 const EVENT_VIDEOS = {
-  'oil_boom':    '/Media1.mp4',
-  'free_trade':  '/Media2.mp4',
-  'food_crisis': '/Media3.mp4',
-  'refugees':    '/Media4.mp4',
-  'uprising':    '/Media5.mp4',
+  'oil_boom':    ['/Media1.mp4', '/media1.mp4'],
+  'free_trade':  ['/Media2.mp4', '/media2.mp4'],
+  'food_crisis': ['/Media3.mp4', '/media3.mp4'],
+  'refugees':    ['/Media4.mp4', '/media4.mp4'],
+  'uprising':    ['/Media5.mp4', '/media5.mp4'],
 };
 
 // ── État vidéo ─────────────────────────────────────────────────────────
 let _videoPendingFn = null;
-let _videoProgressAnim = null;
 let _videoAutoSkip = null;
+let _pendingChoiceEvent = null; // choiceEvent en attente de la fin de vidéo+cinématique
+
+// Essaie chaque URL dans l'ordre jusqu'à trouver celle qui fonctionne
+function tryVideoUrls(urls, vid, src, idx, onLoaded, onFail) {
+  if (idx >= urls.length) { onFail(); return; }
+  // Reset les handlers avant d'en mettre de nouveaux
+  vid.onerror = null; vid.onloadedmetadata = null;
+  src.src = urls[idx];
+  vid.load();
+  vid.onerror = function() {
+    console.warn('URL échouée:', urls[idx]);
+    tryVideoUrls(urls, vid, src, idx+1, onLoaded, onFail);
+  };
+  vid.onloadedmetadata = onLoaded;
+}
 
 function showEventVideo(eventId, onComplete) {
-  const url = EVENT_VIDEOS[eventId];
-  if (!url) { if(onComplete) onComplete(); return; }
+  const urls = EVENT_VIDEOS[eventId];
+  if (!urls) { if(onComplete) onComplete(); return; }
 
   _videoPendingFn = onComplete;
 
@@ -434,46 +449,32 @@ function showEventVideo(eventId, onComplete) {
   const fill    = document.getElementById('video-progress-fill');
   const errDiv  = document.getElementById('video-error');
 
-  // Reset
   vid.pause();
-  src.src = url;
-  vid.load();
-  fill.style.transition = 'none';
-  fill.style.width = '0%';
+  fill.style.transition = 'none'; fill.style.width = '0%';
   errDiv.style.display = 'none';
   overlay.classList.add('active');
 
-  // Lancement dès que possible
-  const playPromise = vid.play();
-  if (playPromise !== undefined) {
-    playPromise.catch(() => {
-      // Autoplay bloqué → afficher bouton play ou skip direct
-      errDiv.style.display = 'flex';
-    });
-  }
+  tryVideoUrls(urls, vid, src, 0,
+    function onLoaded() {
+      // Barre de progression sur durée réelle
+      fill.style.transition = 'none'; fill.style.width = '0%';
+      requestAnimationFrame(() => {
+        fill.style.transition = `width ${vid.duration}s linear`;
+        fill.style.width = '100%';
+      });
+      if (_videoAutoSkip) clearTimeout(_videoAutoSkip);
+      _videoAutoSkip = setTimeout(skipVideo, vid.duration * 1000 + 300);
+      const p = vid.play();
+      if (p !== undefined) p.catch(() => { errDiv.style.display = 'flex'; });
+    },
+    function onFail() {
+      console.warn('Aucune vidéo trouvée pour', eventId, '→ cinématique directe');
+      overlay.classList.remove('active');
+      if (_videoPendingFn) { const fn=_videoPendingFn; _videoPendingFn=null; fn(); }
+    }
+  );
 
-  // Barre de progression liée à la durée réelle de la vidéo
-  vid.onloadedmetadata = function() {
-    const dur = vid.duration * 1000; // ms
-    fill.style.transition = 'none';
-    fill.style.width = '0%';
-    requestAnimationFrame(() => {
-      fill.style.transition = `width ${vid.duration}s linear`;
-      fill.style.width = '100%';
-    });
-    // Auto-skip à la fin
-    if (_videoAutoSkip) clearTimeout(_videoAutoSkip);
-    _videoAutoSkip = setTimeout(skipVideo, dur + 300);
-  };
-
-  // Skip automatique si fin de vidéo
   vid.onended = skipVideo;
-
-  // Erreur de chargement → skip directement
-  vid.onerror = function() {
-    console.warn('Vidéo inaccessible, passage à la cinématique.');
-    skipVideo();
-  };
 }
 
 function skipVideo() {
@@ -484,13 +485,11 @@ function skipVideo() {
   const src     = document.getElementById('vid-src');
 
   vid.pause();
-  src.src = '';
-  vid.load();
+  src.src = ''; vid.load();
   overlay.classList.remove('active');
 
   const fill = document.getElementById('video-progress-fill');
-  fill.style.transition = 'none';
-  fill.style.width = '0%';
+  fill.style.transition = 'none'; fill.style.width = '0%';
 
   if (_videoPendingFn) {
     const fn = _videoPendingFn;
@@ -596,9 +595,24 @@ function hideCinematic(){
   if(pf){pf.style.transition='none';pf.style.width='0%';}
 }
 
-// ── Vidéo PUIS cinématique ─────────────────────────────────────────────
+// ── Vidéo PUIS cinématique — et déclenche le choiceEvent après ────────
 function showVideoThenCinematic(eventId, opts, dur) {
-  showEventVideo(eventId, () => showCinematic(opts, dur));
+  showEventVideo(eventId, () => {
+    showCinematic(opts, dur);
+    // Après la cinématique, afficher le choix si en attente
+    if (_pendingChoiceEvent) {
+      const ev = _pendingChoiceEvent;
+      _pendingChoiceEvent = null;
+      setTimeout(() => showChoiceOverlay(ev), dur);
+    }
+  });
+}
+
+// Overlay de choix affiché sur l'écran (juste pour les joueurs via index.html)
+// Sur screen.html on ne fait rien de spécial, c'est géré côté joueur
+function showChoiceOverlay(ev) {
+  // Rien à afficher sur screen — le choiceEvent est géré dans index.html
+  // On réemet juste le signal aux joueurs via socket si besoin
 }
 
 // ── Timers ─────────────────────────────────────────────────────────────
@@ -756,6 +770,7 @@ function onUpdate(){
   if(state.currentPeriod!==lastPeriod && state.currentPeriod>0 && state.phase==='prosperity'){
     const ev = state.currentEvent;
     const eventId = ev ? ev.id : null;
+    const hasVideo = !!(eventId && EVENT_VIDEOS[eventId]);
     const themes=[
       {overline:'Période 1 · Année 1',bg:'radial-gradient(ellipse at center,#0a1628,#000)'},
       {overline:'Période 2 · Année 2',bg:'radial-gradient(ellipse at center,#0e1a10,#000)'},
@@ -773,8 +788,9 @@ function onUpdate(){
       hint:     ev?.nextHint||null,
     };
 
-    // Vidéo d'abord si cet event en a une, sinon cinématique directe
-    if(eventId && EVENT_VIDEOS[eventId]) {
+    if(hasVideo) {
+      // Stocker le choiceEvent en attente si période 4 (choice)
+      if(ev && ev.type === 'choice') _pendingChoiceEvent = ev;
       showVideoThenCinematic(eventId, cinematicOpts, 18000);
     } else {
       showCinematic(cinematicOpts, 18000);
