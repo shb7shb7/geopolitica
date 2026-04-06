@@ -317,29 +317,49 @@ const socket=io();
 let state={},timerSec=600,timerTotal=600,lastPhase=null,lastPeriod=0,currentWarTurnTeam=null;
 let cinematicTimeout=null,gameOver=false;
 
-const MAP_POS={
-  usa:{x:148,y:165},china:{x:798,y:138},russia:{x:658,y:62},germany:{x:448,y:78},
-  qatar:{x:590,y:180},france:{x:422,y:96},japan:{x:910,y:104},turkey:{x:524,y:96},
-  australia:{x:878,y:408},saudi:{x:574,y:192},brazil:{x:240,y:422},india:{x:668,y:215},
-  mexico:{x:158,y:268},morocco:{x:412,y:175},southafrica:{x:450,y:395},
+const MAP_POS = {
+  // Amériques
+  usa:{x:148,y:165}, canada:{x:140,y:90}, mexico:{x:158,y:268},
+  brazil:{x:240,y:422}, argentina:{x:218,y:490}, colombia:{x:200,y:355},
+  // Europe
+  germany:{x:448,y:78}, france:{x:422,y:96}, uk:{x:408,y:62},
+  belgium:{x:432,y:82}, russia:{x:658,y:62}, turkey:{x:524,y:96},
+  // Afrique
+  morocco:{x:412,y:175}, algeria:{x:448,y:178}, niger:{x:468,y:235},
+  guinea:{x:450,y:395},
+  // Moyen-Orient / Asie centrale
+  saudi:{x:574,y:192}, qatar:{x:590,y:180},
+  // Asie du Sud / Extrême-Orient
+  pakistan:{x:640,y:178}, india:{x:668,y:215}, china:{x:798,y:138},
+  thailand:{x:760,y:225}, singapore:{x:798,y:270},
+  japan:{x:910,y:104},
+  // Océanie
+  australia:{x:878,y:408},
 };
 
-const COLORS={
-  usa:'#3b82f6',china:'#ef4444',russia:'#8b5cf6',germany:'#f59e0b',
-  qatar:'#06b6d4',france:'#ec4899',japan:'#f97316',turkey:'#84cc16',
-  australia:'#22d3ee',saudi:'#a78bfa',brazil:'#22c55e',india:'#fb923c',
-  mexico:'#f43f5e',morocco:'#fbbf24',southafrica:'#34d399',
+const COLORS = {
+  usa:'#3b82f6', canada:'#60a5fa', mexico:'#f43f5e',
+  brazil:'#22c55e', argentina:'#34d399', colombia:'#4ade80',
+  germany:'#f59e0b', france:'#ec4899', uk:'#818cf8',
+  belgium:'#fbbf24', russia:'#8b5cf6', turkey:'#84cc16',
+  morocco:'#fbbf24', algeria:'#d4a574', niger:'#a3a3a3',
+  guinea:'#34d399',
+  saudi:'#a78bfa', qatar:'#06b6d4',
+  pakistan:'#fb923c', india:'#f97316', china:'#ef4444',
+  thailand:'#facc15', singapore:'#2dd4bf',
+  japan:'#f97316',
+  australia:'#22d3ee',
 };
 
 const BASE_PRICES={oil:80,food:40,tourism:120,agriculture:60};
 
 const PERIOD_THEMES=[
-  {overline:'Période 1 · Janvier — Juin · An 1',bg:'radial-gradient(ellipse at center,#0a1628,#000)'},
-  {overline:'Période 2 · Juillet — Déc · An 1',bg:'radial-gradient(ellipse at center,#0e1a10,#000)'},
-  {overline:'Période 3 · Janvier — Juin · An 2',bg:'radial-gradient(ellipse at center,#1a0808,#000)'},
-  {overline:'Période 4 · Juillet — Déc · An 2',bg:'radial-gradient(ellipse at center,#0e0a1a,#000)'},
-  {overline:'Période 5 · Janvier — Juin · An 3',bg:'radial-gradient(ellipse at center,#1a0e00,#000)'},
-  {overline:'Période 6 · Juillet — Déc · An 3',bg:'radial-gradient(ellipse at center,#1a0208,#000)'},
+  {overline:'Période 1 · Année 1',bg:'radial-gradient(ellipse at center,#0a1628,#000)'},
+  {overline:'Période 2 · Année 2',bg:'radial-gradient(ellipse at center,#0e1a10,#000)'},
+  {overline:'Période 3 · Année 3',bg:'radial-gradient(ellipse at center,#1a0808,#000)'},
+  {overline:'Période 4 · Année 4',bg:'radial-gradient(ellipse at center,#0e0a1a,#000)'},
+  {overline:'Période 5 · Année 5',bg:'radial-gradient(ellipse at center,#1a0e00,#000)'},
+  {overline:'Période 6 · Année 6',bg:'radial-gradient(ellipse at center,#1a0208,#000)'},
 ];
 
 socket.on('state',s=>{const prev=state;state=s;onUpdate(prev);});
