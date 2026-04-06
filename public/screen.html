@@ -411,11 +411,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 // Essaie les deux casses (selon upload GitHub)
 // ══════════════════════════════════════════════════════════════════════
 const EVENT_VIDEOS = {
-  'oil_boom':    ['/Media1.mp4', '/media1.mp4'],
-  'free_trade':  ['/Media2.mp4', '/media2.mp4'],
-  'food_crisis': ['/Media3.mp4', '/media3.mp4'],
-  'refugees':    ['/Media4.mp4', '/media4.mp4'],
-  'uprising':    ['/Media5.mp4', '/media5.mp4'],
+  'oil_boom':    ['/Media1.mp4'],
+  'free_trade':  ['/Media2.mp4'],
+  'food_crisis': ['/Media3.mp4'],
+  'refugees':    ['/Media4.mp4'],
+  'uprising':    ['/Media5.mp4'],
 };
 
 // ── État vidéo ─────────────────────────────────────────────────────────
@@ -426,15 +426,21 @@ let _pendingChoiceEvent = null; // choiceEvent en attente de la fin de vidéo+ci
 // Essaie chaque URL dans l'ordre jusqu'à trouver celle qui fonctionne
 function tryVideoUrls(urls, vid, src, idx, onLoaded, onFail) {
   if (idx >= urls.length) { onFail(); return; }
-  // Reset les handlers avant d'en mettre de nouveaux
-  vid.onerror = null; vid.onloadedmetadata = null;
-  src.src = urls[idx];
-  vid.load();
-  vid.onerror = function() {
-    console.warn('URL échouée:', urls[idx]);
-    tryVideoUrls(urls, vid, src, idx+1, onLoaded, onFail);
-  };
-  vid.onloadedmetadata = onLoaded;
+  fetch(urls[idx], { method: 'HEAD' })
+    .then(res => {
+      if (!res.ok) throw new Error('404');
+      vid.onerror = null;
+      vid.onloadedmetadata = null;
+      src.src = urls[idx];
+      vid.load();
+      vid.onerror = function() {
+        tryVideoUrls(urls, vid, src, idx + 1, onLoaded, onFail);
+      };
+      vid.onloadedmetadata = onLoaded;
+    })
+    .catch(() => {
+      tryVideoUrls(urls, vid, src, idx + 1, onLoaded, onFail);
+    });
 }
 
 function showEventVideo(eventId, onComplete) {
