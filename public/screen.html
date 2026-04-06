@@ -12,6 +12,37 @@
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width:100vw;height:100vh;overflow:hidden}
 .view{display:none;width:100vw;height:100vh;flex-direction:column}.view.active{display:flex}
 
+/* ══════════════════════════════════════════════════════════════
+   VIDEO OVERLAY — affiché AVANT la cinématique d'event
+══════════════════════════════════════════════════════════════ */
+#video-overlay{
+  position:fixed;inset:0;z-index:500;background:#000;
+  display:none;align-items:center;justify-content:center;flex-direction:column;
+}
+#video-overlay.active{display:flex}
+
+#video-iframe-wrap{
+  position:relative;width:100vw;height:100vh;
+}
+#video-iframe{
+  width:100%;height:100%;border:none;
+  display:block;
+}
+/* Bouton passer vidéo */
+#video-skip-btn{
+  position:absolute;bottom:40px;right:40px;
+  font-size:11px;color:rgba(255,255,255,.35);letter-spacing:3px;cursor:pointer;
+  text-transform:uppercase;border:1px solid rgba(255,255,255,.1);padding:7px 16px;border-radius:3px;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+  transition:all .2s;z-index:10;font-family:'Cinzel',serif;
+}
+#video-skip-btn:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+/* Barre de progression vidéo */
+#video-progress{
+  position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.08);z-index:10;
+}
+#video-progress-fill{height:100%;background:var(--gold);width:0%;transition:width linear}
+
 /* ── CINEMATIC ── */
 #cinematic{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column}
 #cinematic.active{display:flex}
@@ -52,7 +83,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 @keyframes bpop{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
 .bp-firstblood{display:inline-block;margin-top:8px;font-size:11px;padding:5px 12px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);border-radius:4px;color:#fbbf24}
 
-/* ── WAR TURN TICKER (top of war screen) ── */
+/* ── WAR TURN TICKER ── */
 .war-turn-ticker{position:absolute;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 20px;background:rgba(192,57,43,.15);border-bottom:1px solid rgba(192,57,43,.3)}
 .wtt-label{font-size:10px;color:rgba(248,113,113,.7);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif}
 .wtt-name{font-size:18px;font-weight:700;color:#f87171;font-family:'Cinzel',serif}
@@ -70,7 +101,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 .wait-sub{font-size:11px;color:var(--text2);letter-spacing:5px;text-transform:uppercase}
 .pulse-ring{width:90px;height:90px;border:1px solid rgba(201,168,76,.25);border-radius:50%;animation:rp 3s ease-in-out infinite}
 @keyframes rp{0%,100%{transform:scale(1);opacity:.2}50%{transform:scale(1.5);opacity:.7}}
-/* DRAFT TEAMS on waiting screen */
 .draft-teams-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:900px;margin-top:1rem}
 .draft-team-card{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);border-radius:8px;padding:10px 14px;text-align:center;min-width:110px;transition:all .4s}
 .draft-team-card.chosen{background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.08));border-color:rgba(201,168,76,.6)}
@@ -81,7 +111,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 .tier-S{background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.4)}
 .tier-A{background:rgba(30,58,95,.5);color:#60a5fa;border:1px solid #1e3a5f}
 .tier-B{background:rgba(26,122,74,.2);color:#4ade80;border:1px solid var(--green)}
-/* Session code display */
 #screen-session-code{text-align:center;margin-top:.5rem}
 .session-code-val{font-size:clamp(32px,6vw,60px);font-weight:700;font-family:'Cinzel',serif;color:var(--gold);letter-spacing:8px}
 
@@ -123,7 +152,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 .timer-val.urgent{color:#f87171;animation:tpulse 1s infinite}
 .timer-bar-wrap{flex:1;height:3px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden}
 .timer-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),#e8c97a);transition:width 1s linear}
-/* LEADERBOARD + ACTIONS */
 .lb-panel{display:flex;flex-direction:column;gap:5px;overflow-y:auto}
 .lb-head{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);font-family:'Cinzel',serif;margin-bottom:2px}
 .lb-item{border-radius:5px;background:rgba(17,21,32,.8);border:1px solid var(--border);transition:all .4s;overflow:hidden}
@@ -140,7 +168,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 .lb-bw{width:100%;height:2px;background:rgba(255,255,255,.05);margin-top:4px;border-radius:1px}
 .lb-bf{height:100%;border-radius:1px;transition:width .6s ease}
 .bfh{background:linear-gradient(90deg,#1a7a4a,#4ade80)}.bfm{background:linear-gradient(90deg,#854d0e,#ca8a04)}.bfl{background:linear-gradient(90deg,#7f1d1d,#f87171)}
-/* STATUS BAR under each lb-item */
 .lb-status{display:flex;gap:4px;padding:4px 10px 6px;flex-wrap:wrap}
 .lb-badge{font-size:8px;padding:2px 6px;border-radius:3px;font-weight:700;letter-spacing:1px}
 .lb-badge.actions-2{background:rgba(26,122,74,.2);color:#4ade80;border:1px solid rgba(26,122,74,.3)}
@@ -153,11 +180,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 
 /* ── NEGOTIATION ── */
 #view-negotiation{background:radial-gradient(ellipse at center,#0a1628,#050709);align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;padding:2.5rem;overflow:hidden}
-.negoc-title{font-size:clamp(26px,4vw,52px);font-weight:900;color:#60a5fa;font-family:'Cinzel',serif}
-.negoc-sub{font-size:clamp(13px,1.4vw,17px);color:rgba(147,197,253,.8);line-height:1.8;max-width:620px;text-align:center}
 #negoc-reveal-card{opacity:0;transform:translateY(20px);transition:all .5s cubic-bezier(.34,1.56,.64,1);text-align:center;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center}
 #negoc-reveal-list{width:100%;max-width:580px;display:flex;flex-direction:column;gap:5px}
-/* Alliance info box */
 .negoc-alliance-info{max-width:650px;display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;justify-content:center}
 .nai-card{background:rgba(30,58,95,.3);border:1px solid #2d5a8e;border-radius:8px;padding:12px 16px;flex:1;min-width:240px}
 .nai-title{font-size:10px;font-weight:700;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;font-family:'Cinzel',serif}
@@ -187,6 +211,25 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 </head>
 <body>
 <div class="anim-flash" id="anim-flash"></div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     VIDEO OVERLAY — affiché avant certaines cinématiques d'events
+══════════════════════════════════════════════════════════════ -->
+<div id="video-overlay">
+  <div id="video-iframe-wrap">
+    <iframe
+      id="video-iframe"
+      src=""
+      allow="autoplay; fullscreen"
+      allowfullscreen
+      frameborder="0"
+    ></iframe>
+    <div id="video-progress">
+      <div id="video-progress-fill"></div>
+    </div>
+    <div id="video-skip-btn" onclick="skipVideo()">Passer →</div>
+  </div>
+</div>
 
 <!-- CINEMATIC -->
 <div id="cinematic">
@@ -226,7 +269,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
       <div style="font-size:10px;color:rgba(201,168,76,.5);letter-spacing:4px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:8px">Code pour rejoindre</div>
       <div class="session-code-val" id="screen-session-code-val"></div>
     </div>
-    <!-- Teams + countries chosen during draft -->
     <div class="draft-teams-grid" id="draft-teams-grid"></div>
   </div>
 </div>
@@ -257,12 +299,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
         </div>
         <div class="ev-name" id="sc-ev-name">—</div>
         <div class="ev-desc" id="sc-ev-desc"></div>
-        <!-- Explication causale : ce que l'indice précédent a provoqué (P2+) -->
         <div id="sc-causal-block" style="display:none;background:rgba(26,122,74,.1);border:1px solid rgba(26,122,74,.35);border-radius:6px;padding:10px 14px;margin-top:6px">
           <div style="font-size:10px;font-weight:700;color:#4ade80;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:'Cinzel',serif">📊 <span id="sc-causal-title">Effet de l'indice précédent</span></div>
           <div id="sc-causal-body" style="font-size:12px;color:#86efac;line-height:1.7;white-space:pre-line"></div>
         </div>
-
         <div id="sc-hint-block" class="ev-hint-box" style="display:none">
           <div class="ev-hint-label">🔮 Indice — prochaine période</div>
           <div class="ev-hint-text" id="sc-hint-text"></div>
@@ -294,11 +334,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
       <div class="negoc-alliance-info">
         <div class="nai-card">
           <div class="nai-title">🕊️ Non-agression (Gratuit)</div>
-          <div class="nai-text">Si vous êtes les 2 derniers survivants et avez un pacte de non-agression → <strong style="color:#4ade80">double victoire</strong> ! Le rang 1 ne peut s'allier qu'avec le rang N, le rang 2 avec les rangs N et N-1, etc.</div>
+          <div class="nai-text">Si vous êtes les 2 derniers survivants et avez un pacte de non-agression → <strong style="color:#4ade80">double victoire</strong> !</div>
         </div>
         <div class="nai-card">
           <div class="nai-title">⚔️ Alliance offensive (100 or)</div>
-          <div class="nai-text">+15% de puissance en combat pendant <strong>1 tour</strong>. Utile pour détruire un ennemi spécifique. L'alliance s'active immédiatement en guerre.</div>
+          <div class="nai-text">+15% de puissance en combat pendant <strong>1 tour</strong>.</div>
         </div>
       </div>
       <div style="font-size:10px;color:rgba(96,165,250,.4);letter-spacing:2px;text-transform:uppercase;margin-top:1rem">En attente du MJ pour lancer la guerre</div>
@@ -308,7 +348,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 
 <!-- WAR -->
 <div id="view-war" class="view">
-  <!-- Current turn ticker -->
   <div class="war-turn-ticker" id="war-turn-ticker">
     <div class="wtt-label">Tour actuel</div>
     <div id="wtt-flag" style="font-size:22px"></div>
@@ -358,6 +397,100 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 </div>
 
 <script>
+// ══════════════════════════════════════════════════════════════════════════
+// MAPPING EVENTS → VIDÉOS GOOGLE DRIVE
+// Remplacez FILE_ID_X par les vrais IDs de vos fichiers Google Drive
+// ══════════════════════════════════════════════════════════════════════════
+var EVENT_VIDEOS = {
+  // Media1.mp4 → Choc pétrolier
+  'oil_boom':    'FILE_ID_1',
+  // Media2.mp4 → Accord de libre-échange mondial
+  'free_trade':  'FILE_ID_2',
+  // Media3.mp4 → Crise alimentaire mondiale
+  'food_crisis': 'FILE_ID_3',
+  // Media4.mp4 → Crise humanitaire
+  'refugees':    'FILE_ID_4',
+  // Media5.mp4 → Grèves et soulèvements
+  'uprising':    'FILE_ID_5',
+};
+
+// Durée des vidéos en millisecondes (ajustez selon la durée réelle de chaque vidéo)
+var VIDEO_DURATIONS = {
+  'oil_boom':    30000,
+  'free_trade':  30000,
+  'food_crisis': 30000,
+  'refugees':    30000,
+  'uprising':    30000,
+};
+
+// ══════════════════════════════════════════════════════════════════════════
+// ÉTAT VIDÉO
+// ══════════════════════════════════════════════════════════════════════════
+var videoPendingCinematic = null; // fonction à appeler après la vidéo
+var videoProgressTimer = null;
+var videoAutoSkipTimer = null;
+
+function showEventVideo(eventId, onComplete) {
+  var fileId = EVENT_VIDEOS[eventId];
+  if (!fileId || fileId.startsWith('FILE_ID')) {
+    // Pas de vidéo configurée → on lance directement la cinématique
+    if (onComplete) onComplete();
+    return;
+  }
+
+  var duration = VIDEO_DURATIONS[eventId] || 30000;
+  videoPendingCinematic = onComplete;
+
+  // URL d'intégration Google Drive
+  var src = 'https://drive.google.com/file/d/' + fileId + '/preview?autoplay=1';
+  var iframe = document.getElementById('video-iframe');
+  iframe.src = src;
+
+  // Afficher l'overlay
+  var overlay = document.getElementById('video-overlay');
+  overlay.classList.add('active');
+
+  // Barre de progression
+  var fill = document.getElementById('video-progress-fill');
+  fill.style.transition = 'none';
+  fill.style.width = '0%';
+  setTimeout(function() {
+    fill.style.transition = 'width ' + (duration / 1000) + 's linear';
+    fill.style.width = '100%';
+  }, 100);
+
+  // Auto-skip après la durée configurée
+  if (videoAutoSkipTimer) clearTimeout(videoAutoSkipTimer);
+  videoAutoSkipTimer = setTimeout(skipVideo, duration);
+}
+
+function skipVideo() {
+  if (videoAutoSkipTimer) { clearTimeout(videoAutoSkipTimer); videoAutoSkipTimer = null; }
+
+  // Arrêter la vidéo en vidant le src
+  var iframe = document.getElementById('video-iframe');
+  iframe.src = '';
+
+  // Masquer l'overlay
+  var overlay = document.getElementById('video-overlay');
+  overlay.classList.remove('active');
+
+  // Reset barre
+  var fill = document.getElementById('video-progress-fill');
+  fill.style.transition = 'none';
+  fill.style.width = '0%';
+
+  // Lancer la cinématique en attente
+  if (videoPendingCinematic) {
+    var fn = videoPendingCinematic;
+    videoPendingCinematic = null;
+    fn();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// SYSTÈME EXISTANT
+// ══════════════════════════════════════════════════════════════════════════
 const socket = io();
 let state = {}, timerSec = 600, timerTotal = 600, lastPhase = null, lastPeriod = 0;
 let currentWarTurnTeam = null, currentWarTurnSeconds = 45;
@@ -365,22 +498,16 @@ let cinematicTimeout = null, gameOver = false;
 let negocRevealDone = false, negocRevealIdx = 0, negocRevealTimer = null;
 
 const MAP_POS = {
-  // Amériques
   usa:{x:148,y:165}, canada:{x:140,y:90}, mexico:{x:158,y:268},
   brazil:{x:240,y:422}, argentina:{x:218,y:490}, colombia:{x:200,y:355},
-  // Europe
   germany:{x:448,y:78}, france:{x:422,y:96}, uk:{x:408,y:62},
   belgium:{x:432,y:82}, russia:{x:658,y:62}, turkey:{x:524,y:96},
-  // Afrique
   morocco:{x:412,y:175}, algeria:{x:448,y:178}, niger:{x:468,y:235},
   guinea:{x:450,y:395},
-  // Moyen-Orient / Asie centrale
   saudi:{x:574,y:192}, qatar:{x:590,y:180},
-  // Asie du Sud / Extrême-Orient
   pakistan:{x:640,y:178}, india:{x:668,y:215}, china:{x:798,y:138},
   thailand:{x:760,y:225}, singapore:{x:798,y:270},
   japan:{x:910,y:104},
-  // Océanie
   australia:{x:878,y:408},
 };
 const COLORS = {
@@ -422,13 +549,11 @@ socket.on('warTurnTimer', ({seconds,team}) => {
   if(cd){cd.textContent = seconds; cd.className='wtt-cd'+(seconds<10?' urgent':'');}
   if(team===currentWarTurnTeam && state.phase==='war') renderWar();
 });
-// When a country is drafted, update the draft grid immediately
-socket.on('countryDrafted', ({teamName,countryId,flag,name}) => {
-  renderDraftTeams();
-});
+socket.on('countryDrafted', () => { renderDraftTeams(); });
 
 function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
+// ── CINÉMATIQUE ───────────────────────────────────────────────────────────
 function showCinematic(opts, dur) {
   const cin = document.getElementById('cinematic');
   document.getElementById('cin-bg').style.background = opts.bg||'radial-gradient(ellipse at center,#0a1628,#000)';
@@ -453,6 +578,13 @@ function hideCinematic(){
   const pf=document.getElementById('cin-progress-fill');if(pf){pf.style.transition='none';pf.style.width='0%';}
 }
 
+// ── Wrapper : vidéo PUIS cinématique ─────────────────────────────────────
+function showVideoThenCinematic(eventId, cinematicOpts, cinematicDur) {
+  showEventVideo(eventId, function() {
+    showCinematic(cinematicOpts, cinematicDur);
+  });
+}
+
 function updateTimers(){
   const m=Math.floor(timerSec/60),s=timerSec%60;
   const fmt=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
@@ -467,7 +599,6 @@ function updateWarTicker(team, seconds, turnIndex, total) {
   document.getElementById('wtt-flag').textContent = c?.flag||'';
   document.getElementById('wtt-name').textContent = (c?.name||team)+' — '+(c?'Équipe '+team:'');
   document.getElementById('wtt-cd').textContent = seconds;
-  // Draw dots for cycle progress
   const order = document.getElementById('wtt-order'); order.innerHTML='';
   if(total>0){
     for(let i=0;i<total;i++){
@@ -522,7 +653,6 @@ function showWinner(winners,type){
   for(let i=0;i<60;i++){const p=document.createElement('div');p.className='confetti-piece';p.style.cssText=`left:${Math.random()*100}%;top:-20px;background:${colors[Math.floor(Math.random()*colors.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;animation-duration:${3+Math.random()*5}s;animation-delay:${Math.random()*4}s;border-radius:${Math.random()>.5?'50%':'0'}`;cc.appendChild(p);}
 }
 
-// ── Render draft teams on waiting screen ─────────────────────────────────
 function renderDraftTeams(){
   const grid=document.getElementById('draft-teams-grid');if(!grid)return;
   const countries=state.countries||{};
@@ -535,7 +665,6 @@ function renderDraftTeams(){
       <div class="dtc-team">${c.team}</div>
       <span class="dtc-tier tier-${c.tier}">${c.tier}</span>
     </div>`).join('');
-  // Also show teams that joined but haven't chosen yet
   const allTeams=Object.keys(state.teams||{});
   const chosenTeams=new Set(chosen.map(c=>c.team));
   const waiting=allTeams.filter(t=>!chosenTeams.has(t));
@@ -549,6 +678,9 @@ function renderDraftTeams(){
   }
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// onUpdate — point central : décide si une vidéo doit précéder la cinématique
+// ══════════════════════════════════════════════════════════════════════════
 function onUpdate(){
   if(gameOver)return;
   if(state.gameOver&&state.winners&&state.winners.length>0){gameOver=true;hideCinematic();showWinner(state.winners,state.winners.length>1?'alliance':'solo');return;}
@@ -558,7 +690,7 @@ function onUpdate(){
       showCinematic({war:true,overline:'Alerte Mondiale · Breaking News',bg:'radial-gradient(ellipse at center,#1a0205,#000)',title:'La Guerre est Déclarée',subtitle:'Le monde tel que nous le connaissions vient de basculer. Quinze nations. Une seule survivra.',effect:'⚔️ Que le meilleur règne sur le monde'},20000);
       setTimeout(()=>showView('view-war'),600);
     } else if(state.phase==='negotiation'){
-      showCinematic({negoc:true,overline:'Phase diplomatique · Avant la guerre',bg:'radial-gradient(ellipse at center,#0a1628,#000)',title:'Phase de Négociation',subtitle:'La guerre est imminente. Dernier moment pour former des alliances. Un pacte de non-agression entre les deux derniers survivants = double victoire.',effect:'🕊️ Proposez vos alliances maintenant'},15000);
+      showCinematic({negoc:true,overline:'Phase diplomatique · Avant la guerre',bg:'radial-gradient(ellipse at center,#0a1628,#000)',title:'Phase de Négociation',subtitle:'La guerre est imminente. Dernier moment pour former des alliances.',effect:'🕊️ Proposez vos alliances maintenant'},15000);
       setTimeout(()=>{hideCinematic();showView('view-negotiation');},600);
       negocRevealDone=false;negocRevealIdx=0;
     } else if(state.phase==='prosperity'){
@@ -570,9 +702,10 @@ function onUpdate(){
     lastPhase=state.phase;
   }
 
-  // Period cinematic
+  // ── Cinématique de période (avec vidéo si event concerné) ───────────────
   if(state.currentPeriod!==lastPeriod&&state.currentPeriod>0&&state.phase==='prosperity'){
     const ev=state.currentEvent;
+    const eventId = ev ? ev.id : null;
     const themes=[
       {overline:'Période 1 · Année 1',bg:'radial-gradient(ellipse at center,#0a1628,#000)'},
       {overline:'Période 2 · Année 2',bg:'radial-gradient(ellipse at center,#0e1a10,#000)'},
@@ -582,13 +715,22 @@ function onUpdate(){
       {overline:'Période 6 · Année 6',bg:'radial-gradient(ellipse at center,#1a0208,#000)'},
     ];
     const theme=themes[(state.currentPeriod-1)%themes.length];
-    showCinematic({
+    const cinematicOpts = {
       overline:theme.overline, bg:theme.bg,
       title:ev?.periodName||'Nouvelle Période',
       subtitle:ev?.periodDesc||'',
       effect:ev?.title?`⚡ ${ev.title}`:'',
       hint:ev?.nextHint||null,
-    },18000);
+    };
+    const cinematicDur = 18000;
+
+    // Si cet event a une vidéo → vidéo d'abord, puis cinématique
+    if(eventId && EVENT_VIDEOS[eventId] && !EVENT_VIDEOS[eventId].startsWith('FILE_ID')) {
+      showVideoThenCinematic(eventId, cinematicOpts, cinematicDur);
+    } else {
+      showCinematic(cinematicOpts, cinematicDur);
+    }
+
     timerTotal=600;lastPeriod=state.currentPeriod;
   }
 
@@ -613,38 +755,24 @@ function renderProsperity(){
     document.getElementById('sc-ev-period').textContent=ev.periodSubtitle||`Année ${ev.periodNumber||''}`;
     document.getElementById('sc-ev-name').textContent=ev.periodName||'';
     document.getElementById('sc-ev-desc').textContent=ev.periodDesc||'';
-    // Pill type + P1 masquage event
     const pill=document.getElementById('sc-ev-type');
     if(pill){pill.textContent=tl[ev.type]||'MARCHÉ';pill.className='ev-type-pill '+(tc[ev.type]||'ev-type-market');}
-    // En P1 : pas d'event visible, l'event n'avait pas été annoncé
-    // (pill déjà défini ci-dessus)
-    if(ev.hideEventFromPlayers) {
-      if(pill) pill.style.display='none';
-      document.getElementById('sc-ev-period').textContent='';
-    } else {
-      if(pill) pill.style.display='inline-block';
-    }
-
-    // Explication causale (P2+) : ce que l'indice précédent a causé sur les prix
+    if(ev.hideEventFromPlayers){if(pill)pill.style.display='none';document.getElementById('sc-ev-period').textContent='';}
+    else{if(pill)pill.style.display='inline-block';}
     const causalBlock=document.getElementById('sc-causal-block');
-    if(ev.causalFromPrev && ev.prevEvTitle && !ev.hideEventFromPlayers) {
-      document.getElementById('sc-causal-title').textContent = 'Indice "' + ev.prevEvTitle + '" → impact sur les prix :';
+    if(ev.causalFromPrev&&ev.prevEvTitle&&!ev.hideEventFromPlayers){
+      document.getElementById('sc-causal-title').textContent='Indice "'+ev.prevEvTitle+'" → impact sur les prix :';
       document.getElementById('sc-causal-body').textContent=ev.causalFromPrev;
       causalBlock.style.display='block';
-    } else {
-      causalBlock.style.display='none';
-    }
-
+    }else{causalBlock.style.display='none';}
     const hintBlock=document.getElementById('sc-hint-block');
     if(ev.nextHint){document.getElementById('sc-hint-text').textContent=ev.nextHint;hintBlock.style.display='block';}
     else hintBlock.style.display='none';
   }
 
-  // Leaderboard with actions + status badges
   const teamActions=state.teamActionsThisPeriod||{};
   const foodWarnings=new Set();
   Object.values(countries).forEach(c=>{if(c.team&&!c.eliminated){const need=Math.max(3,Math.round(c.population/6));if(c.food<need*1.5)foodWarnings.add(c.team);}});
-
   document.getElementById('sc-lb').innerHTML=sorted.map((c,i)=>{
     const pct=Math.round(c.power/maxP*100);
     const bc=pct<30?'bfl':pct<60?'bfm':'bfh';
@@ -654,7 +782,6 @@ function renderProsperity(){
     const isHungry=foodWarnings.has(c.team);
     const isBroke=c.treasury<400;
     const warReady=c.treasury>=600;
-    // Show period-specific badges
     const isProsperity=state.phase==='prosperity';
     const badges=[
       `<span class="lb-badge ${actCls}">${actTxt}</span>`,
@@ -745,13 +872,11 @@ function renderWar(){
       </div>
     </div>`;
   }).join('');
-  // Update ticker
   if(currentWarTurnTeam){
     const cycle=state.warCycleOrder||state.warTurnOrder||[];
     const idx=cycle.indexOf(currentWarTurnTeam);
     updateWarTicker(currentWarTurnTeam,currentWarTurnSeconds,Math.max(0,idx),cycle.length);
   }
-  // Map
   renderMap(teams);
 }
 
@@ -761,10 +886,7 @@ function renderMap(teams){
     const pos=MAP_POS[c.id];if(!pos)return;
     const color=COLORS[c.id]||'#fff';
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');
-    if(!c.eliminated){
-      const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
-      ring.setAttribute('cx',pos.x);ring.setAttribute('cy',pos.y);ring.setAttribute('r','28');ring.setAttribute('fill',color);ring.setAttribute('opacity','0.1');g.appendChild(ring);
-    }
+    if(!c.eliminated){const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');ring.setAttribute('cx',pos.x);ring.setAttribute('cy',pos.y);ring.setAttribute('r','28');ring.setAttribute('fill',color);ring.setAttribute('opacity','0.1');g.appendChild(ring);}
     const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
     dot.setAttribute('cx',pos.x);dot.setAttribute('cy',pos.y);dot.setAttribute('r','9');
     dot.setAttribute('fill',c.eliminated?'#1a0408':color);dot.setAttribute('stroke','rgba(0,0,0,0.5)');dot.setAttribute('stroke-width','1.5');
@@ -773,16 +895,10 @@ function renderMap(teams){
       const pulse=document.createElementNS('http://www.w3.org/2000/svg','circle');
       pulse.setAttribute('cx',pos.x);pulse.setAttribute('cy',pos.y);pulse.setAttribute('r','20');pulse.setAttribute('fill','none');pulse.setAttribute('stroke',color);pulse.setAttribute('stroke-width','2');pulse.setAttribute('opacity','0.6');g.appendChild(pulse);
     }
-    const flag=document.createElementNS('http://www.w3.org/2000/svg','text');
-    flag.setAttribute('x',pos.x);flag.setAttribute('y',pos.y-18);flag.setAttribute('text-anchor','middle');flag.setAttribute('font-size','16');flag.setAttribute('opacity',c.eliminated?'0.1':'1');flag.textContent=c.flag;g.appendChild(flag);
-    const nm=document.createElementNS('http://www.w3.org/2000/svg','text');
-    nm.setAttribute('x',pos.x);nm.setAttribute('y',pos.y+22);nm.setAttribute('text-anchor','middle');nm.setAttribute('font-size','7');nm.setAttribute('fill',c.eliminated?'#1a0408':color);nm.setAttribute('font-family','Cinzel,serif');nm.setAttribute('letter-spacing','0.5');nm.textContent=c.name.toUpperCase();g.appendChild(nm);
-    const team=document.createElementNS('http://www.w3.org/2000/svg','text');
-    team.setAttribute('x',pos.x);team.setAttribute('y',pos.y+31);team.setAttribute('text-anchor','middle');team.setAttribute('font-size','6');team.setAttribute('fill','rgba(201,168,76,0.45)');team.textContent=c.team||'';g.appendChild(team);
-    if(!c.eliminated){
-      const pw=document.createElementNS('http://www.w3.org/2000/svg','text');
-      pw.setAttribute('x',pos.x);pw.setAttribute('y',pos.y+38);pw.setAttribute('text-anchor','middle');pw.setAttribute('font-size','6');pw.setAttribute('fill','rgba(255,255,255,0.2)');pw.textContent=c.power.toLocaleString()+' pts';g.appendChild(pw);
-    }
+    const flag=document.createElementNS('http://www.w3.org/2000/svg','text');flag.setAttribute('x',pos.x);flag.setAttribute('y',pos.y-18);flag.setAttribute('text-anchor','middle');flag.setAttribute('font-size','16');flag.setAttribute('opacity',c.eliminated?'0.1':'1');flag.textContent=c.flag;g.appendChild(flag);
+    const nm=document.createElementNS('http://www.w3.org/2000/svg','text');nm.setAttribute('x',pos.x);nm.setAttribute('y',pos.y+22);nm.setAttribute('text-anchor','middle');nm.setAttribute('font-size','7');nm.setAttribute('fill',c.eliminated?'#1a0408':color);nm.setAttribute('font-family','Cinzel,serif');nm.setAttribute('letter-spacing','0.5');nm.textContent=c.name.toUpperCase();g.appendChild(nm);
+    const team=document.createElementNS('http://www.w3.org/2000/svg','text');team.setAttribute('x',pos.x);team.setAttribute('y',pos.y+31);team.setAttribute('text-anchor','middle');team.setAttribute('font-size','6');team.setAttribute('fill','rgba(201,168,76,0.45)');team.textContent=c.team||'';g.appendChild(team);
+    if(!c.eliminated){const pw=document.createElementNS('http://www.w3.org/2000/svg','text');pw.setAttribute('x',pos.x);pw.setAttribute('y',pos.y+38);pw.setAttribute('text-anchor','middle');pw.setAttribute('font-size','6');pw.setAttribute('fill','rgba(255,255,255,0.2)');pw.textContent=c.power.toLocaleString()+' pts';g.appendChild(pw);}
     if(c.eliminated){[[-6,-6,6,6],[6,-6,-6,6]].forEach(([x1,y1,x2,y2])=>{const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('x1',pos.x+x1);line.setAttribute('y1',pos.y+y1);line.setAttribute('x2',pos.x+x2);line.setAttribute('y2',pos.y+y2);line.setAttribute('stroke','#f87171');line.setAttribute('stroke-width','2');g.appendChild(line);});}
     mapG.appendChild(g);
   });
