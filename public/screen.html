@@ -2,158 +2,187 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Geopolitica — Écran Principal</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Geopolitica — Écran</title>
 <script src="/socket.io/socket.io.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#050709;--bg2:#0a0c10;--bg3:#111520;--border:#1e2640;--gold:#c9a84c;--red:#c0392b;--green:#1a7a4a;--text:#d4d8e8;--text2:#8892b0}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width:100vw;height:100vh;overflow:hidden}
+.view{display:none;width:100vw;height:100vh;flex-direction:column}.view.active{display:flex}
 
-/* CINEMATIC — 18s progress bar */
+/* ── CINEMATIC ── */
 #cinematic{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column}
 #cinematic.active{display:flex}
 .cin-bg{position:absolute;inset:0;transition:background 1s}
 .cin-bars-t,.cin-bars-b{position:absolute;left:0;right:0;height:80px;background:#000;z-index:1}
 .cin-bars-t{top:0}.cin-bars-b{bottom:0}
-.cin-content{position:relative;z-index:2;text-align:center;padding:0 8%;animation:cinIn 1s ease-out}
-@keyframes cinIn{0%{opacity:0;transform:scale(1.04) translateY(10px)}100%{opacity:1;transform:scale(1) translateY(0)}}
-.cin-overline{font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:18px;font-family:'Cinzel',serif}
-.cin-title{font-size:clamp(32px,5vw,68px);font-weight:900;color:#fff;font-family:'Cinzel',serif;line-height:1.1;margin-bottom:16px;text-shadow:0 0 60px rgba(255,255,255,.12)}
-.cin-subtitle{font-size:clamp(13px,1.5vw,19px);color:rgba(255,255,255,.65);line-height:1.8;max-width:720px;margin:0 auto 28px}
-.cin-effect{display:inline-block;font-size:14px;padding:10px 28px;border:1px solid rgba(201,168,76,.5);border-radius:3px;color:var(--gold);letter-spacing:2px;margin-bottom:20px}
-.cin-hint{display:inline-block;margin-top:12px;font-size:14px;color:rgba(147,197,253,.9);line-height:1.7;max-width:720px;padding:14px 22px;background:rgba(30,58,95,.35);border:1px solid #2d5a8e;border-radius:6px}
-.cin-hint-title{font-size:10px;font-weight:700;color:#60a5fa;letter-spacing:3px;text-transform:uppercase;margin-bottom:5px;font-family:'Cinzel',serif}
-.cin-skip{font-size:10px;color:rgba(255,255,255,.2);letter-spacing:2px;cursor:pointer;text-transform:uppercase;position:absolute;bottom:92px;right:40px;z-index:3;border:1px solid rgba(255,255,255,.06);padding:7px 16px;border-radius:2px;transition:all .2s}
+.cin-content{position:relative;z-index:2;text-align:center;padding:0 8%;animation:cinIn .8s ease-out}
+@keyframes cinIn{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
+.cin-overline{font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;font-family:'Cinzel',serif}
+.cin-title{font-size:clamp(30px,5vw,68px);font-weight:900;color:#fff;font-family:'Cinzel',serif;line-height:1.1;margin-bottom:14px}
+.cin-subtitle{font-size:clamp(13px,1.4vw,18px);color:rgba(255,255,255,.65);line-height:1.8;max-width:700px;margin:0 auto 20px}
+.cin-effect{display:inline-block;font-size:13px;padding:9px 24px;border:1px solid rgba(201,168,76,.5);border-radius:3px;color:var(--gold);letter-spacing:2px;margin-bottom:16px}
+.cin-hint{display:inline-block;margin-top:10px;font-size:13px;color:rgba(147,197,253,.9);line-height:1.7;max-width:700px;padding:12px 20px;background:rgba(30,58,95,.35);border:1px solid #2d5a8e;border-radius:6px}
+.cin-hint-label{font-size:10px;font-weight:700;color:#60a5fa;letter-spacing:3px;text-transform:uppercase;margin-bottom:5px;font-family:'Cinzel',serif}
+.cin-skip{font-size:10px;color:rgba(255,255,255,.2);letter-spacing:2px;cursor:pointer;text-transform:uppercase;position:absolute;bottom:90px;right:40px;z-index:3;border:1px solid rgba(255,255,255,.06);padding:6px 14px;border-radius:2px;transition:all .2s}
 .cin-skip:hover{color:#fff;border-color:rgba(255,255,255,.3)}
 .cin-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
-.cin-particle{position:absolute;width:2px;height:2px;background:var(--gold);border-radius:50%;animation:floatUp linear infinite;opacity:0}
+.cin-particle{position:absolute;width:2px;height:2px;border-radius:50%;animation:floatUp linear infinite;opacity:0}
 @keyframes floatUp{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:.5}90%{opacity:.15}100%{transform:translateY(-20px) translateX(var(--drift));opacity:0}}
-.cin-war .cin-bg{background:radial-gradient(ellipse at center,#1a0205,#000)!important}
 .cin-war .cin-title{color:#f87171!important;text-shadow:0 0 80px rgba(192,57,43,.5)!important}
 .cin-war .cin-overline,.cin-war .cin-effect{color:#f87171!important;border-color:rgba(248,113,113,.4)!important}
 .cin-war .cin-particle{background:#f87171!important}
-.cin-negoc .cin-bg{background:radial-gradient(ellipse at center,#0a1628,#000)!important}
 .cin-negoc .cin-title{color:#60a5fa!important}
 .cin-negoc .cin-overline{color:#60a5fa!important}
-/* PROGRESS BAR */
 .cin-progress{position:absolute;bottom:80px;left:10%;right:10%;height:2px;background:rgba(255,255,255,.08);border-radius:1px;z-index:3}
 .cin-progress-fill{height:100%;background:var(--gold);border-radius:1px;width:0%;transition:width linear}
 .cin-negoc .cin-progress-fill{background:#60a5fa}
+.cin-war .cin-progress-fill{background:#f87171}
 
-.view{display:none;width:100vw;height:100vh;flex-direction:column}.view.active{display:flex}
+/* ── FLASH ── */
+.anim-flash{position:fixed;inset:0;pointer-events:none;z-index:250}
+.anim-flash.flash{animation:warflash 4s ease-out forwards}
+@keyframes warflash{0%{background:rgba(192,57,43,0)}6%{background:rgba(192,57,43,.85)}20%{background:rgba(192,57,43,.55)}60%{background:rgba(192,57,43,.2)}100%{background:rgba(192,57,43,0)}}
 
-/* WAITING */
-#view-waiting{align-items:center;justify-content:center;gap:2rem;background:radial-gradient(ellipse at center,#0d1424,#050709)}
-.wait-logo{font-size:clamp(44px,8vw,92px);color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-3px;text-shadow:0 0 80px rgba(201,168,76,.2)}
+/* ── BATTLE POPUP ── */
+.battle-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:2px solid var(--gold);border-radius:12px;padding:28px 44px;z-index:300;text-align:center;display:none;min-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.8)}
+.battle-popup.show{display:block;animation:bpop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes bpop{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.bp-firstblood{display:inline-block;margin-top:8px;font-size:11px;padding:5px 12px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);border-radius:4px;color:#fbbf24}
+
+/* ── WAR TURN TICKER (top of war screen) ── */
+.war-turn-ticker{position:absolute;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 20px;background:rgba(192,57,43,.15);border-bottom:1px solid rgba(192,57,43,.3)}
+.wtt-label{font-size:10px;color:rgba(248,113,113,.7);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif}
+.wtt-name{font-size:18px;font-weight:700;color:#f87171;font-family:'Cinzel',serif}
+.wtt-cd{font-size:26px;font-weight:700;color:#f87171;font-family:'Cinzel',serif;font-variant-numeric:tabular-nums;min-width:36px;text-align:center}
+.wtt-cd.urgent{animation:tpulse 1s infinite}
+@keyframes tpulse{0%,100%{opacity:1}50%{opacity:.3}}
+.wtt-order{display:flex;gap:4px;align-items:center}
+.wtt-dot{width:7px;height:7px;border-radius:50%;background:rgba(248,113,113,.25);border:1px solid rgba(248,113,113,.3)}
+.wtt-dot.active{background:#f87171;box-shadow:0 0 6px rgba(248,113,113,.6)}
+.wtt-dot.done{background:rgba(248,113,113,.15)}
+
+/* ── WAITING ── */
+#view-waiting{align-items:center;justify-content:center;gap:2rem;background:radial-gradient(ellipse at center,#0d1424,#050709);padding:2rem}
+.wait-logo{font-size:clamp(40px,7vw,80px);color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-3px}
 .wait-sub{font-size:11px;color:var(--text2);letter-spacing:5px;text-transform:uppercase}
-.pulse-ring{width:110px;height:110px;border:1px solid rgba(201,168,76,.25);border-radius:50%;animation:rp 3s ease-in-out infinite}
-@keyframes rp{0%,100%{transform:scale(1);opacity:.2}50%{transform:scale(1.4);opacity:.65}}
+.pulse-ring{width:90px;height:90px;border:1px solid rgba(201,168,76,.25);border-radius:50%;animation:rp 3s ease-in-out infinite}
+@keyframes rp{0%,100%{transform:scale(1);opacity:.2}50%{transform:scale(1.5);opacity:.7}}
+/* DRAFT TEAMS on waiting screen */
+.draft-teams-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:900px;margin-top:1rem}
+.draft-team-card{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);border-radius:8px;padding:10px 14px;text-align:center;min-width:110px;transition:all .4s}
+.draft-team-card.chosen{background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.08));border-color:rgba(201,168,76,.6)}
+.dtc-flag{font-size:24px;margin-bottom:3px}
+.dtc-country{font-size:11px;font-weight:700;color:#fff;font-family:'Cinzel',serif;margin-bottom:2px}
+.dtc-team{font-size:10px;color:rgba(201,168,76,.7)}
+.dtc-tier{display:inline-block;font-size:8px;padding:1px 6px;border-radius:2px;margin-top:2px;font-weight:700;letter-spacing:1px}
+.tier-S{background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.4)}
+.tier-A{background:rgba(30,58,95,.5);color:#60a5fa;border:1px solid #1e3a5f}
+.tier-B{background:rgba(26,122,74,.2);color:#4ade80;border:1px solid var(--green)}
+/* Session code display */
+#screen-session-code{text-align:center;margin-top:.5rem}
+.session-code-val{font-size:clamp(32px,6vw,60px);font-weight:700;font-family:'Cinzel',serif;color:var(--gold);letter-spacing:8px}
 
-/* WINNER */
+/* ── WINNER ── */
 #view-winner{align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;background:radial-gradient(ellipse at center,#1a1204,#050709)}
 .winner-confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .confetti-piece{position:absolute;animation:fall linear infinite}
 @keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
-.winner-flag{font-size:clamp(60px,12vw,120px);animation:winflag 2s ease-in-out infinite}
+.winner-flag{font-size:clamp(56px,11vw,110px);animation:winflag 2s ease-in-out infinite}
 @keyframes winflag{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-.winner-title{font-size:clamp(24px,4vw,56px);font-weight:900;color:var(--gold);font-family:'Cinzel',serif;text-align:center;text-shadow:0 0 40px rgba(201,168,76,.4)}
-.winner-subtitle{font-size:clamp(11px,1.5vw,17px);color:var(--text2);letter-spacing:3px;text-transform:uppercase;text-align:center}
-.winner-stats{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:6px}
-.winner-stat{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:6px;padding:10px 18px;text-align:center}
+.winner-title{font-size:clamp(22px,4vw,52px);font-weight:900;color:var(--gold);font-family:'Cinzel',serif;text-align:center}
+.winner-subtitle{font-size:clamp(11px,1.4vw,16px);color:var(--text2);letter-spacing:3px;text-transform:uppercase;text-align:center}
+.winner-stats{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.winner-stat{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:6px;padding:10px 16px;text-align:center}
 .winner-stat-label{font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px}
 .winner-stat-val{font-size:20px;font-weight:700;font-family:'Cinzel',serif;color:var(--gold)}
-.winner-lb{margin-top:14px;width:100%;max-width:600px}
 
-/* PROSPERITY */
+/* ── PROSPERITY ── */
 #view-prosperity{background:radial-gradient(ellipse at 20% 20%,#0d1424,#050709)}
-.pros-header{display:flex;align-items:center;justify-content:space-between;padding:12px 26px;border-bottom:1px solid var(--border);flex-shrink:0}
-.screen-logo{font-size:19px;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-1px}
-.per-badge{font-size:10px;padding:4px 14px;border:1px solid var(--gold);color:var(--gold);border-radius:2px;letter-spacing:3px;text-transform:uppercase}
-.pros-body{flex:1;display:grid;grid-template-columns:1fr 360px;overflow:hidden;padding:16px 22px;gap:18px}
-.ev-card{background:linear-gradient(135deg,rgba(13,20,36,.9),rgba(22,27,40,.9));border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:11px}
+.pros-header{display:flex;align-items:center;justify-content:space-between;padding:10px 22px;border-bottom:1px solid var(--border);flex-shrink:0}
+.screen-logo{font-size:18px;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-1px}
+.per-badge{font-size:10px;padding:4px 12px;border:1px solid var(--gold);color:var(--gold);border-radius:2px;letter-spacing:3px;text-transform:uppercase}
+.pros-body{flex:1;display:grid;grid-template-columns:1fr 380px;overflow:hidden;padding:14px 20px;gap:16px}
+.ev-card{background:linear-gradient(135deg,rgba(13,20,36,.9),rgba(22,27,40,.9));border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:20px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:10px}
 .ev-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.ev-type-pill{font-size:10px;padding:3px 10px;border-radius:2px;font-weight:700;letter-spacing:2px;text-transform:uppercase;display:inline-block;margin-bottom:3px}
+.ev-type-pill{font-size:10px;padding:3px 9px;border-radius:2px;font-weight:700;letter-spacing:2px;text-transform:uppercase;display:inline-block}
 .ev-type-market{background:rgba(26,122,74,.2);color:#4ade80;border:1px solid var(--green)}
-.ev-type-choice{background:rgba(201,168,74,.2);color:var(--gold);border:1px solid rgba(201,168,76,.4)}
+.ev-type-choice{background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.4)}
 .ev-type-targeted{background:rgba(192,57,43,.2);color:#f87171;border:1px solid var(--red)}
 .ev-period{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif}
-.ev-name{font-size:clamp(22px,3vw,40px);font-weight:700;color:#fff;font-family:'Cinzel',serif;line-height:1.15}
-.ev-desc{font-size:clamp(12px,1.3vw,16px);color:rgba(212,216,232,.8);line-height:1.8}
-.ev-effect{display:inline-block;font-size:11px;padding:6px 16px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);border-radius:2px;color:var(--gold);letter-spacing:1px}
-/* HINT BOX on screen */
-.ev-hint{background:rgba(30,58,95,.35);border:1px solid #2d5a8e;border-radius:5px;padding:12px 16px;margin-top:4px}
-.ev-hint-title{font-size:10px;font-weight:700;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;font-family:'Cinzel',serif}
-.ev-hint-text{font-size:clamp(12px,1.2vw,15px);color:#93c5fd;line-height:1.7}
-/* NEXT PRICES on screen */
-.screen-prices{display:flex;gap:8px;flex-wrap:wrap;padding:4px 0}
-.screen-price{font-size:12px;padding:4px 11px;border-radius:3px;background:rgba(17,21,32,.8);border:1px solid var(--border);color:var(--text2);display:flex;align-items:center;gap:5px}
-.screen-price.cheap{border-color:var(--green);color:#4ade80}
-.screen-price.expensive{border-color:var(--red);color:#f87171}
-.price-arrow{font-size:11px;font-weight:700}
-.timer-block{display:flex;align-items:center;gap:14px;padding:11px 16px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.15);border-radius:6px;margin-top:auto}
-.timer-val{font-size:clamp(36px,5vw,58px);font-weight:700;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-2px;font-variant-numeric:tabular-nums}
+.ev-name{font-size:clamp(20px,2.8vw,38px);font-weight:700;color:#fff;font-family:'Cinzel',serif;line-height:1.15}
+.ev-desc{font-size:clamp(12px,1.2vw,15px);color:rgba(212,216,232,.8);line-height:1.8}
+.ev-effect{font-size:11px;padding:5px 14px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);border-radius:2px;color:var(--gold);letter-spacing:1px;display:inline-block}
+.ev-hint-box{background:rgba(30,58,95,.35);border:1px solid #2d5a8e;border-radius:5px;padding:10px 14px;margin-top:4px}
+.ev-hint-label{font-size:9px;font-weight:700;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-family:'Cinzel',serif}
+.ev-hint-text{font-size:clamp(11px,1.1vw,14px);color:#93c5fd;line-height:1.7}
+.timer-block{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.15);border-radius:6px;margin-top:auto}
+.timer-val{font-size:clamp(32px,4.5vw,54px);font-weight:700;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:-2px;font-variant-numeric:tabular-nums}
 .timer-val.urgent{color:#f87171;animation:tpulse 1s infinite}
-@keyframes tpulse{0%,100%{opacity:1}50%{opacity:.4}}
 .timer-bar-wrap{flex:1;height:3px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden}
 .timer-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),#e8c97a);transition:width 1s linear}
-/* LEADERBOARD */
-.lb-panel{display:flex;flex-direction:column;gap:6px}
-.lb-head{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);font-family:'Cinzel',serif;margin-bottom:3px}
-.lb-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:4px;background:rgba(17,21,32,.8);border:1px solid var(--border);transition:all .4s}
+/* LEADERBOARD + ACTIONS */
+.lb-panel{display:flex;flex-direction:column;gap:5px;overflow-y:auto}
+.lb-head{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);font-family:'Cinzel',serif;margin-bottom:2px}
+.lb-item{border-radius:5px;background:rgba(17,21,32,.8);border:1px solid var(--border);transition:all .4s;overflow:hidden}
 .lb-item.first{background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(201,168,76,.06));border-color:rgba(201,168,76,.4)}
-.lb-pos{font-size:12px;font-weight:700;min-width:20px;color:var(--text2);font-family:'Cinzel',serif}
+.lb-main{display:flex;align-items:center;gap:9px;padding:8px 10px}
+.lb-pos{font-size:11px;font-weight:700;min-width:18px;color:var(--text2);font-family:'Cinzel',serif}
 .lb-item.first .lb-pos{color:var(--gold)}
-.lb-fl{font-size:21px}
+.lb-fl{font-size:19px}
 .lb-info{flex:1}
-.lb-nm{font-size:12px;font-weight:600;color:#fff;font-family:'Cinzel',serif}
-.lb-team-label{font-size:9px;color:var(--text2);margin-top:1px}
+.lb-nm{font-size:11px;font-weight:600;color:#fff;font-family:'Cinzel',serif}
+.lb-team-name{font-size:9px;color:rgba(201,168,76,.6);margin-top:1px}
 .lb-stats{font-size:9px;color:rgba(255,255,255,.3);margin-top:1px}
 .lb-pw{font-size:11px;color:var(--text2);font-family:'Cinzel',serif;white-space:nowrap}
 .lb-bw{width:100%;height:2px;background:rgba(255,255,255,.05);margin-top:4px;border-radius:1px}
 .lb-bf{height:100%;border-radius:1px;transition:width .6s ease}
 .bfh{background:linear-gradient(90deg,#1a7a4a,#4ade80)}.bfm{background:linear-gradient(90deg,#854d0e,#ca8a04)}.bfl{background:linear-gradient(90deg,#7f1d1d,#f87171)}
+/* STATUS BAR under each lb-item */
+.lb-status{display:flex;gap:4px;padding:4px 10px 6px;flex-wrap:wrap}
+.lb-badge{font-size:8px;padding:2px 6px;border-radius:3px;font-weight:700;letter-spacing:1px}
+.lb-badge.actions-2{background:rgba(26,122,74,.2);color:#4ade80;border:1px solid rgba(26,122,74,.3)}
+.lb-badge.actions-1{background:rgba(245,158,11,.2);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.lb-badge.actions-0{background:rgba(192,57,43,.2);color:#f87171;border:1px solid rgba(192,57,43,.3)}
+.lb-badge.hungry{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.lb-badge.broke{background:rgba(192,57,43,.15);color:#f87171;border:1px solid rgba(192,57,43,.3)}
+.lb-badge.war-ready{background:rgba(26,122,74,.12);color:#4ade80;border:1px solid rgba(26,122,74,.25)}
+.lb-badge.war-low{background:rgba(192,57,43,.12);color:#f87171;border:1px solid rgba(192,57,43,.25)}
 
-/* NEGOTIATION VIEW */
-#view-negotiation{background:radial-gradient(ellipse at center,#0a1628,#050709);align-items:center;justify-content:center;flex-direction:column;gap:2rem;padding:3rem;text-align:center}
-.negoc-title{font-size:clamp(28px,4vw,56px);font-weight:900;color:#60a5fa;font-family:'Cinzel',serif;text-shadow:0 0 40px rgba(96,165,250,.3)}
-.negoc-sub{font-size:clamp(13px,1.5vw,18px);color:rgba(147,197,253,.8);line-height:1.8;max-width:640px}
-.negoc-icons{font-size:50px;display:flex;gap:20px;justify-content:center}
-.negoc-lb{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:1rem;max-width:800px}
-.negoc-nation{background:rgba(30,58,95,.3);border:1px solid #2d5a8e;border-radius:8px;padding:12px 18px;text-align:center;min-width:120px}
-.negoc-nation-flag{font-size:28px;margin-bottom:4px}
-.negoc-nation-name{font-size:11px;font-weight:700;color:#fff;font-family:'Cinzel',serif;margin-bottom:2px}
-.negoc-nation-pts{font-size:10px;color:#60a5fa}
-.negoc-nation-stats{font-size:9px;color:rgba(255,255,255,.3);margin-top:2px}
+/* ── NEGOTIATION ── */
+#view-negotiation{background:radial-gradient(ellipse at center,#0a1628,#050709);align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;padding:2.5rem;overflow:hidden}
+.negoc-title{font-size:clamp(26px,4vw,52px);font-weight:900;color:#60a5fa;font-family:'Cinzel',serif}
+.negoc-sub{font-size:clamp(13px,1.4vw,17px);color:rgba(147,197,253,.8);line-height:1.8;max-width:620px;text-align:center}
+#negoc-reveal-card{opacity:0;transform:translateY(20px);transition:all .5s cubic-bezier(.34,1.56,.64,1);text-align:center;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#negoc-reveal-list{width:100%;max-width:580px;display:flex;flex-direction:column;gap:5px}
+/* Alliance info box */
+.negoc-alliance-info{max-width:650px;display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;justify-content:center}
+.nai-card{background:rgba(30,58,95,.3);border:1px solid #2d5a8e;border-radius:8px;padding:12px 16px;flex:1;min-width:240px}
+.nai-title{font-size:10px;font-weight:700;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;font-family:'Cinzel',serif}
+.nai-text{font-size:12px;color:#93c5fd;line-height:1.6}
 
-/* WAR VIEW */
-#view-war{background:#03010a}
+/* ── WAR ── */
+#view-war{background:#03010a;position:relative}
 .war-header{display:flex;align-items:center;justify-content:space-between;padding:10px 22px;border-bottom:1px solid #1a0408;flex-shrink:0}
 .war-logo{font-size:17px;color:#f87171;font-family:'Cinzel',serif;letter-spacing:3px}
-.war-timer-wrap{display:flex;align-items:center;gap:8px;padding:6px 15px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.25);border-radius:4px}
-.war-timer{font-size:clamp(24px,3.5vw,42px);font-weight:700;color:#f87171;font-family:'Cinzel',serif;letter-spacing:-1px;font-variant-numeric:tabular-nums}
-.war-timer.urgent{animation:tpulse 1s infinite}
-.war-body{flex:1;display:grid;grid-template-columns:1fr 260px;overflow:hidden;padding:12px 16px;gap:12px}
+.war-timer-wrap{display:flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.25);border-radius:4px}
+.war-timer{font-size:clamp(22px,3vw,40px);font-weight:700;color:#f87171;font-family:'Cinzel',serif;font-variant-numeric:tabular-nums}
+.war-body{flex:1;display:grid;grid-template-columns:1fr 270px;overflow:hidden;padding:12px 16px;gap:12px;padding-top:56px}
 .map-wrap{display:flex;flex-direction:column;gap:8px}
 #world-map{flex:1;border:1px solid #1a0408;border-radius:8px;background:#03010a;min-height:0}
 .war-nations{display:flex;flex-direction:column;gap:4px;overflow-y:auto}
 .wn{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:4px;border:1px solid #1a0408;background:#070108;transition:all .4s;position:relative}
-.wn.elim{opacity:.2;filter:grayscale(1)}
-.wn.elim::after{content:'CONQUIS';position:absolute;right:8px;font-size:8px;letter-spacing:2px;color:#f87171;font-family:'Cinzel',serif}
-.wn.active-turn{border-color:var(--gold);background:rgba(201,168,76,.06)}
-.wn-flag{font-size:18px}
-.wn-name{flex:1;font-size:11px;font-weight:600;color:#fff;font-family:'Cinzel',serif}
+.wn.elim{opacity:.2;filter:grayscale(1)}.wn.elim::after{content:'CONQUIS';position:absolute;right:8px;font-size:8px;letter-spacing:2px;color:#f87171;font-family:'Cinzel',serif}
+.wn.active-turn{border-color:var(--gold);background:rgba(201,168,76,.07);animation:activePulse 2s ease-in-out infinite}
+@keyframes activePulse{0%,100%{box-shadow:0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 10px rgba(201,168,76,.2)}}
+.wn-flag{font-size:18px}.wn-name{flex:1;font-size:11px;font-weight:600;color:#fff;font-family:'Cinzel',serif}
+.wn-team{font-size:9px;color:rgba(201,168,76,.5);margin-top:1px}
 .wn-pts{font-size:10px;color:#f87171;font-family:'Cinzel',serif}
 .wn-stats{font-size:9px;color:rgba(255,255,255,.25)}
 .wbw{width:100%;height:2px;background:#1a0408;margin-top:3px;border-radius:1px}
 .wbf{height:100%;background:linear-gradient(90deg,#7f1d1d,#f87171);transition:width .5s}
-.battle-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:2px solid var(--gold);border-radius:10px;padding:28px 44px;z-index:300;text-align:center;display:none;min-width:380px}
-.battle-popup.show{display:block;animation:bpop .5s cubic-bezier(.34,1.56,.64,1)}
-@keyframes bpop{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
-.anim-flash{position:fixed;inset:0;pointer-events:none;z-index:250}
-.anim-flash.flash{animation:warflash 2s ease-out forwards}
-@keyframes warflash{0%{background:rgba(192,57,43,0)}8%{background:rgba(192,57,43,.75)}25%{background:rgba(192,57,43,.4)}100%{background:rgba(192,57,43,0)}}
 </style>
 </head>
 <body>
@@ -163,15 +192,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 <div id="cinematic">
   <div class="cin-bg" id="cin-bg"></div>
   <div class="cin-particles" id="cin-particles"></div>
-  <div class="cin-bars-t"></div>
-  <div class="cin-bars-b"></div>
+  <div class="cin-bars-t"></div><div class="cin-bars-b"></div>
   <div class="cin-content">
     <div class="cin-overline" id="cin-overline"></div>
     <div class="cin-title" id="cin-title"></div>
     <div class="cin-subtitle" id="cin-subtitle"></div>
     <div class="cin-effect" id="cin-effect"></div>
     <div class="cin-hint" id="cin-hint" style="display:none">
-      <div class="cin-hint-title">🔮 Ce qui va arriver — prochaine période</div>
+      <div class="cin-hint-label">🔮 Ce qui va arriver — prochaine période</div>
       <div id="cin-hint-text"></div>
     </div>
   </div>
@@ -183,19 +211,23 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 <div class="battle-popup" id="battle-popup">
   <div id="bp-icon" style="font-size:50px;margin-bottom:10px"></div>
   <div id="bp-title" style="font-size:22px;font-weight:700;font-family:'Cinzel',serif;margin-bottom:8px;color:#fff"></div>
-  <div id="bp-flags" style="font-size:38px;margin-bottom:10px"></div>
+  <div id="bp-flags" style="font-size:36px;margin-bottom:10px"></div>
   <div id="bp-scores" style="font-size:13px;color:var(--text2);line-height:2"></div>
+  <div id="bp-firstblood" class="bp-firstblood" style="display:none">⚔️ Premier assaut — nation affaiblie mais vivante</div>
 </div>
 
-<!-- WAITING -->
+<!-- WAITING / DRAFT -->
 <div id="view-waiting" class="view active">
-  <div class="pulse-ring"></div>
-  <div class="wait-logo">Geopolitica</div>
-  <div class="wait-sub">En attente du début de la partie</div>
-  <div id="screen-session-code" style="display:none;margin-top:1rem;text-align:center">
-    <div style="font-size:10px;color:rgba(201,168,76,.5);letter-spacing:4px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:8px">Code pour rejoindre</div>
-    <div id="screen-session-code-val" style="font-size:clamp(36px,7vw,64px);font-weight:700;font-family:'Cinzel',serif;color:var(--gold);letter-spacing:8px"></div>
-    <div style="font-size:11px;color:rgba(201,168,76,.4);margin-top:6px">Saisissez ce code dans l'interface joueur</div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem">
+    <div class="pulse-ring"></div>
+    <div class="wait-logo">Geopolitica</div>
+    <div class="wait-sub" id="wait-sub-text">En attente du début de la partie</div>
+    <div id="screen-session-code" style="display:none;text-align:center">
+      <div style="font-size:10px;color:rgba(201,168,76,.5);letter-spacing:4px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:8px">Code pour rejoindre</div>
+      <div class="session-code-val" id="screen-session-code-val"></div>
+    </div>
+    <!-- Teams + countries chosen during draft -->
+    <div class="draft-teams-grid" id="draft-teams-grid"></div>
   </div>
 </div>
 
@@ -204,9 +236,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
   <div class="winner-confetti" id="winner-confetti"></div>
   <div class="winner-flag" id="winner-flag">🏳️</div>
   <div class="winner-title" id="winner-title">Vainqueur</div>
-  <div class="winner-subtitle" id="winner-subtitle">Champion du monde</div>
+  <div class="winner-subtitle" id="winner-subtitle"></div>
   <div class="winner-stats" id="winner-stats"></div>
-  <div class="winner-lb" id="winner-lb"></div>
+  <div id="winner-lb" style="max-width:560px;width:100%;margin-top:8px"></div>
 </div>
 
 <!-- PROSPERITY -->
@@ -221,18 +253,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
       <div class="ev-card" style="flex:1">
         <div>
           <div class="ev-type-pill ev-type-market" id="sc-ev-type">MARCHÉ</div>
-          <div class="ev-period" id="sc-ev-period">Période 1</div>
+          <div class="ev-period" id="sc-ev-period" style="display:inline;margin-left:8px">Période 1</div>
         </div>
         <div class="ev-name" id="sc-ev-name">—</div>
         <div class="ev-desc" id="sc-ev-desc"></div>
-        <!-- causal block removed from screen — justification in player tooltips only -->
-        <div id="sc-causal-block" style="display:none"><div id="sc-causal-title"></div><div id="sc-causal-text"></div></div>
-        <!-- BLOC BLEU : indice brut — pas de prix N+1 -->
-        <div id="sc-hint-block" style="display:none" class="ev-hint">
-          <div class="ev-hint-title">🔮 Indice — prochaine période</div>
+        <!-- Explication causale : ce que l'indice précédent a provoqué (P2+) -->
+        <div id="sc-causal-block" style="display:none;background:rgba(26,122,74,.1);border:1px solid rgba(26,122,74,.35);border-radius:6px;padding:10px 14px;margin-top:6px">
+          <div style="font-size:10px;font-weight:700;color:#4ade80;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:'Cinzel',serif">📊 <span id="sc-causal-title">Effet de l'indice précédent</span></div>
+          <div id="sc-causal-body" style="font-size:12px;color:#86efac;line-height:1.7;white-space:pre-line"></div>
+        </div>
+
+        <div id="sc-hint-block" class="ev-hint-box" style="display:none">
+          <div class="ev-hint-label">🔮 Indice — prochaine période</div>
           <div class="ev-hint-text" id="sc-hint-text"></div>
         </div>
-        <!-- Prix N+1 cachés du screen — MJ uniquement -->
       </div>
       <div class="timer-block">
         <div>
@@ -243,24 +277,30 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
       </div>
     </div>
     <div class="lb-panel">
-      <div class="lb-head">Classement</div>
+      <div class="lb-head">Classement — Actions — Alertes</div>
       <div id="sc-lb"></div>
     </div>
   </div>
 </div>
 
-<!-- NEGOTIATION — Dramatic reveal + leaderboard -->
-<div id="view-negotiation" class="view" style="flex-direction:column;overflow:hidden">
-  <!-- REVEAL PHASE -->
-  <div id="negoc-reveal" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;background:radial-gradient(ellipse at center,#0a1628,#050709)">
-    <div style="font-size:11px;color:rgba(201,168,76,.6);letter-spacing:5px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:1.5rem" id="negoc-reveal-counter">Classement final avant la guerre</div>
-    <div id="negoc-reveal-card" style="opacity:0;transform:translateY(20px);transition:all .5s cubic-bezier(.34,1.56,.64,1);text-align:center;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center">
-      <!-- filled by JS -->
-    </div>
-    <div id="negoc-reveal-list" style="width:100%;max-width:560px;margin-top:1.5rem;display:flex;flex-direction:column;gap:6px"></div>
-    <div id="negoc-reveal-done" style="display:none;margin-top:2rem;text-align:center">
-      <div style="font-size:13px;color:rgba(96,165,250,.7);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:0.5rem">Phase de Négociation</div>
-      <div style="font-size:12px;color:rgba(147,197,253,.7);line-height:1.8;max-width:500px">Alliance de non-agression : si vous êtes les 2 derniers, vous gagnez ensemble.<br>Le plus fort ne peut s'allier qu'avec le plus faible — choisissez bien.</div>
+<!-- NEGOTIATION -->
+<div id="view-negotiation" class="view">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;background:radial-gradient(ellipse at center,#0a1628,#050709);overflow:hidden">
+    <div style="font-size:11px;color:rgba(201,168,76,.6);letter-spacing:5px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:1.2rem" id="negoc-reveal-counter">Classement final</div>
+    <div id="negoc-reveal-card"></div>
+    <div id="negoc-reveal-list" style="width:100%;max-width:580px;margin-top:1.2rem;display:flex;flex-direction:column;gap:5px"></div>
+    <div id="negoc-reveal-done" style="display:none;margin-top:1.5rem;text-align:center;max-width:700px">
+      <div style="font-size:13px;color:rgba(96,165,250,.7);letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:1rem">🕊️ Phase de Négociation en cours</div>
+      <div class="negoc-alliance-info">
+        <div class="nai-card">
+          <div class="nai-title">🕊️ Non-agression (Gratuit)</div>
+          <div class="nai-text">Si vous êtes les 2 derniers survivants et avez un pacte de non-agression → <strong style="color:#4ade80">double victoire</strong> ! Le rang 1 ne peut s'allier qu'avec le rang N, le rang 2 avec les rangs N et N-1, etc.</div>
+        </div>
+        <div class="nai-card">
+          <div class="nai-title">⚔️ Alliance offensive (100 or)</div>
+          <div class="nai-text">+15% de puissance en combat pendant <strong>1 tour</strong>. Utile pour détruire un ennemi spécifique. L'alliance s'active immédiatement en guerre.</div>
+        </div>
+      </div>
       <div style="font-size:10px;color:rgba(96,165,250,.4);letter-spacing:2px;text-transform:uppercase;margin-top:1rem">En attente du MJ pour lancer la guerre</div>
     </div>
   </div>
@@ -268,6 +308,16 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 
 <!-- WAR -->
 <div id="view-war" class="view">
+  <!-- Current turn ticker -->
+  <div class="war-turn-ticker" id="war-turn-ticker">
+    <div class="wtt-label">Tour actuel</div>
+    <div id="wtt-flag" style="font-size:22px"></div>
+    <div class="wtt-name" id="wtt-name">—</div>
+    <div style="font-size:12px;color:rgba(248,113,113,.5)">⏱</div>
+    <div class="wtt-cd" id="wtt-cd">45</div>
+    <div style="width:1px;height:20px;background:rgba(248,113,113,.2)"></div>
+    <div class="wtt-order" id="wtt-order"></div>
+  </div>
   <div class="war-header">
     <div class="war-logo">⚔️ Guerre Mondiale</div>
     <div class="war-timer-wrap"><div class="war-timer" id="war-timer">10:00</div></div>
@@ -277,10 +327,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
     <div class="map-wrap">
       <svg id="world-map" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet" style="width:100%;flex:1">
         <defs>
-          <radialGradient id="oceanGrad" cx="50%" cy="40%" r="60%">
-            <stop offset="0%" stop-color="#06091a"/>
-            <stop offset="100%" stop-color="#020408"/>
-          </radialGradient>
+          <radialGradient id="oceanGrad" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#06091a"/><stop offset="100%" stop-color="#020408"/></radialGradient>
           <filter id="glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         </defs>
         <rect width="1000" height="520" fill="url(#oceanGrad)" rx="8"/>
@@ -288,22 +335,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
           <line x1="0" y1="130" x2="1000" y2="130"/><line x1="0" y1="220" x2="1000" y2="220"/><line x1="0" y1="310" x2="1000" y2="310"/><line x1="0" y1="400" x2="1000" y2="400"/>
           <line x1="200" y1="0" x2="200" y2="520"/><line x1="400" y1="0" x2="400" y2="520"/><line x1="600" y1="0" x2="600" y2="520"/><line x1="800" y1="0" x2="800" y2="520"/>
         </g>
-        <!-- Continents -->
         <path d="M 30,40 L 90,32 L 155,38 L 210,50 L 250,72 L 270,100 L 280,130 L 275,160 L 255,182 L 230,200 L 205,215 L 185,235 L 165,260 L 150,285 L 132,300 L 112,295 L 90,278 L 68,255 L 50,228 L 35,195 L 24,162 L 20,130 L 22,95 L 28,62 Z" fill="#0c0d1e" stroke="#1a1c38" stroke-width="1.5"/>
-        <path d="M 190,20 L 220,16 L 240,24 L 238,42 L 225,50 L 205,48 L 192,36 Z" fill="#090a1a" stroke="#141628" stroke-width="1"/>
-        <path d="M 175,305 L 210,298 L 230,310 L 225,328 L 205,335 L 182,322 Z" fill="#0c0d1e" stroke="#1a1c38" stroke-width="1"/>
+        <path d="M 190,20 L 220,16 L 240,24 L 238,42 L 225,50 L 205,48 L 192,36 Z" fill="#090a1a" stroke="#141628"/>
+        <path d="M 175,305 L 210,298 L 230,310 L 225,328 L 205,335 L 182,322 Z" fill="#0c0d1e" stroke="#1a1c38"/>
         <path d="M 185,345 L 235,332 L 278,342 L 310,362 L 325,400 L 330,445 L 318,490 L 295,510 L 265,512 L 235,498 L 210,470 L 193,435 L 182,395 L 180,365 Z" fill="#0c0d1e" stroke="#1a1c38" stroke-width="1.5"/>
         <path d="M 408,42 L 445,36 L 475,44 L 498,60 L 508,82 L 502,102 L 482,114 L 458,118 L 432,112 L 414,95 L 408,72 Z" fill="#0c0d1e" stroke="#1a1c38" stroke-width="1.5"/>
-        <path d="M 405,100 L 432,95 L 445,108 L 440,126 L 420,132 L 405,120 Z" fill="#0b0c1c" stroke="#141628" stroke-width="1"/>
-        <path d="M 448,18 L 468,12 L 482,24 L 478,46 L 462,54 L 444,46 L 440,30 Z" fill="#090a1a" stroke="#141628" stroke-width="1"/>
+        <path d="M 448,18 L 468,12 L 482,24 L 478,46 L 462,54 L 444,46 L 440,30 Z" fill="#090a1a" stroke="#141628"/>
         <path d="M 410,145 L 465,132 L 510,142 L 538,168 L 548,210 L 545,260 L 535,310 L 520,358 L 500,395 L 472,412 L 440,415 L 408,398 L 385,365 L 372,325 L 368,278 L 372,235 L 382,192 L 395,165 Z" fill="#0c0d1e" stroke="#1a1c38" stroke-width="1.5"/>
-        <path d="M 548,155 L 595,148 L 625,162 L 628,192 L 610,208 L 582,212 L 555,198 Z" fill="#0b0c1c" stroke="#141628" stroke-width="1.2"/>
+        <path d="M 548,155 L 595,148 L 625,162 L 628,192 L 610,208 L 582,212 L 555,198 Z" fill="#0b0c1c" stroke="#141628"/>
         <path d="M 490,32 L 600,20 L 720,26 L 820,34 L 900,46 L 940,62 L 945,90 L 920,108 L 880,112 L 830,106 L 780,100 L 730,104 L 680,110 L 630,108 L 580,104 L 540,95 L 508,80 L 494,55 Z" fill="#0c0d1e" stroke="#1a1c38" stroke-width="1.5"/>
-        <path d="M 620,108 L 700,104 L 740,115 L 745,140 L 720,155 L 678,158 L 640,148 L 620,130 Z" fill="#0b0c1c" stroke="#141628" stroke-width="1"/>
+        <path d="M 620,108 L 700,104 L 740,115 L 745,140 L 720,155 L 678,158 L 640,148 L 620,130 Z" fill="#0b0c1c" stroke="#141628"/>
         <path d="M 645,165 L 695,158 L 720,172 L 718,210 L 705,248 L 682,268 L 658,265 L 638,245 L 628,215 L 630,185 Z" fill="#0c0d1e" stroke="#1a1c38" stroke-width="1.5"/>
         <path d="M 740,104 L 820,98 L 860,108 L 870,135 L 858,162 L 820,172 L 775,170 L 742,158 L 728,138 Z" fill="#0c0d1e" stroke="#1a1c38" stroke-width="1.5"/>
-        <path d="M 895,92 L 916,84 L 928,96 L 922,114 L 905,120 L 892,108 Z" fill="#090a1a" stroke="#141628" stroke-width="1"/>
-        <path d="M 798,172 L 842,165 L 870,178 L 872,202 L 850,215 L 818,212 L 800,196 Z" fill="#0b0c1c" stroke="#141628" stroke-width="1"/>
+        <path d="M 895,92 L 916,84 L 928,96 L 922,114 L 905,120 L 892,108 Z" fill="#090a1a" stroke="#141628"/>
+        <path d="M 798,172 L 842,165 L 870,178 L 872,202 L 850,215 L 818,212 L 800,196 Z" fill="#0b0c1c" stroke="#141628"/>
         <path d="M 795,348 L 868,332 L 930,340 L 968,365 L 974,408 L 960,452 L 930,475 L 885,482 L 840,472 L 805,445 L 790,408 L 788,375 Z" fill="#0c0d1e" stroke="#1a1c38" stroke-width="1.5"/>
         <g id="map-countries"></g>
       </svg>
@@ -313,9 +358,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 </div>
 
 <script>
-const socket=io();
-let state={},timerSec=600,timerTotal=600,lastPhase=null,lastPeriod=0,currentWarTurnTeam=null;
-let cinematicTimeout=null,gameOver=false;
+const socket = io();
+let state = {}, timerSec = 600, timerTotal = 600, lastPhase = null, lastPeriod = 0;
+let currentWarTurnTeam = null, currentWarTurnSeconds = 45;
+let cinematicTimeout = null, gameOver = false;
+let negocRevealDone = false, negocRevealIdx = 0, negocRevealTimer = null;
 
 const MAP_POS = {
   // Amériques
@@ -336,7 +383,6 @@ const MAP_POS = {
   // Océanie
   australia:{x:878,y:408},
 };
-
 const COLORS = {
   usa:'#3b82f6', canada:'#60a5fa', mexico:'#f43f5e',
   brazil:'#22c55e', argentina:'#34d399', colombia:'#4ade80',
@@ -351,50 +397,56 @@ const COLORS = {
   australia:'#22d3ee',
 };
 
-const BASE_PRICES={oil:80,food:40,tourism:120,agriculture:60};
-
-const PERIOD_THEMES=[
-  {overline:'Période 1 · Année 1',bg:'radial-gradient(ellipse at center,#0a1628,#000)'},
-  {overline:'Période 2 · Année 2',bg:'radial-gradient(ellipse at center,#0e1a10,#000)'},
-  {overline:'Période 3 · Année 3',bg:'radial-gradient(ellipse at center,#1a0808,#000)'},
-  {overline:'Période 4 · Année 4',bg:'radial-gradient(ellipse at center,#0e0a1a,#000)'},
-  {overline:'Période 5 · Année 5',bg:'radial-gradient(ellipse at center,#1a0e00,#000)'},
-  {overline:'Période 6 · Année 6',bg:'radial-gradient(ellipse at center,#1a0208,#000)'},
-];
-
-socket.on('state',s=>{const prev=state;state=s;onUpdate(prev);});
-socket.on('sessionInfo',({sessionCode})=>{
-  const el=document.getElementById('screen-session-code-val');
-  const wrap=document.getElementById('screen-session-code');
-  if(el)el.textContent=sessionCode;
-  if(wrap)wrap.style.display='block';
+socket.on('state', s => { state = s; onUpdate(); });
+socket.on('sessionInfo', ({sessionCode}) => {
+  const el = document.getElementById('screen-session-code-val');
+  const wrap = document.getElementById('screen-session-code');
+  if(el) el.textContent = sessionCode;
+  if(wrap) wrap.style.display = 'block';
 });
-socket.on('timer',({seconds,running,ended})=>{if(gameOver)return;timerSec=seconds;updateTimers();if(ended)flashTimerEnd();});
-socket.on('attackAnimation',({attackerId,defenderId,success,scoreAtt,scoreDef})=>showBattle(attackerId,defenderId,success,scoreAtt,scoreDef));
-socket.on('winner',({winners,type})=>triggerWinner(winners,type));
-socket.on('warTurn',({team})=>{currentWarTurnTeam=team;if(state.phase==='war')renderWar();});
+socket.on('timer', ({seconds, ended}) => {
+  if(gameOver) return;
+  timerSec = seconds; updateTimers();
+  if(ended) flashTimerEnd();
+});
+socket.on('attackAnimation', ({attackerId,defenderId,success,scoreAtt,scoreDef,firstBlood}) => showBattle(attackerId,defenderId,success,scoreAtt,scoreDef,firstBlood));
+socket.on('winner', ({winners,type}) => { if(!gameOver){gameOver=true;hideCinematic();showWinner(winners,type);} });
+socket.on('warTurn', ({team,seconds,turnIndex,total}) => {
+  currentWarTurnTeam = team; currentWarTurnSeconds = seconds;
+  updateWarTicker(team, seconds, turnIndex, total);
+  if(state.phase==='war') renderWar();
+});
+socket.on('warTurnTimer', ({seconds,team}) => {
+  currentWarTurnSeconds = seconds;
+  const cd = document.getElementById('wtt-cd');
+  if(cd){cd.textContent = seconds; cd.className='wtt-cd'+(seconds<10?' urgent':'');}
+  if(team===currentWarTurnTeam && state.phase==='war') renderWar();
+});
+// When a country is drafted, update the draft grid immediately
+socket.on('countryDrafted', ({teamName,countryId,flag,name}) => {
+  renderDraftTeams();
+});
 
 function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
-function showCinematic(opts,dur){
-  const cin=document.getElementById('cinematic');
-  document.getElementById('cin-bg').style.background=opts.bg||'radial-gradient(ellipse at center,#0a1628,#000)';
-  document.getElementById('cin-overline').textContent=opts.overline||'';
-  document.getElementById('cin-title').textContent=opts.title||'';
-  document.getElementById('cin-subtitle').textContent=opts.subtitle||'';
-  document.getElementById('cin-effect').textContent=opts.effect||'';
-  const hintEl=document.getElementById('cin-hint');
+function showCinematic(opts, dur) {
+  const cin = document.getElementById('cinematic');
+  document.getElementById('cin-bg').style.background = opts.bg||'radial-gradient(ellipse at center,#0a1628,#000)';
+  document.getElementById('cin-overline').textContent = opts.overline||'';
+  document.getElementById('cin-title').textContent = opts.title||'';
+  document.getElementById('cin-subtitle').textContent = opts.subtitle||'';
+  document.getElementById('cin-effect').textContent = opts.effect||'';
+  const hintEl = document.getElementById('cin-hint');
   if(opts.hint){document.getElementById('cin-hint-text').textContent=opts.hint;hintEl.style.display='block';}
   else hintEl.style.display='none';
-  cin.className=opts.war?'active cin-war':opts.negoc?'active cin-negoc':'active';
-  const pp=document.getElementById('cin-particles');pp.innerHTML='';
-  for(let i=0;i<25;i++){const p=document.createElement('div');p.className='cin-particle';const drift=(Math.random()-0.5)*200;p.style.cssText=`left:${Math.random()*100}%;animation-duration:${3+Math.random()*4}s;animation-delay:${Math.random()*3}s;--drift:${drift}px;${opts.war?'background:#f87171':opts.negoc?'background:#60a5fa':''}`;pp.appendChild(p);}
-  const pf=document.getElementById('cin-progress-fill');
+  cin.className = opts.war?'active cin-war':opts.negoc?'active cin-negoc':'active';
+  const pp = document.getElementById('cin-particles'); pp.innerHTML='';
+  for(let i=0;i<20;i++){const p=document.createElement('div');p.className='cin-particle';const drift=(Math.random()-0.5)*200;p.style.cssText=`left:${Math.random()*100}%;animation-duration:${3+Math.random()*4}s;animation-delay:${Math.random()*3}s;--drift:${drift}px;background:${opts.war?'#f87171':opts.negoc?'#60a5fa':'#c9a84c'}`;pp.appendChild(p);}
+  const pf = document.getElementById('cin-progress-fill');
   if(pf){pf.style.transition='none';pf.style.width='0%';setTimeout(()=>{pf.style.transition=`width ${dur/1000}s linear`;pf.style.width='100%';},50);}
   if(cinematicTimeout)clearTimeout(cinematicTimeout);
-  if(dur)cinematicTimeout=setTimeout(hideCinematic,dur);
+  if(dur) cinematicTimeout = setTimeout(hideCinematic, dur);
 }
-
 function hideCinematic(){
   if(cinematicTimeout){clearTimeout(cinematicTimeout);cinematicTimeout=null;}
   document.getElementById('cinematic').className='';
@@ -402,33 +454,45 @@ function hideCinematic(){
 }
 
 function updateTimers(){
-  if(gameOver)return;
   const m=Math.floor(timerSec/60),s=timerSec%60;
   const fmt=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   const urgent=timerSec<60;
   ['sc-timer','war-timer'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=fmt;el.className=(id==='sc-timer'?'timer-val':'war-timer')+(urgent?' urgent':'');}});
   const bar=document.getElementById('sc-timer-bar');if(bar)bar.style.width=Math.max(0,timerSec/timerTotal*100)+'%';
 }
+function flashTimerEnd(){['sc-timer','war-timer'].forEach(id=>{const el=document.getElementById(id);if(el){el.style.color='#f87171';setTimeout(()=>{el.style.color='';},4000);}});}
 
-function flashTimerEnd(){['sc-timer','war-timer'].forEach(id=>{const el=document.getElementById(id);if(el){el.style.color='#f87171';setTimeout(()=>{if(!gameOver)el.style.color='';},4000);}});}
-
-function showBattle(attId,defId,success,scoreAtt,scoreDef){
-  const fl=document.getElementById('anim-flash');fl.className='anim-flash flash';setTimeout(()=>fl.className='anim-flash',2000);
-  const att=state.countries&&state.countries[attId];const def=state.countries&&state.countries[defId];if(!att||!def)return;
-  const p=document.getElementById('battle-popup');p.className='battle-popup show';
-  document.getElementById('bp-icon').textContent=success?'💥':'🛡️';
-  document.getElementById('bp-title').textContent=success?'Victoire écrasante !':'Attaque repoussée !';
-  document.getElementById('bp-flags').textContent=att.flag+' ⚔️ '+def.flag;
-  document.getElementById('bp-scores').innerHTML=
-    `<span style="color:${success?'#4ade80':'#f87171'}">${att.flag} ${att.name}: ${scoreAtt.toLocaleString()} pts</span><br>`+
-    `<span style="color:${success?'#f87171':'#4ade80'}">${def.flag} ${def.name}: ${scoreDef.toLocaleString()} pts</span><br><br>`+
-    `<span style="color:var(--gold)">${success?'🏴 Toutes ressources pillées !':'🛡️ La défense a tenu !'}</span>`;
-  setTimeout(()=>p.classList.remove('show'),10000);
+function updateWarTicker(team, seconds, turnIndex, total) {
+  const c = state.countries&&Object.values(state.countries).find(c=>c.team===team);
+  document.getElementById('wtt-flag').textContent = c?.flag||'';
+  document.getElementById('wtt-name').textContent = (c?.name||team)+' — '+(c?'Équipe '+team:'');
+  document.getElementById('wtt-cd').textContent = seconds;
+  // Draw dots for cycle progress
+  const order = document.getElementById('wtt-order'); order.innerHTML='';
+  if(total>0){
+    for(let i=0;i<total;i++){
+      const d=document.createElement('div');
+      d.className='wtt-dot'+(i===turnIndex?' active':i<turnIndex?' done':'');
+      order.appendChild(d);
+    }
+  }
 }
 
-function triggerWinner(winners,type){
-  if(gameOver)return;
-  gameOver=true;hideCinematic();showWinner(winners,type);
+function showBattle(attId,defId,success,scoreAtt,scoreDef,firstBlood){
+  const fl=document.getElementById('anim-flash');fl.className='anim-flash flash';setTimeout(()=>fl.className='anim-flash',4200);
+  const att=state.countries&&state.countries[attId];const def=state.countries&&state.countries[defId];if(!att||!def)return;
+  const p=document.getElementById('battle-popup');p.className='battle-popup show';
+  document.getElementById('bp-icon').textContent=success?(firstBlood?'⚔️':'💥'):'🛡️';
+  document.getElementById('bp-title').textContent=success?(firstBlood?'Premier Assaut !':'Victoire écrasante !'):'Attaque repoussée !';
+  document.getElementById('bp-flags').textContent=att.flag+' ⚔️ '+def.flag;
+  const resultLine=success
+    ?(firstBlood?`<span style="color:#fbbf24">⚔️ Pillage partiel (50%) — ${def.flag} ${def.name} survit !</span>`:`<span style="color:var(--gold)">🏴 Toutes ressources pillées !</span>`)
+    :`<span style="color:#60a5fa">🛡️ La défense a tenu !</span>`;
+  document.getElementById('bp-scores').innerHTML=
+    `<span style="color:${success?'#4ade80':'#f87171'}">${att.flag} ${att.name}: ${scoreAtt.toLocaleString()} pts</span><br>`+
+    `<span style="color:${success?'#f87171':'#4ade80'}">${def.flag} ${def.name}: ${scoreDef.toLocaleString()} pts</span><br><br>`+resultLine;
+  const fb=document.getElementById('bp-firstblood');if(fb)fb.style.display=firstBlood?'block':'none';
+  setTimeout(()=>p.classList.remove('show'),16000);
 }
 
 function showWinner(winners,type){
@@ -439,7 +503,7 @@ function showWinner(winners,type){
   document.getElementById('winner-subtitle').textContent=isAlliance?'Alliance de non-agression — deux champions du monde !':'Dernier empire sur Terre';
   const w=winners[0];
   document.getElementById('winner-stats').innerHTML=
-    `<div class="winner-stat"><div class="winner-stat-label">Puissance finale</div><div class="winner-stat-val">${w.power.toLocaleString()}</div></div>`+
+    `<div class="winner-stat"><div class="winner-stat-label">Puissance</div><div class="winner-stat-val">${w.power.toLocaleString()}</div></div>`+
     `<div class="winner-stat"><div class="winner-stat-label">Or</div><div class="winner-stat-val">${(w.treasury||0).toLocaleString()}</div></div>`+
     `<div class="winner-stat"><div class="winner-stat-label">Armée</div><div class="winner-stat-val">${w.army||0}</div></div>`+
     `<div class="winner-stat"><div class="winner-stat-label">ATK / DEF</div><div class="winner-stat-val">${w.atk||0} / ${w.def||0}</div></div>`;
@@ -447,10 +511,10 @@ function showWinner(winners,type){
   document.getElementById('winner-lb').innerHTML=
     `<div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);font-family:'Cinzel',serif;margin-bottom:8px;text-align:center">Classement final</div>`+
     teams.map((c,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:4px;background:${i===0?'rgba(201,168,76,.12)':'rgba(17,21,32,.6)'};border:1px solid ${i===0?'rgba(201,168,76,.3)':'var(--border)'};margin-bottom:4px">
-      <div style="font-size:11px;font-weight:700;min-width:22px;color:${i===0?'var(--gold)':'var(--text2)'};font-family:'Cinzel',serif">${i+1}</div>
+      <div style="font-size:11px;font-weight:700;min-width:20px;color:${i===0?'var(--gold)':'var(--text2)'};font-family:'Cinzel',serif">${i+1}</div>
       <div style="font-size:18px">${c.flag}</div>
       <div style="flex:1;font-size:11px;font-weight:600;color:#fff;font-family:'Cinzel',serif">${c.name}</div>
-      <div style="font-size:10px;color:rgba(255,255,255,.3)">ATK:${c.atk||0} DEF:${c.def||0}</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.3)">${c.team}</div>
       <div style="font-size:11px;color:var(--text2)">${c.power.toLocaleString()} pts</div>
     </div>`).join('');
   const cc=document.getElementById('winner-confetti');cc.innerHTML='';
@@ -458,30 +522,47 @@ function showWinner(winners,type){
   for(let i=0;i<60;i++){const p=document.createElement('div');p.className='confetti-piece';p.style.cssText=`left:${Math.random()*100}%;top:-20px;background:${colors[Math.floor(Math.random()*colors.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;animation-duration:${3+Math.random()*5}s;animation-delay:${Math.random()*4}s;border-radius:${Math.random()>.5?'50%':'0'}`;cc.appendChild(p);}
 }
 
-function pricePill(resource,newPrice,oldPrice){
-  const icons={oil:'🛢️',food:'🌾',tourism:'🏖️',agriculture:'🌿'};
-  const diff=newPrice-oldPrice;
-  const pct=Math.round(Math.abs(diff)/oldPrice*100);
-  let arrowHtml='';
-  let cls='';
-  if(diff>oldPrice*0.05){arrowHtml=`<span class="price-arrow" style="color:#f87171">↑${pct}%</span>`;cls='expensive';}
-  else if(diff<-oldPrice*0.05){arrowHtml=`<span class="price-arrow" style="color:#4ade80">↓${pct}%</span>`;cls='cheap';}
-  return `<div class="screen-price ${cls}">${icons[resource]||''} <strong>${newPrice}</strong> or ${arrowHtml}</div>`;
+// ── Render draft teams on waiting screen ─────────────────────────────────
+function renderDraftTeams(){
+  const grid=document.getElementById('draft-teams-grid');if(!grid)return;
+  const countries=state.countries||{};
+  const chosen=Object.values(countries).filter(c=>c.team);
+  if(chosen.length===0){grid.innerHTML='';return;}
+  grid.innerHTML=chosen.map(c=>`
+    <div class="draft-team-card chosen">
+      <div class="dtc-flag">${c.flag}</div>
+      <div class="dtc-country">${c.name}</div>
+      <div class="dtc-team">${c.team}</div>
+      <span class="dtc-tier tier-${c.tier}">${c.tier}</span>
+    </div>`).join('');
+  // Also show teams that joined but haven't chosen yet
+  const allTeams=Object.keys(state.teams||{});
+  const chosenTeams=new Set(chosen.map(c=>c.team));
+  const waiting=allTeams.filter(t=>!chosenTeams.has(t));
+  if(waiting.length>0){
+    grid.innerHTML+=waiting.map(t=>`
+      <div class="draft-team-card" style="opacity:.5">
+        <div style="font-size:22px">⏳</div>
+        <div class="dtc-country" style="color:var(--text2)">Choisit...</div>
+        <div class="dtc-team">${t}</div>
+      </div>`).join('');
+  }
 }
 
-function onUpdate(prev){
+function onUpdate(){
   if(gameOver)return;
-  if(state.gameOver&&state.winners&&state.winners.length>0){triggerWinner(state.winners,state.winners.length>1?'alliance':'solo');return;}
+  if(state.gameOver&&state.winners&&state.winners.length>0){gameOver=true;hideCinematic();showWinner(state.winners,state.winners.length>1?'alliance':'solo');return;}
 
   if(state.phase!==lastPhase){
     if(state.phase==='war'&&lastPhase!=='war'){
-      showCinematic({war:true,overline:'Alerte Mondiale · Breaking News',bg:'radial-gradient(ellipse at center,#1a0205,#000)',title:'La Guerre est Déclarée',subtitle:'Le monde tel que nous le connaissions vient de basculer. Quinze nations. Une seule survivra. Alliances, trahisons, pillages — que la guerre commence.',effect:'⚔️ Que le meilleur règne sur le monde'},20000);
+      showCinematic({war:true,overline:'Alerte Mondiale · Breaking News',bg:'radial-gradient(ellipse at center,#1a0205,#000)',title:'La Guerre est Déclarée',subtitle:'Le monde tel que nous le connaissions vient de basculer. Quinze nations. Une seule survivra.',effect:'⚔️ Que le meilleur règne sur le monde'},20000);
       setTimeout(()=>showView('view-war'),600);
     } else if(state.phase==='negotiation'){
-      showCinematic({negoc:true,overline:'Phase diplomatique · Avant la guerre',bg:'radial-gradient(ellipse at center,#0a1628,#000)',title:'Phase de Négociation',subtitle:'La guerre est imminente. C\'est le dernier moment pour former des alliances. Une alliance de non-agression entre les deux derniers survivants signifie une double victoire.',effect:'🕊️ Proposez vos alliances maintenant'},15000);
+      showCinematic({negoc:true,overline:'Phase diplomatique · Avant la guerre',bg:'radial-gradient(ellipse at center,#0a1628,#000)',title:'Phase de Négociation',subtitle:'La guerre est imminente. Dernier moment pour former des alliances. Un pacte de non-agression entre les deux derniers survivants = double victoire.',effect:'🕊️ Proposez vos alliances maintenant'},15000);
       setTimeout(()=>{hideCinematic();showView('view-negotiation');},600);
+      negocRevealDone=false;negocRevealIdx=0;
     } else if(state.phase==='prosperity'){
-      const w=document.getElementById('screen-session-code');if(w)w.style.display='none';
+      document.getElementById('screen-session-code').style.display='none';
       showView('view-prosperity');
     } else if(state.phase==='draft'||state.phase==='setup'){
       showView('view-waiting');
@@ -489,14 +570,23 @@ function onUpdate(prev){
     lastPhase=state.phase;
   }
 
+  // Period cinematic
   if(state.currentPeriod!==lastPeriod&&state.currentPeriod>0&&state.phase==='prosperity'){
-    const theme=PERIOD_THEMES[(state.currentPeriod-1)%PERIOD_THEMES.length];
     const ev=state.currentEvent;
+    const themes=[
+      {overline:'Période 1 · Année 1',bg:'radial-gradient(ellipse at center,#0a1628,#000)'},
+      {overline:'Période 2 · Année 2',bg:'radial-gradient(ellipse at center,#0e1a10,#000)'},
+      {overline:'Période 3 · Année 3',bg:'radial-gradient(ellipse at center,#1a0808,#000)'},
+      {overline:'Période 4 · Année 4',bg:'radial-gradient(ellipse at center,#0e0a1a,#000)'},
+      {overline:'Période 5 · Année 5',bg:'radial-gradient(ellipse at center,#1a0e00,#000)'},
+      {overline:'Période 6 · Année 6',bg:'radial-gradient(ellipse at center,#1a0208,#000)'},
+    ];
+    const theme=themes[(state.currentPeriod-1)%themes.length];
     showCinematic({
-      overline:theme.overline,bg:theme.bg,
+      overline:theme.overline, bg:theme.bg,
       title:ev?.periodName||'Nouvelle Période',
       subtitle:ev?.periodDesc||'',
-      effect:'', // event effect hidden — shown as hint only
+      effect:ev?.title?`⚡ ${ev.title}`:'',
       hint:ev?.nextHint||null,
     },18000);
     timerTotal=600;lastPeriod=state.currentPeriod;
@@ -505,6 +595,8 @@ function onUpdate(prev){
   if(state.phase==='prosperity')renderProsperity();
   if(state.phase==='war')renderWar();
   if(state.phase==='negotiation')renderNegotiation();
+  if(state.phase==='draft'||state.phase==='setup')renderDraftTeams();
+  if(state.phase==='draft')document.getElementById('wait-sub-text').textContent='Phase de draft — choisissez votre nation';
 }
 
 function renderProsperity(){
@@ -518,88 +610,112 @@ function renderProsperity(){
     const ev=state.currentEvent;
     const tl={market:'MARCHÉ',choice:'CHOIX',targeted:'CIBLÉ'};
     const tc={market:'ev-type-market',choice:'ev-type-choice',targeted:'ev-type-targeted'};
-    const pill=document.getElementById('sc-ev-type');
-    if(pill){pill.textContent=tl[ev.type]||'MARCHÉ';pill.className='ev-type-pill '+(tc[ev.type]||'ev-type-market');}
     document.getElementById('sc-ev-period').textContent=ev.periodSubtitle||`Année ${ev.periodNumber||''}`;
     document.getElementById('sc-ev-name').textContent=ev.periodName||'';
     document.getElementById('sc-ev-desc').textContent=ev.periodDesc||'';
-    // Bloc jaune — causal explanation from PREVIOUS event (why current prices are what they are)
-    const prevEv=state.prevEvent||null;
+    // Pill type + P1 masquage event
+    const pill=document.getElementById('sc-ev-type');
+    if(pill){pill.textContent=tl[ev.type]||'MARCHÉ';pill.className='ev-type-pill '+(tc[ev.type]||'ev-type-market');}
+    // En P1 : pas d'event visible, l'event n'avait pas été annoncé
+    // (pill déjà défini ci-dessus)
+    if(ev.hideEventFromPlayers) {
+      if(pill) pill.style.display='none';
+      document.getElementById('sc-ev-period').textContent='';
+    } else {
+      if(pill) pill.style.display='inline-block';
+    }
+
+    // Explication causale (P2+) : ce que l'indice précédent a causé sur les prix
     const causalBlock=document.getElementById('sc-causal-block');
-    if(causalBlock)causalBlock.style.display='none'; // hidden on screen
-    // Bloc bleu — next hint only (no N+1 prices shown on screen)
+    if(ev.causalFromPrev && ev.prevEvTitle && !ev.hideEventFromPlayers) {
+      document.getElementById('sc-causal-title').textContent = 'Indice "' + ev.prevEvTitle + '" → impact sur les prix :';
+      document.getElementById('sc-causal-body').textContent=ev.causalFromPrev;
+      causalBlock.style.display='block';
+    } else {
+      causalBlock.style.display='none';
+    }
+
     const hintBlock=document.getElementById('sc-hint-block');
     if(ev.nextHint){document.getElementById('sc-hint-text').textContent=ev.nextHint;hintBlock.style.display='block';}
     else hintBlock.style.display='none';
   }
+
+  // Leaderboard with actions + status badges
+  const teamActions=state.teamActionsThisPeriod||{};
+  const foodWarnings=new Set();
+  Object.values(countries).forEach(c=>{if(c.team&&!c.eliminated){const need=Math.max(3,Math.round(c.population/6));if(c.food<need*1.5)foodWarnings.add(c.team);}});
+
   document.getElementById('sc-lb').innerHTML=sorted.map((c,i)=>{
     const pct=Math.round(c.power/maxP*100);
     const bc=pct<30?'bfl':pct<60?'bfm':'bfh';
+    const used=teamActions[c.team]||0;const rem=Math.max(0,2-used);
+    const actCls=rem===2?'actions-2':rem===1?'actions-1':'actions-0';
+    const actTxt=rem===2?'2 actions':rem===1?'1 action':'0 actions';
+    const isHungry=foodWarnings.has(c.team);
+    const isBroke=c.treasury<400;
+    const warReady=c.treasury>=600;
+    // Show period-specific badges
+    const isProsperity=state.phase==='prosperity';
+    const badges=[
+      `<span class="lb-badge ${actCls}">${actTxt}</span>`,
+      isHungry?`<span class="lb-badge hungry">🍞 famine</span>`:'',
+      isBroke?`<span class="lb-badge broke">💸 peu d\'or</span>`:'',
+      (isProsperity&&state.currentPeriod>=4)?warReady?`<span class="lb-badge war-ready">⚔️ prêt</span>`:`<span class="lb-badge war-low">⚔️ <600</span>`:'',
+    ].filter(Boolean).join('');
     return `<div class="lb-item ${i===0?'first':''}">
-      <div class="lb-pos">${i+1}</div>
-      <div class="lb-fl">${c.flag}</div>
-      <div class="lb-info">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div class="lb-nm">${c.name}</div>
-          <div class="lb-pw">${c.power.toLocaleString()}</div>
+      <div class="lb-main">
+        <div class="lb-pos">${i+1}</div>
+        <div class="lb-fl">${c.flag}</div>
+        <div class="lb-info">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div class="lb-nm">${c.name}</div><div class="lb-team-name">${c.team}</div></div>
+            <div class="lb-pw">${c.power.toLocaleString()}</div>
+          </div>
+          <div class="lb-stats">ATK:${c.atk||0} · DEF:${c.def||0} · 🪖${c.army} · 💰${c.treasury}</div>
+          <div class="lb-bw"><div class="lb-bf ${bc}" style="width:${pct}%"></div></div>
         </div>
-        <div class="lb-stats">ATK:${c.atk||0} · DEF:${c.def||0} · Arm:${c.army}</div>
-        <div class="lb-bw"><div class="lb-bf ${bc}" style="width:${pct}%"></div></div>
       </div>
+      ${badges?`<div class="lb-status">${badges}</div>`:''}
     </div>`;
   }).join('');
 }
 
-let negocRevealDone=false,negocRevealIdx=0,negocRevealTimer=null;
-
 function renderNegotiation(){
   const ranking=state.negotiationRanking||[];
-  if(!ranking.length)return;
-  if(!negocRevealDone){
-    startNegocReveal(ranking);
-  }
+  if(!ranking.length||negocRevealDone)return;
+  startNegocReveal(ranking);
+  negocRevealDone=true;
 }
 
 function startNegocReveal(ranking){
-  negocRevealDone=false;negocRevealIdx=0;
+  negocRevealIdx=0;
   if(negocRevealTimer)clearTimeout(negocRevealTimer);
   document.getElementById('negoc-reveal-list').innerHTML='';
   document.getElementById('negoc-reveal-done').style.display='none';
-  // Reveal from last to first (bottom to top)
-  const revealOrder=[...ranking].reverse(); // weakest first
+  const revealOrder=[...ranking].reverse();
   function revealNext(){
     if(negocRevealIdx>=revealOrder.length){
-      // All revealed — show leaderboard complete + negotiation message
-      document.getElementById('negoc-reveal-card').style.opacity='0';
+      const card=document.getElementById('negoc-reveal-card');card.style.opacity='0';
       document.getElementById('negoc-reveal-counter').textContent='Classement final — '+ranking.length+' nations';
-      document.getElementById('negoc-reveal-done').style.display='block';
-      negocRevealDone=true;return;
+      document.getElementById('negoc-reveal-done').style.display='block';return;
     }
-    const nation=revealOrder[negocRevealIdx];
-    const rank=nation.rank; // 1=strongest
-    const N=ranking.length;
-    const posFromBottom=negocRevealIdx+1; // 1=weakest revealed first
-    // Show the big card for current nation
+    const nation=revealOrder[negocRevealIdx];const rank=nation.rank;const N=ranking.length;
     const card=document.getElementById('negoc-reveal-card');
     card.style.opacity='0';card.style.transform='translateY(20px)';
     card.innerHTML=`
-      <div style="font-size:11px;color:rgba(201,168,76,.5);letter-spacing:4px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:8px">${rank === 1 ? '🏆 LEADER' : rank===2?'🥈 2ème':rank===3?'🥉 3ème':'Rang '+rank+'/'+N}</div>
-      <div style="font-size:clamp(48px,10vw,80px);margin:4px 0">${nation.flag}</div>
-      <div style="font-size:clamp(18px,3vw,32px);font-weight:700;color:#fff;font-family:'Cinzel',serif">${nation.name}</div>
-      <div style="font-size:clamp(22px,3vw,38px);font-weight:700;font-family:'Cinzel',serif;color:${rank===1?'#c9a84c':rank<=3?'#60a5fa':'#d4d8e8'};margin-top:6px">${nation.power.toLocaleString()} pts</div>
+      <div style="font-size:11px;color:rgba(201,168,76,.5);letter-spacing:4px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:8px">${rank===1?'🏆 LEADER':rank===2?'🥈 2ème':rank===3?'🥉 3ème':'Rang '+rank+'/'+N}</div>
+      <div style="font-size:clamp(44px,9vw,76px);margin:4px 0">${nation.flag}</div>
+      <div style="font-size:clamp(16px,2.8vw,30px);font-weight:700;color:#fff;font-family:'Cinzel',serif">${nation.name}</div>
+      <div style="font-size:clamp(20px,2.8vw,36px);font-weight:700;font-family:'Cinzel',serif;color:${rank===1?'#c9a84c':rank<=3?'#60a5fa':'#d4d8e8'};margin-top:6px">${nation.power.toLocaleString()} pts</div>
       <div style="font-size:12px;color:rgba(255,255,255,.35);margin-top:6px">Armée: ${nation.army} · ATK: ${nation.atk} · DEF: ${nation.def}</div>`;
     setTimeout(()=>{card.style.opacity='1';card.style.transform='translateY(0)';},30);
     document.getElementById('negoc-reveal-counter').textContent=`Rang ${rank} sur ${N}`;
-    // Add to growing list (most recent at top = strongest revealed last goes to top)
     const list=document.getElementById('negoc-reveal-list');
     const item=document.createElement('div');
-    const isStrong=rank<=Math.ceil(N/3);
-    item.style.cssText=`display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:6px;background:${rank===1?'rgba(201,168,76,.15)':rank===2?'rgba(201,168,76,.08)':'rgba(17,21,32,.7)'};border:1px solid ${rank===1?'rgba(201,168,76,.4)':rank<=3?'rgba(201,168,76,.2)':'rgba(30,38,64,.8)'};opacity:0;transform:translateX(-10px);transition:all .4s`;
-    item.innerHTML=`<div style="font-size:11px;font-weight:700;min-width:22px;color:${rank===1?'#c9a84c':'rgba(136,146,176,.6)'};font-family:'Cinzel',serif">${rank}</div><div style="font-size:20px">${nation.flag}</div><div style="flex:1;font-size:12px;font-weight:600;color:#fff;font-family:'Cinzel',serif">${nation.name}</div><div style="font-size:12px;color:${rank===1?'#c9a84c':'rgba(136,146,176,.7)'};font-family:'Cinzel',serif">${nation.power.toLocaleString()} pts</div>`;
-    list.prepend(item);
-    setTimeout(()=>{item.style.opacity='1';item.style.transform='translateX(0)';},100);
-    negocRevealIdx++;
-    negocRevealTimer=setTimeout(revealNext,2800);
+    item.style.cssText=`display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:6px;background:${rank===1?'rgba(201,168,76,.15)':'rgba(17,21,32,.7)'};border:1px solid ${rank===1?'rgba(201,168,76,.4)':'rgba(30,38,64,.8)'};opacity:0;transform:translateX(-10px);transition:all .4s`;
+    item.innerHTML=`<div style="font-size:11px;font-weight:700;min-width:20px;color:${rank===1?'#c9a84c':'rgba(136,146,176,.5)'};font-family:'Cinzel',serif">${rank}</div><div style="font-size:20px">${nation.flag}</div><div style="flex:1;font-size:12px;font-weight:600;color:#fff;font-family:'Cinzel',serif">${nation.name}</div><div style="font-size:11px;color:rgba(136,146,176,.7);font-family:'Cinzel',serif">${nation.power.toLocaleString()} pts</div>`;
+    list.prepend(item);setTimeout(()=>{item.style.opacity='1';item.style.transform='translateX(0)';},100);
+    negocRevealIdx++;negocRevealTimer=setTimeout(revealNext,2800);
   }
   revealNext();
 }
@@ -611,14 +727,17 @@ function renderWar(){
   const sorted=[...teams].sort((a,b)=>b.power-a.power);
   const maxP=Math.max(...teams.map(c=>c.power),1);
   document.getElementById('war-alive').textContent=alive.length+' nations actives';
+  const attacked=state.attacksReceived||{};
   document.getElementById('war-nations').innerHTML=sorted.map(c=>{
     const pct=Math.round(c.power/maxP*100);
     const isActive=currentWarTurnTeam&&c.team===currentWarTurnTeam;
+    const nbAtk=attacked[c.id]||0;
+    const woundedTag=nbAtk>0&&!c.eliminated?`<span style="font-size:8px;color:#fbbf24;margin-left:3px">⚔️×${nbAtk}</span>`:'';
     return `<div class="wn ${c.eliminated?'elim':''} ${isActive?'active-turn':''}">
       <div class="wn-flag">${c.flag}</div>
       <div style="flex:1">
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <div class="wn-name">${c.name}</div>
+          <div><div class="wn-name">${c.name}${woundedTag}</div><div class="wn-team">${c.team}</div></div>
           <div class="wn-pts">${c.power.toLocaleString()}</div>
         </div>
         <div class="wn-stats">⚔️ATK:${c.atk||0} 🛡️DEF:${c.def||0} 🪖${c.army}</div>
@@ -626,7 +745,17 @@ function renderWar(){
       </div>
     </div>`;
   }).join('');
+  // Update ticker
+  if(currentWarTurnTeam){
+    const cycle=state.warCycleOrder||state.warTurnOrder||[];
+    const idx=cycle.indexOf(currentWarTurnTeam);
+    updateWarTicker(currentWarTurnTeam,currentWarTurnSeconds,Math.max(0,idx),cycle.length);
+  }
   // Map
+  renderMap(teams);
+}
+
+function renderMap(teams){
   const mapG=document.getElementById('map-countries');if(!mapG)return;mapG.innerHTML='';
   teams.forEach(c=>{
     const pos=MAP_POS[c.id];if(!pos)return;
@@ -635,8 +764,6 @@ function renderWar(){
     if(!c.eliminated){
       const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
       ring.setAttribute('cx',pos.x);ring.setAttribute('cy',pos.y);ring.setAttribute('r','28');ring.setAttribute('fill',color);ring.setAttribute('opacity','0.1');g.appendChild(ring);
-      const ring2=document.createElementNS('http://www.w3.org/2000/svg','circle');
-      ring2.setAttribute('cx',pos.x);ring2.setAttribute('cy',pos.y);ring2.setAttribute('r','16');ring2.setAttribute('fill',color);ring2.setAttribute('opacity','0.18');g.appendChild(ring2);
     }
     const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
     dot.setAttribute('cx',pos.x);dot.setAttribute('cy',pos.y);dot.setAttribute('r','9');
@@ -644,19 +771,19 @@ function renderWar(){
     if(!c.eliminated)dot.setAttribute('filter','url(#glow)');g.appendChild(dot);
     if(currentWarTurnTeam&&c.team===currentWarTurnTeam&&!c.eliminated){
       const pulse=document.createElementNS('http://www.w3.org/2000/svg','circle');
-      pulse.setAttribute('cx',pos.x);pulse.setAttribute('cy',pos.y);pulse.setAttribute('r','20');pulse.setAttribute('fill','none');pulse.setAttribute('stroke',color);pulse.setAttribute('stroke-width','1.5');pulse.setAttribute('opacity','0.6');pulse.setAttribute('stroke-dasharray','4 4');g.appendChild(pulse);
+      pulse.setAttribute('cx',pos.x);pulse.setAttribute('cy',pos.y);pulse.setAttribute('r','20');pulse.setAttribute('fill','none');pulse.setAttribute('stroke',color);pulse.setAttribute('stroke-width','2');pulse.setAttribute('opacity','0.6');g.appendChild(pulse);
     }
     const flag=document.createElementNS('http://www.w3.org/2000/svg','text');
     flag.setAttribute('x',pos.x);flag.setAttribute('y',pos.y-18);flag.setAttribute('text-anchor','middle');flag.setAttribute('font-size','16');flag.setAttribute('opacity',c.eliminated?'0.1':'1');flag.textContent=c.flag;g.appendChild(flag);
     const nm=document.createElementNS('http://www.w3.org/2000/svg','text');
-    nm.setAttribute('x',pos.x);nm.setAttribute('y',pos.y+22);nm.setAttribute('text-anchor','middle');nm.setAttribute('font-size','7.5');nm.setAttribute('fill',c.eliminated?'#1a0408':color);nm.setAttribute('font-family','Cinzel,serif');nm.setAttribute('letter-spacing','0.5');nm.textContent=c.name.toUpperCase();g.appendChild(nm);
+    nm.setAttribute('x',pos.x);nm.setAttribute('y',pos.y+22);nm.setAttribute('text-anchor','middle');nm.setAttribute('font-size','7');nm.setAttribute('fill',c.eliminated?'#1a0408':color);nm.setAttribute('font-family','Cinzel,serif');nm.setAttribute('letter-spacing','0.5');nm.textContent=c.name.toUpperCase();g.appendChild(nm);
+    const team=document.createElementNS('http://www.w3.org/2000/svg','text');
+    team.setAttribute('x',pos.x);team.setAttribute('y',pos.y+31);team.setAttribute('text-anchor','middle');team.setAttribute('font-size','6');team.setAttribute('fill','rgba(201,168,76,0.45)');team.textContent=c.team||'';g.appendChild(team);
     if(!c.eliminated){
       const pw=document.createElementNS('http://www.w3.org/2000/svg','text');
-      pw.setAttribute('x',pos.x);pw.setAttribute('y',pos.y+31);pw.setAttribute('text-anchor','middle');pw.setAttribute('font-size','6');pw.setAttribute('fill','rgba(255,255,255,0.25)');pw.textContent=c.power.toLocaleString()+' pts';g.appendChild(pw);
+      pw.setAttribute('x',pos.x);pw.setAttribute('y',pos.y+38);pw.setAttribute('text-anchor','middle');pw.setAttribute('font-size','6');pw.setAttribute('fill','rgba(255,255,255,0.2)');pw.textContent=c.power.toLocaleString()+' pts';g.appendChild(pw);
     }
-    if(c.eliminated){
-      [[-6,-6,6,6],[6,-6,-6,6]].forEach(([x1,y1,x2,y2])=>{const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('x1',pos.x+x1);line.setAttribute('y1',pos.y+y1);line.setAttribute('x2',pos.x+x2);line.setAttribute('y2',pos.y+y2);line.setAttribute('stroke','#f87171');line.setAttribute('stroke-width','2');g.appendChild(line);});
-    }
+    if(c.eliminated){[[-6,-6,6,6],[6,-6,-6,6]].forEach(([x1,y1,x2,y2])=>{const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('x1',pos.x+x1);line.setAttribute('y1',pos.y+y1);line.setAttribute('x2',pos.x+x2);line.setAttribute('y2',pos.y+y2);line.setAttribute('stroke','#f87171');line.setAttribute('stroke-width','2');g.appendChild(line);});}
     mapG.appendChild(g);
   });
 }
