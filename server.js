@@ -452,7 +452,7 @@ function applyEvent(ev) {
 
   if(ev.special==='oilCrash')         Object.values(gameState.countries).forEach(c=>{if(!c.eliminated&&c.oil>200){c.treasury=Math.max(0,c.treasury-900);c.power=calcPower(c);addTeamNews(c.team,'💥 Effondrement pétrolier: −900 or !','bad');}});
   if(ev.special==='agriBoost')        Object.values(gameState.countries).forEach(c=>{if(!c.eliminated){c.food=Math.round(c.food*1.25);c.power=calcPower(c);addTeamNews(c.team,'🌾 Super-saison: +25% nourriture !','good');}});
-  if(ev.special==='foodCrisisPenalty')Object.values(gameState.countries).forEach(c=>{if(!c.eliminated&&c.food<200){const l=Math.round(c.power*0.35);c.power=Math.max(0,c.power-l);addTeamNews(c.team,`🚨 Famine: stocks trop faibles — −${l} pts !`,'bad');}});
+  if(ev.special==='foodCrisisPenalty')gameState._foodCrisisPending=true; // pénalité appliquée après consommation
   if(ev.special==='sanctionsSA'){
     Object.values(gameState.countries).forEach(c=>{if(!c.eliminated&&(c.tier==='S'||c.tier==='A')){c.treasury=Math.max(0,c.treasury-1200);c.power=calcPower(c);addTeamNews(c.team,'⚠️ Sanctions G20: −1200 or !','bad');}});
     const alive=Object.values(gameState.countries).filter(c=>!c.eliminated).sort((a,b)=>a.power-b.power).slice(0,4);
@@ -481,6 +481,8 @@ function applyPeriodTransition() {
     const need=getFoodConsumption(c);
     if(c.food>=need){c.food-=need;addTeamNews(c.team,`🍞 Consommation: −${need} nourriture (pop. ${c.population}M)`,'neutral');}
     else{const def=need-c.food;c.food=0;const loss=Math.round(def*(c.population/10)*2);c.power=Math.max(0,c.power-loss);addTeamNews(c.team,`⚠️ FAMINE ! −${def} nourr → −${loss} pts !`,'bad');addLog(`Famine: ${c.flag} −${loss} pts`,'event');}
+    // Pénalité crise alimentaire : appliquée APRÈS consommation
+    if(gameState._foodCrisisPending&&c.food<200){const l=Math.round(c.power*0.35);c.power=Math.max(0,c.power-l);addTeamNews(c.team,`🚨 Crise alimentaire: stocks critiques après consommation — −${l} pts !`,'bad');}
     const inc=getPassiveIncome(c,gameState.eventMod);
     c.treasury+=inc.total;
     addTeamNews(c.team,`💰 Revenus: Pétrole +${inc.oilInc} | Tourisme +${inc.tourInc} | Agriculture +${inc.agriInc} | Base +${inc.baseInc} = +${inc.total} or`,'good');
@@ -488,6 +490,7 @@ function applyPeriodTransition() {
     if(used===0&&c.team&&!gameState.isTutorial){c.power=Math.max(0,c.power-100);addTeamNews(c.team,'😴 Inactivité: −100 pts de puissance !','bad');}
     c.defense=false;c.combatBonus=0;c.power=calcPower(c);
   });
+  gameState._foodCrisisPending=false;
   gameState.teamActionsThisPeriod={};gameState.lastActionByTeam={};gameState.alliances={};
 }
 
@@ -861,13 +864,23 @@ io.on('connection',(socket)=>{
     const ev=pool.find(e=>e.id===eventId);if(!ev)return;
     if(!gameState.periodSequence||!gameState.periodSequence[period-1])return;
     gameState.periodSequence[period-1]=ev;
+    // Si la période est en cours, mettre à jour currentEvent aussi
+    if(gameState.currentPeriod===period&&gameState.currentEvent){
+      const p=PERIODS[period-1];
+      const prevCE=gameState.currentEvent;
+      gameState.currentEvent={...ev,periodName:p.name,periodSubtitle:p.subtitle,
+        periodDesc:PERIOD_DESCS[period-1],periodNumber:period,
+        hideEventFromPlayers:prevCE.hideEventFromPlayers,
+        nextHint:prevCE.nextHint,nextPrices:prevCE.nextPrices,
+        causalFromPrev:prevCE.causalFromPrev,prevEvTitle:prevCE.prevEvTitle};
+    }
     addLog(`✏️ P${period} → ${ev.title}`,'event');broadcast();
   });
 
   socket.on('mj:timerStart',({seconds})=>startServerTimer(seconds||gameState.timerSeconds));
   socket.on('mj:timerPause',()=>pauseServerTimer());
   socket.on('mj:timerReset',({seconds})=>resetServerTimer(seconds));
-  socket.on('mj:nextWarTurn',()=>nextWarTurn());
+  socket.on('mj:nextWarTurn',()=>{gameState._pendingNextTurn=false;nextWarTurn();});
   socket.on('mj:startWarTurns',()=>startWarTurn());
 
   // ── CHOICE RESPONSE — pénalité partielle si pas assez de ressources ──────
@@ -1027,10 +1040,12 @@ io.on('connection',(socket)=>{
     } else { att[rk]-=cost; }
     if(armyPenalty>0){att.army=Math.max(0,(att.army||0)-armyPenalty);}
     att.power=calcPower(att);
-    // Alliance offensive : +15% en combat pour TOUTES les attaques (pas de target spécifique)
+    // Alliance offensive : +15% pour cette attaque uniquement (reset après)
+    const savedCombatBonus=att.combatBonus||0;
     const offBonus=(myAlliance&&myAlliance.type==='offensive')?0.15:0;
-    if(offBonus>0)att.combatBonus=(att.combatBonus||0)+offBonus;
+    if(offBonus>0)att.combatBonus=savedCombatBonus+offBonus;
     const result=resolveCombat(att,def);
+    att.combatBonus=savedCombatBonus; // reset le bonus offensif temporaire après le combat
     const { winnerLoss, loserLoss } = calcCombatLosses(result.margin,
       result.attackerWins ? att.army : def.army,
       result.attackerWins ? def.army : att.army);
@@ -1083,14 +1098,19 @@ io.on('connection',(socket)=>{
     // Supprimer uniquement l'alliance offensive après attaque — le pacte de non-agression persiste
     if(gameState.alliances[teamName]?.type==='offensive') delete gameState.alliances[teamName];
     broadcast();checkWinner();
-    if(!gameState.gameOver)setTimeout(()=>nextWarTurn(),5000);
+    if(!gameState.gameOver){
+      gameState._pendingNextTurn=true;
+      setTimeout(()=>{
+        if(gameState._pendingNextTurn){gameState._pendingNextTurn=false;nextWarTurn();}
+      },5000);
+    }
   });
 
   socket.on('team:skipTurn',({teamName})=>{
     if(gameState.gamePaused){socket.emit('error','Partie en pause — attendez le MJ !');return;}
     const currentTurnTeam=gameState.warCycleOrder[gameState.warCurrentTurn];
     if(currentTurnTeam!==teamName)return;
-    addTeamNews(teamName,'Tour passé.','neutral');nextWarTurn();broadcast();checkWinner();
+    gameState._pendingNextTurn=false;addTeamNews(teamName,'Tour passé.','neutral');nextWarTurn();broadcast();checkWinner();
   });
 
   // ── MARKET ACTIONS ───────────────────────────────────────────────────────
@@ -1120,7 +1140,7 @@ io.on('connection',(socket)=>{
     if(!qty||qty<1){socket.emit('error','Quantité invalide !');return;}
     if(c[resource]<qty){socket.emit('error','Stock insuffisant !');return;}
     const price=gameState.prices[resource]||80;const total=price*qty;
-    gameState.lastActionByTeam[teamName]={treasury:c.treasury,oil:c.oil,food:c.food,tourism:c.tourism,agriculture:c.agriculture,army:c.army,atk:c.atk||0,def:c.def||0,militarySpent:c.militarySpent||0};
+    // La vente ne compte pas comme une action et ne sauvegarde pas lastActionByTeam
     c[resource]-=qty;c.treasury+=total;c.power=calcPower(c);
     addTeamNews(teamName,`💰 Vente: −${qty} ${resource} → +${total} or`,'good');
     socket.emit('actionFeedback',{type:'sell',resource,qty,total});broadcast();
