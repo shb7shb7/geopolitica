@@ -12,36 +12,47 @@
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width:100vw;height:100vh;overflow:hidden}
 .view{display:none;width:100vw;height:100vh;flex-direction:column}.view.active{display:flex}
 
-/* ══════════════════════════════════════════════════════════════
-   VIDEO OVERLAY — affiché AVANT la cinématique d'event
-══════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   VIDEO OVERLAY
+══════════════════════════════════════════════════════ */
 #video-overlay{
   position:fixed;inset:0;z-index:500;background:#000;
-  display:none;align-items:center;justify-content:center;flex-direction:column;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
 }
-#video-overlay.active{display:flex}
+#video-overlay.active{ display:flex; }
 
-#video-iframe-wrap{
-  position:relative;width:100vw;height:100vh;
-}
-#video-iframe{
-  width:100%;height:100%;border:none;
+#vid{
+  width:100vw;height:100vh;
+  object-fit:cover;
   display:block;
 }
-/* Bouton passer vidéo */
+
+/* Bouton passer */
 #video-skip-btn{
-  position:absolute;bottom:40px;right:40px;
-  font-size:11px;color:rgba(255,255,255,.35);letter-spacing:3px;cursor:pointer;
-  text-transform:uppercase;border:1px solid rgba(255,255,255,.1);padding:7px 16px;border-radius:3px;
-  background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+  position:absolute;bottom:44px;right:44px;
+  font-size:11px;color:rgba(255,255,255,.4);letter-spacing:3px;cursor:pointer;
+  text-transform:uppercase;border:1px solid rgba(255,255,255,.15);padding:8px 18px;
+  border-radius:3px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);
   transition:all .2s;z-index:10;font-family:'Cinzel',serif;
 }
-#video-skip-btn:hover{color:#fff;border-color:rgba(255,255,255,.4)}
-/* Barre de progression vidéo */
+#video-skip-btn:hover{color:#fff;border-color:rgba(255,255,255,.5)}
+
+/* Barre de progression */
 #video-progress{
-  position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.08);z-index:10;
+  position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:rgba(255,255,255,.07);z-index:10;
 }
-#video-progress-fill{height:100%;background:var(--gold);width:0%;transition:width linear}
+#video-progress-fill{
+  height:100%;background:var(--gold);width:0%;
+}
+
+/* Erreur fallback */
+#video-error{
+  display:none;position:absolute;inset:0;
+  align-items:center;justify-content:center;flex-direction:column;gap:12px;
+  background:#000;
+}
+#video-error p{color:rgba(255,255,255,.4);font-size:13px;letter-spacing:2px;text-transform:uppercase;}
 
 /* ── CINEMATIC ── */
 #cinematic{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column}
@@ -212,23 +223,21 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 <body>
 <div class="anim-flash" id="anim-flash"></div>
 
-<!-- ══════════════════════════════════════════════════════════════
-     VIDEO OVERLAY — affiché avant certaines cinématiques d'events
-══════════════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════════
+     VIDEO OVERLAY
+══════════════════════════════════════════════════ -->
 <div id="video-overlay">
-  <div id="video-iframe-wrap">
-    <iframe
-      id="video-iframe"
-      src=""
-      allow="autoplay; fullscreen"
-      allowfullscreen
-      frameborder="0"
-    ></iframe>
-    <div id="video-progress">
-      <div id="video-progress-fill"></div>
-    </div>
-    <div id="video-skip-btn" onclick="skipVideo()">Passer →</div>
+  <video id="vid" playsinline autoplay muted
+    style="width:100vw;height:100vh;object-fit:cover;display:block;">
+    <source id="vid-src" src="" type="video/mp4"/>
+  </video>
+  <div id="video-error">
+    <p>Chargement de la vidéo...</p>
   </div>
+  <div id="video-progress">
+    <div id="video-progress-fill"></div>
+  </div>
+  <div id="video-skip-btn" onclick="skipVideo()">Passer →</div>
 </div>
 
 <!-- CINEMATIC -->
@@ -397,100 +406,102 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);width
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════════════════════════
-// MAPPING EVENTS → VIDÉOS GOOGLE DRIVE
-// Remplacez FILE_ID_X par les vrais IDs de vos fichiers Google Drive
-// ══════════════════════════════════════════════════════════════════════════
-var EVENT_VIDEOS = {
-  // Media1.mp4 → Choc pétrolier
-  'oil_boom':    'FILE_ID_1',
-  // Media2.mp4 → Accord de libre-échange mondial
-  'free_trade':  'FILE_ID_2',
-  // Media3.mp4 → Crise alimentaire mondiale
-  'food_crisis': 'FILE_ID_3',
-  // Media4.mp4 → Crise humanitaire
-  'refugees':    'FILE_ID_4',
-  // Media5.mp4 → Grèves et soulèvements
-  'uprising':    'FILE_ID_5',
+// ══════════════════════════════════════════════════════════════════════
+// VIDÉOS — liens directs Google Drive (uc?export=download)
+// ══════════════════════════════════════════════════════════════════════
+const EVENT_VIDEOS = {
+  'oil_boom':    'https://drive.google.com/uc?export=download&id=1iT0LW4dPMFiSCx4E-ifB2-x4MndaK7eE',
+  'free_trade':  'https://drive.google.com/uc?export=download&id=1Bq-8SOjr81EygvarJjk2hUqPToU065HM',
+  'food_crisis': 'https://drive.google.com/uc?export=download&id=12A4qw1slX4aJd10qfSxBUCr1G6R0GeAl',
+  'refugees':    'https://drive.google.com/uc?export=download&id=1xkcD7vCuW6Tw0WkD7jEXuIj8y6CQygYi',
+  'uprising':    'https://drive.google.com/uc?export=download&id=1NCVeqGy4M46WICDQa1sJ6yX3rPg3m6u6',
 };
 
-// Durée des vidéos en millisecondes (ajustez selon la durée réelle de chaque vidéo)
-var VIDEO_DURATIONS = {
-  'oil_boom':    30000,
-  'free_trade':  30000,
-  'food_crisis': 30000,
-  'refugees':    30000,
-  'uprising':    30000,
-};
-
-// ══════════════════════════════════════════════════════════════════════════
-// ÉTAT VIDÉO
-// ══════════════════════════════════════════════════════════════════════════
-var videoPendingCinematic = null; // fonction à appeler après la vidéo
-var videoProgressTimer = null;
-var videoAutoSkipTimer = null;
+// ── État vidéo ─────────────────────────────────────────────────────────
+let _videoPendingFn = null;
+let _videoProgressAnim = null;
+let _videoAutoSkip = null;
 
 function showEventVideo(eventId, onComplete) {
-  var fileId = EVENT_VIDEOS[eventId];
-  if (!fileId || fileId.startsWith('FILE_ID')) {
-    // Pas de vidéo configurée → on lance directement la cinématique
-    if (onComplete) onComplete();
-    return;
-  }
+  const url = EVENT_VIDEOS[eventId];
+  if (!url) { if(onComplete) onComplete(); return; }
 
-  var duration = VIDEO_DURATIONS[eventId] || 30000;
-  videoPendingCinematic = onComplete;
+  _videoPendingFn = onComplete;
 
-  // URL d'intégration Google Drive
-  var src = 'https://drive.google.com/file/d/' + fileId + '/preview?autoplay=1';
-  var iframe = document.getElementById('video-iframe');
-  iframe.src = src;
+  const overlay = document.getElementById('video-overlay');
+  const vid     = document.getElementById('vid');
+  const src     = document.getElementById('vid-src');
+  const fill    = document.getElementById('video-progress-fill');
+  const errDiv  = document.getElementById('video-error');
 
-  // Afficher l'overlay
-  var overlay = document.getElementById('video-overlay');
-  overlay.classList.add('active');
-
-  // Barre de progression
-  var fill = document.getElementById('video-progress-fill');
+  // Reset
+  vid.pause();
+  src.src = url;
+  vid.load();
   fill.style.transition = 'none';
   fill.style.width = '0%';
-  setTimeout(function() {
-    fill.style.transition = 'width ' + (duration / 1000) + 's linear';
-    fill.style.width = '100%';
-  }, 100);
+  errDiv.style.display = 'none';
+  overlay.classList.add('active');
 
-  // Auto-skip après la durée configurée
-  if (videoAutoSkipTimer) clearTimeout(videoAutoSkipTimer);
-  videoAutoSkipTimer = setTimeout(skipVideo, duration);
+  // Lancement dès que possible
+  const playPromise = vid.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      // Autoplay bloqué → afficher bouton play ou skip direct
+      errDiv.style.display = 'flex';
+    });
+  }
+
+  // Barre de progression liée à la durée réelle de la vidéo
+  vid.onloadedmetadata = function() {
+    const dur = vid.duration * 1000; // ms
+    fill.style.transition = 'none';
+    fill.style.width = '0%';
+    requestAnimationFrame(() => {
+      fill.style.transition = `width ${vid.duration}s linear`;
+      fill.style.width = '100%';
+    });
+    // Auto-skip à la fin
+    if (_videoAutoSkip) clearTimeout(_videoAutoSkip);
+    _videoAutoSkip = setTimeout(skipVideo, dur + 300);
+  };
+
+  // Skip automatique si fin de vidéo
+  vid.onended = skipVideo;
+
+  // Erreur de chargement → skip directement
+  vid.onerror = function() {
+    console.warn('Vidéo inaccessible, passage à la cinématique.');
+    skipVideo();
+  };
 }
 
 function skipVideo() {
-  if (videoAutoSkipTimer) { clearTimeout(videoAutoSkipTimer); videoAutoSkipTimer = null; }
+  if (_videoAutoSkip) { clearTimeout(_videoAutoSkip); _videoAutoSkip = null; }
 
-  // Arrêter la vidéo en vidant le src
-  var iframe = document.getElementById('video-iframe');
-  iframe.src = '';
+  const overlay = document.getElementById('video-overlay');
+  const vid     = document.getElementById('vid');
+  const src     = document.getElementById('vid-src');
 
-  // Masquer l'overlay
-  var overlay = document.getElementById('video-overlay');
+  vid.pause();
+  src.src = '';
+  vid.load();
   overlay.classList.remove('active');
 
-  // Reset barre
-  var fill = document.getElementById('video-progress-fill');
+  const fill = document.getElementById('video-progress-fill');
   fill.style.transition = 'none';
   fill.style.width = '0%';
 
-  // Lancer la cinématique en attente
-  if (videoPendingCinematic) {
-    var fn = videoPendingCinematic;
-    videoPendingCinematic = null;
+  if (_videoPendingFn) {
+    const fn = _videoPendingFn;
+    _videoPendingFn = null;
     fn();
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════
-// SYSTÈME EXISTANT
-// ══════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════
+// SOCKET + ÉTAT
+// ══════════════════════════════════════════════════════════════════════
 const socket = io();
 let state = {}, timerSec = 600, timerTotal = 600, lastPhase = null, lastPeriod = 0;
 let currentWarTurnTeam = null, currentWarTurnSeconds = 45;
@@ -507,21 +518,14 @@ const MAP_POS = {
   saudi:{x:574,y:192}, qatar:{x:590,y:180},
   pakistan:{x:640,y:178}, india:{x:668,y:215}, china:{x:798,y:138},
   thailand:{x:760,y:225}, singapore:{x:798,y:270},
-  japan:{x:910,y:104},
-  australia:{x:878,y:408},
+  japan:{x:910,y:104}, australia:{x:878,y:408},
 };
 const COLORS = {
-  usa:'#3b82f6', canada:'#60a5fa', mexico:'#f43f5e',
-  brazil:'#22c55e', argentina:'#34d399', colombia:'#4ade80',
-  germany:'#f59e0b', france:'#ec4899', uk:'#818cf8',
-  belgium:'#fbbf24', russia:'#8b5cf6', turkey:'#84cc16',
-  morocco:'#fbbf24', algeria:'#d4a574', niger:'#a3a3a3',
-  guinea:'#34d399',
-  saudi:'#a78bfa', qatar:'#06b6d4',
-  pakistan:'#fb923c', india:'#f97316', china:'#ef4444',
-  thailand:'#facc15', singapore:'#2dd4bf',
-  japan:'#f97316',
-  australia:'#22d3ee',
+  usa:'#3b82f6',canada:'#60a5fa',mexico:'#f43f5e',brazil:'#22c55e',argentina:'#34d399',
+  colombia:'#4ade80',germany:'#f59e0b',france:'#ec4899',uk:'#818cf8',belgium:'#fbbf24',
+  russia:'#8b5cf6',turkey:'#84cc16',morocco:'#fbbf24',algeria:'#d4a574',niger:'#a3a3a3',
+  guinea:'#34d399',saudi:'#a78bfa',qatar:'#06b6d4',pakistan:'#fb923c',india:'#f97316',
+  china:'#ef4444',thailand:'#facc15',singapore:'#2dd4bf',japan:'#f97316',australia:'#22d3ee',
 };
 
 socket.on('state', s => { state = s; onUpdate(); });
@@ -536,8 +540,11 @@ socket.on('timer', ({seconds, ended}) => {
   timerSec = seconds; updateTimers();
   if(ended) flashTimerEnd();
 });
-socket.on('attackAnimation', ({attackerId,defenderId,success,scoreAtt,scoreDef,firstBlood}) => showBattle(attackerId,defenderId,success,scoreAtt,scoreDef,firstBlood));
-socket.on('winner', ({winners,type}) => { if(!gameOver){gameOver=true;hideCinematic();showWinner(winners,type);} });
+socket.on('attackAnimation', ({attackerId,defenderId,success,scoreAtt,scoreDef,firstBlood}) =>
+  showBattle(attackerId,defenderId,success,scoreAtt,scoreDef,firstBlood));
+socket.on('winner', ({winners,type}) => {
+  if(!gameOver){gameOver=true;hideCinematic();showWinner(winners,type);}
+});
 socket.on('warTurn', ({team,seconds,turnIndex,total}) => {
   currentWarTurnTeam = team; currentWarTurnSeconds = seconds;
   updateWarTicker(team, seconds, turnIndex, total);
@@ -549,89 +556,116 @@ socket.on('warTurnTimer', ({seconds,team}) => {
   if(cd){cd.textContent = seconds; cd.className='wtt-cd'+(seconds<10?' urgent':'');}
   if(team===currentWarTurnTeam && state.phase==='war') renderWar();
 });
-socket.on('countryDrafted', () => { renderDraftTeams(); });
+socket.on('countryDrafted', () => renderDraftTeams());
 
-function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');}
+// ── Vues ───────────────────────────────────────────────────────────────
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
 
-// ── CINÉMATIQUE ───────────────────────────────────────────────────────────
+// ── Cinématique ────────────────────────────────────────────────────────
 function showCinematic(opts, dur) {
   const cin = document.getElementById('cinematic');
   document.getElementById('cin-bg').style.background = opts.bg||'radial-gradient(ellipse at center,#0a1628,#000)';
   document.getElementById('cin-overline').textContent = opts.overline||'';
-  document.getElementById('cin-title').textContent = opts.title||'';
-  document.getElementById('cin-subtitle').textContent = opts.subtitle||'';
-  document.getElementById('cin-effect').textContent = opts.effect||'';
+  document.getElementById('cin-title').textContent   = opts.title||'';
+  document.getElementById('cin-subtitle').textContent= opts.subtitle||'';
+  document.getElementById('cin-effect').textContent  = opts.effect||'';
   const hintEl = document.getElementById('cin-hint');
   if(opts.hint){document.getElementById('cin-hint-text').textContent=opts.hint;hintEl.style.display='block';}
   else hintEl.style.display='none';
   cin.className = opts.war?'active cin-war':opts.negoc?'active cin-negoc':'active';
   const pp = document.getElementById('cin-particles'); pp.innerHTML='';
-  for(let i=0;i<20;i++){const p=document.createElement('div');p.className='cin-particle';const drift=(Math.random()-0.5)*200;p.style.cssText=`left:${Math.random()*100}%;animation-duration:${3+Math.random()*4}s;animation-delay:${Math.random()*3}s;--drift:${drift}px;background:${opts.war?'#f87171':opts.negoc?'#60a5fa':'#c9a84c'}`;pp.appendChild(p);}
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div'); p.className='cin-particle';
+    const drift=(Math.random()-0.5)*200;
+    p.style.cssText=`left:${Math.random()*100}%;animation-duration:${3+Math.random()*4}s;animation-delay:${Math.random()*3}s;--drift:${drift}px;background:${opts.war?'#f87171':opts.negoc?'#60a5fa':'#c9a84c'}`;
+    pp.appendChild(p);
+  }
   const pf = document.getElementById('cin-progress-fill');
-  if(pf){pf.style.transition='none';pf.style.width='0%';setTimeout(()=>{pf.style.transition=`width ${dur/1000}s linear`;pf.style.width='100%';},50);}
-  if(cinematicTimeout)clearTimeout(cinematicTimeout);
+  if(pf){pf.style.transition='none';pf.style.width='0%';
+    setTimeout(()=>{pf.style.transition=`width ${dur/1000}s linear`;pf.style.width='100%';},50);}
+  if(cinematicTimeout) clearTimeout(cinematicTimeout);
   if(dur) cinematicTimeout = setTimeout(hideCinematic, dur);
 }
 function hideCinematic(){
   if(cinematicTimeout){clearTimeout(cinematicTimeout);cinematicTimeout=null;}
   document.getElementById('cinematic').className='';
-  const pf=document.getElementById('cin-progress-fill');if(pf){pf.style.transition='none';pf.style.width='0%';}
+  const pf=document.getElementById('cin-progress-fill');
+  if(pf){pf.style.transition='none';pf.style.width='0%';}
 }
 
-// ── Wrapper : vidéo PUIS cinématique ─────────────────────────────────────
-function showVideoThenCinematic(eventId, cinematicOpts, cinematicDur) {
-  showEventVideo(eventId, function() {
-    showCinematic(cinematicOpts, cinematicDur);
-  });
+// ── Vidéo PUIS cinématique ─────────────────────────────────────────────
+function showVideoThenCinematic(eventId, opts, dur) {
+  showEventVideo(eventId, () => showCinematic(opts, dur));
 }
 
+// ── Timers ─────────────────────────────────────────────────────────────
 function updateTimers(){
   const m=Math.floor(timerSec/60),s=timerSec%60;
   const fmt=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   const urgent=timerSec<60;
-  ['sc-timer','war-timer'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=fmt;el.className=(id==='sc-timer'?'timer-val':'war-timer')+(urgent?' urgent':'');}});
-  const bar=document.getElementById('sc-timer-bar');if(bar)bar.style.width=Math.max(0,timerSec/timerTotal*100)+'%';
+  ['sc-timer','war-timer'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.textContent=fmt;el.className=(id==='sc-timer'?'timer-val':'war-timer')+(urgent?' urgent':'');}
+  });
+  const bar=document.getElementById('sc-timer-bar');
+  if(bar) bar.style.width=Math.max(0,timerSec/timerTotal*100)+'%';
 }
-function flashTimerEnd(){['sc-timer','war-timer'].forEach(id=>{const el=document.getElementById(id);if(el){el.style.color='#f87171';setTimeout(()=>{el.style.color='';},4000);}});}
+function flashTimerEnd(){
+  ['sc-timer','war-timer'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.style.color='#f87171';setTimeout(()=>{el.style.color='';},4000);}
+  });
+}
 
+// ── War ticker ─────────────────────────────────────────────────────────
 function updateWarTicker(team, seconds, turnIndex, total) {
   const c = state.countries&&Object.values(state.countries).find(c=>c.team===team);
   document.getElementById('wtt-flag').textContent = c?.flag||'';
-  document.getElementById('wtt-name').textContent = (c?.name||team)+' — '+(c?'Équipe '+team:'');
+  document.getElementById('wtt-name').textContent = (c?.name||team);
   document.getElementById('wtt-cd').textContent = seconds;
   const order = document.getElementById('wtt-order'); order.innerHTML='';
-  if(total>0){
-    for(let i=0;i<total;i++){
-      const d=document.createElement('div');
-      d.className='wtt-dot'+(i===turnIndex?' active':i<turnIndex?' done':'');
-      order.appendChild(d);
-    }
+  if(total>0) for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='wtt-dot'+(i===turnIndex?' active':i<turnIndex?' done':'');
+    order.appendChild(d);
   }
 }
 
+// ── Battle popup ───────────────────────────────────────────────────────
 function showBattle(attId,defId,success,scoreAtt,scoreDef,firstBlood){
-  const fl=document.getElementById('anim-flash');fl.className='anim-flash flash';setTimeout(()=>fl.className='anim-flash',4200);
-  const att=state.countries&&state.countries[attId];const def=state.countries&&state.countries[defId];if(!att||!def)return;
+  const fl=document.getElementById('anim-flash');
+  fl.className='anim-flash flash';setTimeout(()=>fl.className='anim-flash',4200);
+  const att=state.countries&&state.countries[attId];
+  const def=state.countries&&state.countries[defId];if(!att||!def)return;
   const p=document.getElementById('battle-popup');p.className='battle-popup show';
   document.getElementById('bp-icon').textContent=success?(firstBlood?'⚔️':'💥'):'🛡️';
   document.getElementById('bp-title').textContent=success?(firstBlood?'Premier Assaut !':'Victoire écrasante !'):'Attaque repoussée !';
   document.getElementById('bp-flags').textContent=att.flag+' ⚔️ '+def.flag;
   const resultLine=success
-    ?(firstBlood?`<span style="color:#fbbf24">⚔️ Pillage partiel (50%) — ${def.flag} ${def.name} survit !</span>`:`<span style="color:var(--gold)">🏴 Toutes ressources pillées !</span>`)
+    ?(firstBlood?`<span style="color:#fbbf24">⚔️ Pillage partiel (50%) — ${def.flag} ${def.name} survit !</span>`
+                :`<span style="color:var(--gold)">🏴 Toutes ressources pillées !</span>`)
     :`<span style="color:#60a5fa">🛡️ La défense a tenu !</span>`;
   document.getElementById('bp-scores').innerHTML=
     `<span style="color:${success?'#4ade80':'#f87171'}">${att.flag} ${att.name}: ${scoreAtt.toLocaleString()} pts</span><br>`+
     `<span style="color:${success?'#f87171':'#4ade80'}">${def.flag} ${def.name}: ${scoreDef.toLocaleString()} pts</span><br><br>`+resultLine;
-  const fb=document.getElementById('bp-firstblood');if(fb)fb.style.display=firstBlood?'block':'none';
+  const fb=document.getElementById('bp-firstblood');
+  if(fb) fb.style.display=firstBlood?'block':'none';
   setTimeout(()=>p.classList.remove('show'),16000);
 }
 
+// ── Winner ────────────────────────────────────────────────────────────
 function showWinner(winners,type){
   showView('view-winner');
   const isAlliance=type==='alliance'||winners.length>1;
   document.getElementById('winner-flag').textContent=winners.map(w=>w.flag).join(' 🤝 ');
-  document.getElementById('winner-title').textContent=isAlliance?`${winners.map(w=>w.name).join(' & ')} — Double Victoire !`:winners[0].name+' remporte Geopolitica !';
-  document.getElementById('winner-subtitle').textContent=isAlliance?'Alliance de non-agression — deux champions du monde !':'Dernier empire sur Terre';
+  document.getElementById('winner-title').textContent=isAlliance
+    ?`${winners.map(w=>w.name).join(' & ')} — Double Victoire !`
+    :winners[0].name+' remporte Geopolitica !';
+  document.getElementById('winner-subtitle').textContent=isAlliance
+    ?'Alliance de non-agression — deux champions du monde !':'Dernier empire sur Terre';
   const w=winners[0];
   document.getElementById('winner-stats').innerHTML=
     `<div class="winner-stat"><div class="winner-stat-label">Puissance</div><div class="winner-stat-val">${w.power.toLocaleString()}</div></div>`+
@@ -650,9 +684,14 @@ function showWinner(winners,type){
     </div>`).join('');
   const cc=document.getElementById('winner-confetti');cc.innerHTML='';
   const colors=['#c9a84c','#f87171','#4ade80','#60a5fa','#f59e0b','#a78bfa'];
-  for(let i=0;i<60;i++){const p=document.createElement('div');p.className='confetti-piece';p.style.cssText=`left:${Math.random()*100}%;top:-20px;background:${colors[Math.floor(Math.random()*colors.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;animation-duration:${3+Math.random()*5}s;animation-delay:${Math.random()*4}s;border-radius:${Math.random()>.5?'50%':'0'}`;cc.appendChild(p);}
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div');p.className='confetti-piece';
+    p.style.cssText=`left:${Math.random()*100}%;top:-20px;background:${colors[Math.floor(Math.random()*colors.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;animation-duration:${3+Math.random()*5}s;animation-delay:${Math.random()*4}s;border-radius:${Math.random()>.5?'50%':'0'}`;
+    cc.appendChild(p);
+  }
 }
 
+// ── Draft teams ────────────────────────────────────────────────────────
 function renderDraftTeams(){
   const grid=document.getElementById('draft-teams-grid');if(!grid)return;
   const countries=state.countries||{};
@@ -678,19 +717,30 @@ function renderDraftTeams(){
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════
-// onUpdate — point central : décide si une vidéo doit précéder la cinématique
-// ══════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════
+// onUpdate — décide vidéo + cinématique selon l'event
+// ══════════════════════════════════════════════════════════════════════
 function onUpdate(){
   if(gameOver)return;
-  if(state.gameOver&&state.winners&&state.winners.length>0){gameOver=true;hideCinematic();showWinner(state.winners,state.winners.length>1?'alliance':'solo');return;}
+  if(state.gameOver&&state.winners&&state.winners.length>0){
+    gameOver=true;hideCinematic();
+    showWinner(state.winners,state.winners.length>1?'alliance':'solo');return;
+  }
 
   if(state.phase!==lastPhase){
     if(state.phase==='war'&&lastPhase!=='war'){
-      showCinematic({war:true,overline:'Alerte Mondiale · Breaking News',bg:'radial-gradient(ellipse at center,#1a0205,#000)',title:'La Guerre est Déclarée',subtitle:'Le monde tel que nous le connaissions vient de basculer. Quinze nations. Une seule survivra.',effect:'⚔️ Que le meilleur règne sur le monde'},20000);
+      showCinematic({war:true,overline:'Alerte Mondiale · Breaking News',
+        bg:'radial-gradient(ellipse at center,#1a0205,#000)',
+        title:'La Guerre est Déclarée',
+        subtitle:'Le monde tel que nous le connaissions vient de basculer. Quinze nations. Une seule survivra.',
+        effect:'⚔️ Que le meilleur règne sur le monde'},20000);
       setTimeout(()=>showView('view-war'),600);
     } else if(state.phase==='negotiation'){
-      showCinematic({negoc:true,overline:'Phase diplomatique · Avant la guerre',bg:'radial-gradient(ellipse at center,#0a1628,#000)',title:'Phase de Négociation',subtitle:'La guerre est imminente. Dernier moment pour former des alliances.',effect:'🕊️ Proposez vos alliances maintenant'},15000);
+      showCinematic({negoc:true,overline:'Phase diplomatique · Avant la guerre',
+        bg:'radial-gradient(ellipse at center,#0a1628,#000)',
+        title:'Phase de Négociation',
+        subtitle:'La guerre est imminente. Dernier moment pour former des alliances.',
+        effect:'🕊️ Proposez vos alliances maintenant'},15000);
       setTimeout(()=>{hideCinematic();showView('view-negotiation');},600);
       negocRevealDone=false;negocRevealIdx=0;
     } else if(state.phase==='prosperity'){
@@ -702,9 +752,9 @@ function onUpdate(){
     lastPhase=state.phase;
   }
 
-  // ── Cinématique de période (avec vidéo si event concerné) ───────────────
-  if(state.currentPeriod!==lastPeriod&&state.currentPeriod>0&&state.phase==='prosperity'){
-    const ev=state.currentEvent;
+  // ── Cinématique de période (avec vidéo si event concerné) ────────────
+  if(state.currentPeriod!==lastPeriod && state.currentPeriod>0 && state.phase==='prosperity'){
+    const ev = state.currentEvent;
     const eventId = ev ? ev.id : null;
     const themes=[
       {overline:'Période 1 · Année 1',bg:'radial-gradient(ellipse at center,#0a1628,#000)'},
@@ -714,33 +764,33 @@ function onUpdate(){
       {overline:'Période 5 · Année 5',bg:'radial-gradient(ellipse at center,#1a0e00,#000)'},
       {overline:'Période 6 · Année 6',bg:'radial-gradient(ellipse at center,#1a0208,#000)'},
     ];
-    const theme=themes[(state.currentPeriod-1)%themes.length];
+    const theme = themes[(state.currentPeriod-1)%themes.length];
     const cinematicOpts = {
-      overline:theme.overline, bg:theme.bg,
-      title:ev?.periodName||'Nouvelle Période',
-      subtitle:ev?.periodDesc||'',
-      effect:ev?.title?`⚡ ${ev.title}`:'',
-      hint:ev?.nextHint||null,
+      overline: theme.overline, bg: theme.bg,
+      title:    ev?.periodName||'Nouvelle Période',
+      subtitle: ev?.periodDesc||'',
+      effect:   ev?.title ? `⚡ ${ev.title}` : '',
+      hint:     ev?.nextHint||null,
     };
-    const cinematicDur = 18000;
 
-    // Si cet event a une vidéo → vidéo d'abord, puis cinématique
-    if(eventId && EVENT_VIDEOS[eventId] && !EVENT_VIDEOS[eventId].startsWith('FILE_ID')) {
-      showVideoThenCinematic(eventId, cinematicOpts, cinematicDur);
+    // Vidéo d'abord si cet event en a une, sinon cinématique directe
+    if(eventId && EVENT_VIDEOS[eventId]) {
+      showVideoThenCinematic(eventId, cinematicOpts, 18000);
     } else {
-      showCinematic(cinematicOpts, cinematicDur);
+      showCinematic(cinematicOpts, 18000);
     }
 
-    timerTotal=600;lastPeriod=state.currentPeriod;
+    timerTotal=600; lastPeriod=state.currentPeriod;
   }
 
-  if(state.phase==='prosperity')renderProsperity();
-  if(state.phase==='war')renderWar();
+  if(state.phase==='prosperity') renderProsperity();
+  if(state.phase==='war')        renderWar();
   if(state.phase==='negotiation')renderNegotiation();
-  if(state.phase==='draft'||state.phase==='setup')renderDraftTeams();
-  if(state.phase==='draft')document.getElementById('wait-sub-text').textContent='Phase de draft — choisissez votre nation';
+  if(state.phase==='draft'||state.phase==='setup') renderDraftTeams();
+  if(state.phase==='draft') document.getElementById('wait-sub-text').textContent='Phase de draft — choisissez votre nation';
 }
 
+// ── Prosperity ─────────────────────────────────────────────────────────
 function renderProsperity(){
   const countries=state.countries||{};
   const alive=Object.values(countries).filter(c=>c.team&&!c.eliminated);
@@ -769,7 +819,6 @@ function renderProsperity(){
     if(ev.nextHint){document.getElementById('sc-hint-text').textContent=ev.nextHint;hintBlock.style.display='block';}
     else hintBlock.style.display='none';
   }
-
   const teamActions=state.teamActionsThisPeriod||{};
   const foodWarnings=new Set();
   Object.values(countries).forEach(c=>{if(c.team&&!c.eliminated){const need=Math.max(3,Math.round(c.population/6));if(c.food<need*1.5)foodWarnings.add(c.team);}});
@@ -782,12 +831,11 @@ function renderProsperity(){
     const isHungry=foodWarnings.has(c.team);
     const isBroke=c.treasury<400;
     const warReady=c.treasury>=600;
-    const isProsperity=state.phase==='prosperity';
     const badges=[
       `<span class="lb-badge ${actCls}">${actTxt}</span>`,
       isHungry?`<span class="lb-badge hungry">🍞 famine</span>`:'',
       isBroke?`<span class="lb-badge broke">💸 peu d\'or</span>`:'',
-      (isProsperity&&state.currentPeriod>=4)?warReady?`<span class="lb-badge war-ready">⚔️ prêt</span>`:`<span class="lb-badge war-low">⚔️ <600</span>`:'',
+      (state.currentPeriod>=4)?warReady?`<span class="lb-badge war-ready">⚔️ prêt</span>`:`<span class="lb-badge war-low">⚔️ <600</span>`:'',
     ].filter(Boolean).join('');
     return `<div class="lb-item ${i===0?'first':''}">
       <div class="lb-main">
@@ -807,13 +855,13 @@ function renderProsperity(){
   }).join('');
 }
 
+// ── Negotiation ────────────────────────────────────────────────────────
 function renderNegotiation(){
   const ranking=state.negotiationRanking||[];
   if(!ranking.length||negocRevealDone)return;
   startNegocReveal(ranking);
   negocRevealDone=true;
 }
-
 function startNegocReveal(ranking){
   negocRevealIdx=0;
   if(negocRevealTimer)clearTimeout(negocRevealTimer);
@@ -847,6 +895,7 @@ function startNegocReveal(ranking){
   revealNext();
 }
 
+// ── War ────────────────────────────────────────────────────────────────
 function renderWar(){
   const countries=state.countries||{};
   const teams=Object.values(countries).filter(c=>c.team);
@@ -887,14 +936,8 @@ function renderMap(teams){
     const color=COLORS[c.id]||'#fff';
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');
     if(!c.eliminated){const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');ring.setAttribute('cx',pos.x);ring.setAttribute('cy',pos.y);ring.setAttribute('r','28');ring.setAttribute('fill',color);ring.setAttribute('opacity','0.1');g.appendChild(ring);}
-    const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    dot.setAttribute('cx',pos.x);dot.setAttribute('cy',pos.y);dot.setAttribute('r','9');
-    dot.setAttribute('fill',c.eliminated?'#1a0408':color);dot.setAttribute('stroke','rgba(0,0,0,0.5)');dot.setAttribute('stroke-width','1.5');
-    if(!c.eliminated)dot.setAttribute('filter','url(#glow)');g.appendChild(dot);
-    if(currentWarTurnTeam&&c.team===currentWarTurnTeam&&!c.eliminated){
-      const pulse=document.createElementNS('http://www.w3.org/2000/svg','circle');
-      pulse.setAttribute('cx',pos.x);pulse.setAttribute('cy',pos.y);pulse.setAttribute('r','20');pulse.setAttribute('fill','none');pulse.setAttribute('stroke',color);pulse.setAttribute('stroke-width','2');pulse.setAttribute('opacity','0.6');g.appendChild(pulse);
-    }
+    const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');dot.setAttribute('cx',pos.x);dot.setAttribute('cy',pos.y);dot.setAttribute('r','9');dot.setAttribute('fill',c.eliminated?'#1a0408':color);dot.setAttribute('stroke','rgba(0,0,0,0.5)');dot.setAttribute('stroke-width','1.5');if(!c.eliminated)dot.setAttribute('filter','url(#glow)');g.appendChild(dot);
+    if(currentWarTurnTeam&&c.team===currentWarTurnTeam&&!c.eliminated){const pulse=document.createElementNS('http://www.w3.org/2000/svg','circle');pulse.setAttribute('cx',pos.x);pulse.setAttribute('cy',pos.y);pulse.setAttribute('r','20');pulse.setAttribute('fill','none');pulse.setAttribute('stroke',color);pulse.setAttribute('stroke-width','2');pulse.setAttribute('opacity','0.6');g.appendChild(pulse);}
     const flag=document.createElementNS('http://www.w3.org/2000/svg','text');flag.setAttribute('x',pos.x);flag.setAttribute('y',pos.y-18);flag.setAttribute('text-anchor','middle');flag.setAttribute('font-size','16');flag.setAttribute('opacity',c.eliminated?'0.1':'1');flag.textContent=c.flag;g.appendChild(flag);
     const nm=document.createElementNS('http://www.w3.org/2000/svg','text');nm.setAttribute('x',pos.x);nm.setAttribute('y',pos.y+22);nm.setAttribute('text-anchor','middle');nm.setAttribute('font-size','7');nm.setAttribute('fill',c.eliminated?'#1a0408':color);nm.setAttribute('font-family','Cinzel,serif');nm.setAttribute('letter-spacing','0.5');nm.textContent=c.name.toUpperCase();g.appendChild(nm);
     const team=document.createElementNS('http://www.w3.org/2000/svg','text');team.setAttribute('x',pos.x);team.setAttribute('y',pos.y+31);team.setAttribute('text-anchor','middle');team.setAttribute('font-size','6');team.setAttribute('fill','rgba(201,168,76,0.45)');team.textContent=c.team||'';g.appendChild(team);
