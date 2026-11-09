@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Geopolitica · Maître du jeu</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/mj.css">
+<script src="/socket.io/socket.io.js"></script>
+<script type="module" src="/js/mj.js"></script>
+</head>
+<body>
+
+<section id="login" class="login">
+  <form id="login-form" class="card stack">
+    <h1 class="logo" style="font-size:28px;text-align:center">Geopolitica</h1>
+    <p class="muted small" style="text-align:center;margin:0">Espace maître du jeu</p>
+    <input class="input" id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="PIN" required>
+    <button class="btn btn-gold btn-block" type="submit">Entrer</button>
+    <p class="tiny dim" style="margin:0">Le PIN est défini par la variable d'environnement <code>MJ_PIN</code> du serveur (ou affiché dans ses logs au démarrage).</p>
+  </form>
+</section>
+
+<section id="app" hidden>
+  <header class="mj-top">
+    <span class="logo" style="font-size:18px">Geopolitica</span>
+    <span class="badge badge-gold" id="phase"></span>
+    <span id="session" class="session"></span>
+    <span class="grow"></span>
+    <a class="btn btn-sm" href="/screen" target="_blank" rel="noopener">🖥️ Écran</a>
+    <button class="btn btn-sm" id="btn-pause"></button>
+    <button class="btn btn-sm btn-red" id="btn-reset">Reset</button>
+  </header>
+  <main class="mj-grid">
+    <div class="mj-col">
+      <div class="card" id="next-step"></div>
+      <div class="card" id="timer-card">
+        <div class="card-title">Chronomètre</div>
+        <div class="row-between wrap">
+          <div class="big-timer num" id="timer">--:--</div>
+          <div class="row wrap">
+            <button class="btn btn-sm btn-green" id="t-start">▶ Lancer</button>
+            <button class="btn btn-sm" id="t-pause">⏸ Stop</button>
+            <input class="input input-num" id="t-min" type="number" min="1" max="60" value="10">
+            <button class="btn btn-sm" id="t-set">Régler (min)</button>
+          </div>
+        </div>
+        <div class="bar" style="margin-top:8px"><i id="timer-bar"></i></div>
+      </div>
+      <div class="card" id="period-card" hidden></div>
+      <div class="card" id="war-card" hidden>
+        <div class="card-title">Guerre</div>
+        <div id="war-info"></div>
+        <div class="mj-map" id="mj-map"></div>
+      </div>
+      <div class="card" id="sequence-card" hidden></div>
+    </div>
+    <div class="mj-col">
+      <div class="card"><div class="card-title">Nations</div><div id="nations"></div></div>
+      <div class="card">
+        <div class="card-title">Outils</div>
+        <div class="stack">
+          <div class="row"><select class="select" id="tool-nation"></select></div>
+          <div class="row">
+            <input class="input input-num" id="tool-amount" type="number" value="500" step="100">
+            <button class="btn btn-sm btn-green" id="tool-plus">+ or</button>
+            <button class="btn btn-sm btn-red" id="tool-minus">− or</button>
+            <span class="grow"></span>
+            <button class="btn btn-sm btn-red" id="tool-elim">Éliminer</button>
+          </div>
+          <div class="row"><select class="select" id="tool-team"></select><button class="btn btn-sm btn-red" id="tool-kick">Retirer l'équipe</button></div>
+        </div>
+      </div>
+      <div class="card"><div class="card-title">Journal</div><div id="log" class="log"></div></div>
+    </div>
+  </main>
+</section>
+
+</body>
+</html>

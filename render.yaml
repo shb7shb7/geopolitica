@@ -1,0 +1,14 @@
+# Déploiement Render (https://render.com) : New + → Blueprint → sélectionner ce dépôt.
+services:
+  - type: web
+    name: geopolitica
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: MJ_PIN
+        sync: false # à saisir dans le tableau de bord Render (6 chiffres ou plus conseillés)
+      - key: NODE_VERSION
+        value: "22"
